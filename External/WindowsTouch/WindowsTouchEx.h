@@ -1,13 +1,13 @@
 /*
-* @author Valentin Simonov / http://va.lent.in/
+* @author Jorrit de Vries (jorrit@jorritdevries.com)
 */
+
+#pragma once
 
 #define WINVER				_WIN32_WINNT_WIN7
 #define _WIN32_WINNT		_WIN32_WINNT_WIN7
 
 #include <windows.h>
-
-#define EXPORT_API __declspec(dllexport) 
 
 typedef enum
 {
@@ -140,10 +140,6 @@ typedef BOOL(WINAPI* GET_POINTER_INFO)(UINT32 pointerId, POINTER_INFO* pointerIn
 typedef BOOL(WINAPI* GET_POINTER_TOUCH_INFO)(UINT32 pointerId, POINTER_TOUCH_INFO* pointerInfo);
 typedef BOOL(WINAPI* GET_POINTER_PEN_INFO)(UINT32 pointerId, POINTER_PEN_INFO* pointerInfo);
 
-GET_POINTER_INFO			GetPointerInfo;
-GET_POINTER_TOUCH_INFO		GetPointerTouchInfo;
-GET_POINTER_PEN_INFO		GetPointerPenInfo;
-
 // </Windows 8 touch API>
 
 struct Vector2
@@ -168,18 +164,3 @@ struct PointerData
 	INT32					tiltX;
 	INT32					tiltY;
 };
-
-typedef void(__stdcall* PointerDelegatePtr)(int id, UINT32 event, POINTER_INPUT_TYPE type, Vector2 position, PointerData data);
-typedef void(__stdcall* LogFuncPtr)(BSTR log);
-
-namespace WindowsTouchEx
-{
-	class Window;
-}
-
-extern "C"
-{
-	EXPORT_API WindowsTouchEx::Window* __stdcall createWindow(HWND hWnd, TOUCH_API api, LogFuncPtr log, PointerDelegatePtr delegate);
-	EXPORT_API void __stdcall setScreenParams(WindowsTouchEx::Window* window, int width, int height, float offsetX, float offsetY, float scaleX, float scaleY);
-	EXPORT_API void __stdcall disposeWindow(WindowsTouchEx::Window* window);
-}

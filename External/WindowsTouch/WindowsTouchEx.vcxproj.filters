@@ -15,10 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="WindowsTouchEx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="WindowsTouchExWindow.cpp">
+    <ClCompile Include="WindowsTouchExWindowTouchHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -26,7 +23,10 @@
     <ClInclude Include="WindowsTouchEx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WindowsTouchExWindow.h">
+    <ClInclude Include="WindowsTouchExWindowTouchHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsTouchExCommon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
