@@ -28,31 +28,31 @@ typedef enum
 #define GET_POINTERID_WPARAM(wParam)	(LOWORD(wParam))
 
 typedef enum {
-	PT_POINTER				= 0x00000001,
-	PT_TOUCH				= 0x00000002,
-	PT_PEN					= 0x00000003,
-	PT_MOUSE				= 0x00000004,
-	PT_TOUCHPAD				= 0x00000005
+	PT_POINTER = 0x00000001,
+	PT_TOUCH = 0x00000002,
+	PT_PEN = 0x00000003,
+	PT_MOUSE = 0x00000004,
+	PT_TOUCHPAD = 0x00000005
 } POINTER_INPUT_TYPE;
 
 typedef enum {
-	POINTER_FLAG_NONE		= 0x00000000,
-	POINTER_FLAG_NEW		= 0x00000001,
-	POINTER_FLAG_INRANGE	= 0x00000002,
-	POINTER_FLAG_INCONTACT	= 0x00000004,
+	POINTER_FLAG_NONE = 0x00000000,
+	POINTER_FLAG_NEW = 0x00000001,
+	POINTER_FLAG_INRANGE = 0x00000002,
+	POINTER_FLAG_INCONTACT = 0x00000004,
 	POINTER_FLAG_FIRSTBUTTON = 0x00000010,
 	POINTER_FLAG_SECONDBUTTON = 0x00000020,
 	POINTER_FLAG_THIRDBUTTON = 0x00000040,
 	POINTER_FLAG_FOURTHBUTTON = 0x00000080,
 	POINTER_FLAG_FIFTHBUTTON = 0x00000100,
-	POINTER_FLAG_PRIMARY	= 0x00002000,
+	POINTER_FLAG_PRIMARY = 0x00002000,
 	POINTER_FLAG_CONFIDENCE = 0x00004000,
-	POINTER_FLAG_CANCELED	= 0x00008000,
-	POINTER_FLAG_DOWN		= 0x00010000,
-	POINTER_FLAG_UPDATE		= 0x00020000,
-	POINTER_FLAG_UP			= 0x00040000,
-	POINTER_FLAG_WHEEL		= 0x00080000,
-	POINTER_FLAG_HWHEEL		= 0x00100000,
+	POINTER_FLAG_CANCELED = 0x00008000,
+	POINTER_FLAG_DOWN = 0x00010000,
+	POINTER_FLAG_UPDATE = 0x00020000,
+	POINTER_FLAG_UP = 0x00040000,
+	POINTER_FLAG_WHEEL = 0x00080000,
+	POINTER_FLAG_HWHEEL = 0x00100000,
 	POINTER_FLAG_CAPTURECHANGED = 0x00200000,
 	POINTER_FLAG_HASTRANSFORM = 0x00400000
 } POINTER_FLAGS;
@@ -72,29 +72,29 @@ typedef enum {
 } POINTER_BUTTON_CHANGE_TYPE;
 
 typedef enum {
-	TOUCH_FLAG_NONE			= 0x00000000
+	TOUCH_FLAG_NONE = 0x00000000
 } TOUCH_FLAGS;
 
 typedef enum {
-	TOUCH_MASK_NONE			= 0x00000000,
-	TOUCH_MASK_CONTACTAREA	= 0x00000001,
-	TOUCH_MASK_ORIENTATION	= 0x00000002,
-	TOUCH_MASK_PRESSURE		= 0x00000004
+	TOUCH_MASK_NONE = 0x00000000,
+	TOUCH_MASK_CONTACTAREA = 0x00000001,
+	TOUCH_MASK_ORIENTATION = 0x00000002,
+	TOUCH_MASK_PRESSURE = 0x00000004
 } TOUCH_MASK;
 
 typedef enum {
-	PEN_FLAG_NONE			= 0x00000000,
-	PEN_FLAG_BARREL			= 0x00000001,
-	PEN_FLAG_INVERTED		= 0x00000002,
-	PEN_FLAG_ERASER			= 0x00000004
+	PEN_FLAG_NONE = 0x00000000,
+	PEN_FLAG_BARREL = 0x00000001,
+	PEN_FLAG_INVERTED = 0x00000002,
+	PEN_FLAG_ERASER = 0x00000004
 } PEN_FLAGS;
 
 typedef enum {
-	PEN_MASK_NONE			= 0x00000000,
-	PEN_MASK_PRESSURE		= 0x00000001,
-	PEN_MASK_ROTATION		= 0x00000002,
-	PEN_MASK_TILT_X			= 0x00000004,
-	PEN_MASK_TILT_Y			= 0x00000008
+	PEN_MASK_NONE = 0x00000000,
+	PEN_MASK_PRESSURE = 0x00000001,
+	PEN_MASK_ROTATION = 0x00000002,
+	PEN_MASK_TILT_X = 0x00000004,
+	PEN_MASK_TILT_Y = 0x00000008
 } PEN_MASK;
 
 typedef struct {
@@ -136,9 +136,9 @@ typedef struct {
 	INT32					tiltY;
 } POINTER_PEN_INFO;
 
-typedef BOOL (WINAPI *GET_POINTER_INFO)(UINT32 pointerId, POINTER_INFO *pointerInfo);
-typedef BOOL (WINAPI *GET_POINTER_TOUCH_INFO)(UINT32 pointerId, POINTER_TOUCH_INFO *pointerInfo);
-typedef BOOL (WINAPI *GET_POINTER_PEN_INFO)(UINT32 pointerId, POINTER_PEN_INFO *pointerInfo);
+typedef BOOL(WINAPI* GET_POINTER_INFO)(UINT32 pointerId, POINTER_INFO* pointerInfo);
+typedef BOOL(WINAPI* GET_POINTER_TOUCH_INFO)(UINT32 pointerId, POINTER_TOUCH_INFO* pointerInfo);
+typedef BOOL(WINAPI* GET_POINTER_PEN_INFO)(UINT32 pointerId, POINTER_PEN_INFO* pointerInfo);
 
 GET_POINTER_INFO			GetPointerInfo;
 GET_POINTER_TOUCH_INFO		GetPointerTouchInfo;
@@ -169,30 +169,17 @@ struct PointerData
 	INT32					tiltY;
 };
 
-typedef void(__stdcall * PointerDelegatePtr)(int id, UINT32 event, POINTER_INPUT_TYPE type, Vector2 position, PointerData data);
-typedef void(__stdcall * LogFuncPtr)(BSTR log);
+typedef void(__stdcall* PointerDelegatePtr)(int id, UINT32 event, POINTER_INPUT_TYPE type, Vector2 position, PointerData data);
+typedef void(__stdcall* LogFuncPtr)(BSTR log);
 
-PointerDelegatePtr			_delegate;
-LogFuncPtr					_log;
-HWND						_currentWindow;
-int							_screenWidth;
-int							_screenHeight;
-float						_offsetX = 0;
-float						_offsetY = 0;
-float						_scaleX = 1;
-float						_scaleY = 1;
-TOUCH_API					_api;
-LONG_PTR					_oldWindowProc;
-
-extern "C" 
+namespace WindowsTouchEx
 {
-	EXPORT_API void __stdcall Init(LogFuncPtr logFunc, PointerDelegatePtr delegate);
-	EXPORT_API void __stdcall SetScreenParams(int width, int height, float offsetX, float offsetY, float scaleX, float scaleY);
-	EXPORT_API void __stdcall Dispose();
+	class Window;
 }
 
-void log(const wchar_t* str);
-LRESULT CALLBACK wndProc8(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-LRESULT CALLBACK wndProc7(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-void decodeWin8Touches(UINT msg, WPARAM wParam, LPARAM lParam);
-void decodeWin7Touches(UINT msg, WPARAM wParam, LPARAM lParam);
+extern "C"
+{
+	EXPORT_API WindowsTouchEx::Window* __stdcall createWindow(HWND hWnd, TOUCH_API api, LogFuncPtr log, PointerDelegatePtr delegate);
+	EXPORT_API void __stdcall setScreenParams(WindowsTouchEx::Window* window, int width, int height, float offsetX, float offsetY, float scaleX, float scaleY);
+	EXPORT_API void __stdcall disposeWindow(WindowsTouchEx::Window* window);
+}
