@@ -25,6 +25,7 @@ ExportedObj/
  
 _ReSharper*
 /Assets/UnityVS*
+/.idea
 /.vscode
 /Assets/VSCode*
 

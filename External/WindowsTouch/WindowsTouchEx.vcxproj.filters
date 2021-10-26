@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="WindowsTouchExWindowTouchHandler.cpp">
+    <ClCompile Include="WindowsTouchExPointerHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -23,7 +23,7 @@
     <ClInclude Include="WindowsTouchEx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WindowsTouchExWindowTouchHandler.h">
+    <ClInclude Include="WindowsTouchExPointerHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WindowsTouchExCommon.h">

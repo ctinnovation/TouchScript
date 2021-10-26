@@ -2,12 +2,12 @@
 * @author Jorrit de Vries (jorrit@jorritdevries.com)
 */
 
-#include "WindowsTouchExWindowTouchHandler.h"
+#include "WindowsTouchExPointerHandler.h"
 
-const char* instancePropName = "__TouchScript_Prop_Instance__";
+const wchar_t* instancePropName = L"__PointerHandler_Prop_Instance__";
 
 // ----------------------------------------------------------------------------
-WindowTouchHandler::WindowTouchHandler()
+PointerHandler::PointerHandler()
 	: mApi(WIN8)
 	, mHWnd(NULL)
 	, mPreviousWndProc(NULL)
@@ -26,11 +26,11 @@ WindowTouchHandler::WindowTouchHandler()
 }
 
 // ----------------------------------------------------------------------------
-WindowTouchHandler::~WindowTouchHandler()
+PointerHandler::~PointerHandler()
 {
 	if (mHWnd)
 	{
-		SetPropA(mHWnd, instancePropName, NULL);
+		RemoveProp(mHWnd, instancePropName);
 	}
 
 	if (mPreviousWndProc)
@@ -46,7 +46,7 @@ WindowTouchHandler::~WindowTouchHandler()
 }
 
 // ----------------------------------------------------------------------------
-Result WindowTouchHandler::initialize(MessageCallback messageCallback,
+Result PointerHandler::initialize(MessageCallback messageCallback,
 	TOUCH_API api, HWND hWnd, PointerCallback pointerCallback)
 {
 	sendMessage(messageCallback, MT_INFO, "Initializing handler...");
@@ -80,7 +80,7 @@ Result WindowTouchHandler::initialize(MessageCallback messageCallback,
 		mGetPointerTouchInfo = (GET_POINTER_TOUCH_INFO)GetProcAddress(hInstance, "GetPointerTouchInfo");
 		mGetPointerPenInfo = (GET_POINTER_PEN_INFO)GetProcAddress(hInstance, "GetPointerPenInfo");
 
-		SetPropA(mHWnd, instancePropName, this);
+		SetProp(mHWnd, instancePropName, this);
 		mPreviousWndProc = SetWindowLongPtr(mHWnd, GWLP_WNDPROC, (LONG_PTR)wndProc8);
 
 		sendMessage(messageCallback, MT_INFO, "Handler has been initialized for WIN8+.");
@@ -98,7 +98,7 @@ Result WindowTouchHandler::initialize(MessageCallback messageCallback,
 }
 
 // ----------------------------------------------------------------------------
-Result WindowTouchHandler::setScreenParams(MessageCallback messageCallback,
+Result PointerHandler::setScreenParams(MessageCallback messageCallback,
 	int width, int height, float offsetX, float offsetY, float scaleX, float scaleY)
 {
 	mWidth = width;
@@ -112,7 +112,7 @@ Result WindowTouchHandler::setScreenParams(MessageCallback messageCallback,
 }
 
 // ----------------------------------------------------------------------------
-void WindowTouchHandler::sendMessage(MessageCallback messageCallback,
+void PointerHandler::sendMessage(MessageCallback messageCallback,
 	MessageType messageType, const std::string& message)
 {
 	if (messageCallback)
@@ -130,7 +130,7 @@ void WindowTouchHandler::sendMessage(MessageCallback messageCallback,
 }
 
 // ----------------------------------------------------------------------------
-void WindowTouchHandler::decodeWin8Touches(UINT msg, WPARAM wParam, LPARAM lParam)
+void PointerHandler::decodeWin8Touches(UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	int pointerId = GET_POINTERID_WPARAM(wParam);
 
@@ -178,7 +178,7 @@ void WindowTouchHandler::decodeWin8Touches(UINT msg, WPARAM wParam, LPARAM lPara
 }
 
 // ----------------------------------------------------------------------------
-void WindowTouchHandler::decodeWin7Touches(UINT msg, WPARAM wParam, LPARAM lParam)
+void PointerHandler::decodeWin7Touches(UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	UINT cInputs = LOWORD(wParam);
 	PTOUCHINPUT pInputs = new TOUCHINPUT[cInputs];
@@ -221,9 +221,9 @@ void WindowTouchHandler::decodeWin7Touches(UINT msg, WPARAM wParam, LPARAM lPara
 }
 
 // ----------------------------------------------------------------------------
-LRESULT CALLBACK WindowTouchHandler::wndProc8(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK PointerHandler::wndProc8(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	WindowTouchHandler* handler = reinterpret_cast<WindowTouchHandler*>(GetPropA(hWnd, instancePropName));
+	PointerHandler* handler = reinterpret_cast<PointerHandler*>(GetProp(hWnd, instancePropName));
 
 	switch (msg)
 	{
@@ -245,9 +245,9 @@ LRESULT CALLBACK WindowTouchHandler::wndProc8(HWND hWnd, UINT msg, WPARAM wParam
 }
 
 // ----------------------------------------------------------------------------
-LRESULT CALLBACK WindowTouchHandler::wndProc7(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK PointerHandler::wndProc7(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	WindowTouchHandler* handler = reinterpret_cast<WindowTouchHandler*>(GetPropA(hWnd, instancePropName));
+	PointerHandler* handler = reinterpret_cast<PointerHandler*>(GetProp(hWnd, instancePropName));
 
 	switch (msg)
 	{
@@ -262,27 +262,27 @@ LRESULT CALLBACK WindowTouchHandler::wndProc7(HWND hWnd, UINT msg, WPARAM wParam
 
 // .NET available interface
 // ----------------------------------------------------------------------------
-extern "C" EXPORT_API Result WindowTouchHandler_Create(void** handle) throw()
+extern "C" EXPORT_API Result PointerHandler_Create(void** handle) throw()
 {
-	*handle = new WindowTouchHandler();
+	*handle = new PointerHandler();
 	return Result::R_OK;
 }
 // ----------------------------------------------------------------------------
-extern "C" EXPORT_API Result WindowTouchHandler_Destroy(WindowTouchHandler* handler) throw()
+extern "C" EXPORT_API Result PointerHandler_Destroy(PointerHandler* handler) throw()
 {
 	delete handler;
 	return Result::R_OK;
 }
 // ----------------------------------------------------------------------------
-extern "C" EXPORT_API Result WindowTouchHandler_Initialize(
-	WindowTouchHandler * handler, MessageCallback messageCallback,
+extern "C" EXPORT_API Result PointerHandler_Initialize(
+	PointerHandler * handler, MessageCallback messageCallback,
 	TOUCH_API api, HWND hWnd, PointerCallback pointerCallback)
 {
 	return handler->initialize(messageCallback, api, hWnd, pointerCallback);
 }
 // ----------------------------------------------------------------------------
-extern "C" EXPORT_API Result WindowTouchHandler_SetScreenParams(
-	WindowTouchHandler * handler, MessageCallback messageCallback,
+extern "C" EXPORT_API Result PointerHandler_SetScreenParams(
+	PointerHandler * handler, MessageCallback messageCallback,
 	int width, int height, float offsetX, float offsetY, float scaleX, float scaleY)
 {
 	return handler->setScreenParams(messageCallback, width, height, offsetX, offsetY, scaleX, scaleY);

@@ -9,7 +9,7 @@
 #include "WindowsTouchEx.h"
 #include "WindowsTouchExCommon.h"
 
-class EXPORT_API WindowTouchHandler
+class EXPORT_API PointerHandler
 {
 private:
 	TOUCH_API mApi;
@@ -30,9 +30,9 @@ private:
 	float mScaleY;
 public:
 	/**	*/
-	WindowTouchHandler();
+	PointerHandler();
 	/**	*/
-	~WindowTouchHandler();
+	~PointerHandler();
 
 	/**	*/
 	Result initialize(MessageCallback messageCallback, TOUCH_API api, HWND hWnd, PointerCallback pointerCallback);
