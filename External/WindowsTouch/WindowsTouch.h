@@ -186,7 +186,7 @@ LONG_PTR					_oldWindowProc;
 
 extern "C" 
 {
-	EXPORT_API void __stdcall Init(LogFuncPtr logFunc, PointerDelegatePtr delegate);
+	EXPORT_API void __stdcall Init(TOUCH_API api, LogFuncPtr logFunc, PointerDelegatePtr delegate);
 	EXPORT_API void __stdcall SetScreenParams(int width, int height, float offsetX, float offsetY, float scaleX, float scaleY);
 	EXPORT_API void __stdcall Dispose();
 }
