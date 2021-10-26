@@ -14,7 +14,7 @@ namespace TouchScript.InputSources.InputHandlers
     /// <summary>
     /// Most is copied from WindowsPointerHandler, except we try to retrieve a window for a given display.
     /// </summary>
-    public class WindowsPointerHandlerEx : IInputSource, IDisposable
+    class WindowsPointerHandlerEx : IInputSource, IDisposable
     {
         public const string PRESS_AND_HOLD_ATOM = "MicrosoftTabletPenServiceProperty";
         
@@ -28,7 +28,7 @@ namespace TouchScript.InputSources.InputHandlers
         protected PointerDelegate removePointer;
         protected PointerDelegate cancelPointer;
 
-        protected IntPtr hWindow;
+        private IntPtr hWindow;
         protected ushort pressAndHoldAtomID;
         protected Dictionary<int, TouchPointer> winTouchToInternalId = new Dictionary<int, TouchPointer>(10);
 
@@ -52,10 +52,11 @@ namespace TouchScript.InputSources.InputHandlers
             this.releasePointer = releasePointer;
             this.removePointer = removePointer;
             this.cancelPointer = cancelPointer;
-
-            pointerHandler = new NativePointerHandler();
+            
             messageCallback = OnNativeMessage;
             pointerCallback = OnNativePointer;
+
+            pointerHandler = new NativePointerHandler();
         }
         
         /// <inheritdoc />
@@ -117,6 +118,11 @@ namespace TouchScript.InputSources.InputHandlers
             if (p == null) return;
 
             touchPool.Release(p);
+        }
+
+        protected void Initialize(TOUCH_API api)
+        {
+            pointerHandler.Initialize(messageCallback, api, hWindow, pointerCallback);
         }
         
         protected TouchPointer internalAddTouchPointer(Vector2 position)
