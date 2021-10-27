@@ -21,16 +21,16 @@ namespace TouchScript.InputSources.InputHandlers
         /// <inheritdoc />
         public ICoordinatesRemapper CoordinatesRemapper { get; set; }
         
-        protected PointerDelegate addPointer;
-        protected PointerDelegate updatePointer;
-        protected PointerDelegate pressPointer;
-        protected PointerDelegate releasePointer;
-        protected PointerDelegate removePointer;
-        protected PointerDelegate cancelPointer;
+        protected readonly PointerDelegate addPointer;
+        protected readonly PointerDelegate updatePointer;
+        protected readonly PointerDelegate pressPointer;
+        protected readonly PointerDelegate releasePointer;
+        protected readonly PointerDelegate removePointer;
+        protected readonly PointerDelegate cancelPointer;
 
         private IntPtr hWindow;
-        protected ushort pressAndHoldAtomID;
-        protected Dictionary<int, TouchPointer> winTouchToInternalId = new Dictionary<int, TouchPointer>(10);
+        private ushort pressAndHoldAtomID;
+        protected readonly Dictionary<int, TouchPointer> winTouchToInternalId = new Dictionary<int, TouchPointer>(10);
 
         protected ObjectPool<TouchPointer> touchPool;
         protected ObjectPool<MousePointer> mousePool;
@@ -42,10 +42,12 @@ namespace TouchScript.InputSources.InputHandlers
         private MessageCallback messageCallback;
         private PointerCallback pointerCallback;
         
-        public WindowsPointerHandlerEx(PointerDelegate addPointer, PointerDelegate updatePointer,
+        public WindowsPointerHandlerEx(IntPtr hWindow, PointerDelegate addPointer, PointerDelegate updatePointer,
             PointerDelegate pressPointer, PointerDelegate releasePointer, PointerDelegate removePointer,
             PointerDelegate cancelPointer)
         {
+            this.hWindow = hWindow;
+            
             this.addPointer = addPointer;
             this.updatePointer = updatePointer;
             this.pressPointer = pressPointer;

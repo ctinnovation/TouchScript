@@ -1,5 +1,6 @@
 /*
 * @author Jorrit de Vries (jorrit@jorritdevries.com)
+* Most is copied from WindowsTouch.cpp
 */
 
 #include "WindowsTouchExPointerHandler.h"
@@ -10,6 +11,7 @@ const wchar_t* instancePropName = L"__PointerHandler_Prop_Instance__";
 PointerHandler::PointerHandler()
 	: mApi(WIN8)
 	, mHWnd(NULL)
+	, mHInstance(NULL)
 	, mPreviousWndProc(NULL)
 	, mGetPointerInfo(NULL)
 	, mGetPointerTouchInfo(NULL)
@@ -43,6 +45,12 @@ PointerHandler::~PointerHandler()
 			UnregisterTouchWindow(mHWnd);
 		}
 	}
+
+	if (mHInstance)
+	{
+		FreeLibrary(mHInstance);
+		mHInstance = NULL;
+	}
 }
 
 // ----------------------------------------------------------------------------
@@ -69,16 +77,16 @@ Result PointerHandler::initialize(MessageCallback messageCallback,
 
 	if (api == WIN8)
 	{
-		HINSTANCE hInstance = LoadLibrary(TEXT("user32.dll"));
-		if (hInstance == NULL)
+		mHInstance = LoadLibrary(TEXT("user32.dll"));
+		if (mHInstance == NULL)
 		{
 			sendMessage(messageCallback, MT_ERROR, "Failed to load user32.dll.");
 			return R_ERROR_API;
 		}
 
-		mGetPointerInfo = (GET_POINTER_INFO)GetProcAddress(hInstance, "GetPointerInfo");
-		mGetPointerTouchInfo = (GET_POINTER_TOUCH_INFO)GetProcAddress(hInstance, "GetPointerTouchInfo");
-		mGetPointerPenInfo = (GET_POINTER_PEN_INFO)GetProcAddress(hInstance, "GetPointerPenInfo");
+		mGetPointerInfo = (GET_POINTER_INFO)GetProcAddress(mHInstance, "GetPointerInfo");
+		mGetPointerTouchInfo = (GET_POINTER_TOUCH_INFO)GetProcAddress(mHInstance, "GetPointerTouchInfo");
+		mGetPointerPenInfo = (GET_POINTER_PEN_INFO)GetProcAddress(mHInstance, "GetPointerPenInfo");
 
 		SetProp(mHWnd, instancePropName, this);
 		mPreviousWndProc = SetWindowLongPtr(mHWnd, GWLP_WNDPROC, (LONG_PTR)wndProc8);

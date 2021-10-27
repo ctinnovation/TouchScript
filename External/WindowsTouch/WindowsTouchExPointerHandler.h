@@ -14,6 +14,7 @@ class EXPORT_API PointerHandler
 private:
 	TOUCH_API mApi;
 	HWND mHWnd;
+	HINSTANCE mHInstance;
 	LONG_PTR mPreviousWndProc;
 	GET_POINTER_INFO mGetPointerInfo;
 	GET_POINTER_TOUCH_INFO mGetPointerTouchInfo;

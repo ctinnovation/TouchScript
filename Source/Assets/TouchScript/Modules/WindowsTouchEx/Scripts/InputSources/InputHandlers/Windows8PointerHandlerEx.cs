@@ -1,4 +1,5 @@
-﻿using TouchScript.InputSources.Interop;
+﻿using System;
+using TouchScript.InputSources.Interop;
 using TouchScript.Pointers;
 using TouchScript.Utils;
 using TouchScript.Utils.Platform;
@@ -41,10 +42,10 @@ namespace TouchScript.InputSources.InputHandlers
         
         private bool mouseInPointer = true;
         
-        public Windows8PointerHandlerEx(PointerDelegate addPointer, PointerDelegate updatePointer,
+        public Windows8PointerHandlerEx(IntPtr hWindow, PointerDelegate addPointer, PointerDelegate updatePointer,
             PointerDelegate pressPointer, PointerDelegate releasePointer, PointerDelegate removePointer,
             PointerDelegate cancelPointer)
-            : base(addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer)
+            : base(hWindow, addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer)
         {
             mousePool = new ObjectPool<MousePointer>(4, () => new MousePointer(this), null, resetPointer);
             penPool = new ObjectPool<PenPointer>(2, () => new PenPointer(this), null, resetPointer);
