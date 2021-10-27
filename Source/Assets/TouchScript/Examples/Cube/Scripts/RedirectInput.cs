@@ -42,8 +42,9 @@ namespace TouchScript.Examples.Cube
             return true;
         }
 
-        protected override void init()
+        protected override void OnEnable()
         {
+            base.OnEnable();
             gesture = GetComponent<MetaGesture>();
             if (gesture)
             {

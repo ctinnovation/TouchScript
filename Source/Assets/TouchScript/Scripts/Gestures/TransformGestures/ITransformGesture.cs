@@ -25,7 +25,6 @@ namespace TouchScript.Gestures.TransformGestures
 
         /// <summary>
         /// Occurs when gesture finishes.
-        /// Note that all transformation deltas are zero during this event. To get up-to-date deltas please subscribe to <see cref="Transformed"/> event.
         /// </summary>
         event EventHandler<EventArgs> TransformCompleted;
 

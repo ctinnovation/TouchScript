@@ -58,11 +58,10 @@ namespace TouchScript.Debugging
 
         public void ClearPointerLogger()
         {
-            pointerLogger = new DummyLogger();
-//            if (Application.isEditor)
-//                pointerLogger = new DummyLogger();
-//            else
-//                pointerLogger = new FileWriterLogger();
+            if (Application.isEditor)
+                pointerLogger = new DummyLogger();
+            else
+                pointerLogger = new FileWriterLogger();
         }
 
         private void OnEnable()

@@ -362,20 +362,20 @@ namespace TouchScript
         /// <returns><c>true</c> if position is invalid; otherwise, <c>false</c>.</returns>
         public static bool IsInvalidPosition(Vector2 position)
         {
-            return float.IsNaN(position.x) && float.IsNaN(position.y);
+			return position.x == INVALID_POSITION.x && position.y == INVALID_POSITION.y;
         }
 
         #endregion
 
         #region Private variables
 
-#pragma warning disable 0414
+        #pragma warning disable CS0414
 
         [SerializeField]
         [HideInInspector]
         private bool basicEditor = true;
 
-#pragma warning restore 0414
+        #pragma warning restore CS0414
 
 		[SerializeField]
         private Object displayDevice;
@@ -412,23 +412,19 @@ namespace TouchScript
 
         private void Awake()
         {
-            var touchManager = Instance;
-            if (touchManager == null) return;
+            if (Instance == null) return;
 
 #if TOUCHSCRIPT_DEBUG
-            if (DebugMode) (touchManager as TouchManagerInstance).DebugMode = true;
+            if (DebugMode) (Instance as TouchManagerInstance).DebugMode = true;
 #endif
 
-            touchManager.DisplayDevice = displayDevice as IDisplayDevice;
-            touchManager.ShouldCreateCameraLayer = ShouldCreateCameraLayer;
-            touchManager.ShouldCreateStandardInput = ShouldCreateStandardInput;
-
-            var layerManager = LayerManager.Instance;
-            if (layerManager == null) return;
+            Instance.DisplayDevice = displayDevice as IDisplayDevice;
+            Instance.ShouldCreateCameraLayer = ShouldCreateCameraLayer;
+            Instance.ShouldCreateStandardInput = ShouldCreateStandardInput;
             for (var i = 0; i < layers.Count; i++)
             {
                 var layer = layers[i];
-                if (layer != null) layerManager.AddLayer(layer, i);
+                if (layer != null) LayerManager.Instance.AddLayer(layer, i);
             }
         }
 
@@ -457,8 +453,7 @@ namespace TouchScript
         private void updateSendMessageSubscription()
         {
             if (!Application.isPlaying) return;
-            var touchManager = Instance;
-            if (touchManager == null) return;
+            if (Instance == null) return;
 
             if (sendMessageTarget == null) sendMessageTarget = gameObject;
 
@@ -466,30 +461,29 @@ namespace TouchScript
 
             if (!useSendMessage) return;
 
-            if ((SendMessageEvents & MessageType.FrameStarted) != 0) touchManager.FrameStarted += frameStartedSendMessageHandler;
-            if ((SendMessageEvents & MessageType.FrameFinished) != 0) touchManager.FrameFinished += frameFinishedSendMessageHandler;
-            if ((SendMessageEvents & MessageType.PointersAdded) != 0) touchManager.PointersAdded += pointersAddedSendMessageHandler;
-            if ((SendMessageEvents & MessageType.PointersUpdated) != 0) touchManager.PointersUpdated += pointersUpdatedSendMessageHandler;
-            if ((SendMessageEvents & MessageType.PointersPressed) != 0) touchManager.PointersPressed += pointersPressedSendMessageHandler;
-            if ((SendMessageEvents & MessageType.PointersReleased) != 0) touchManager.PointersReleased += pointersReleasedSendMessageHandler;
-            if ((SendMessageEvents & MessageType.PointersRemoved) != 0) touchManager.PointersRemoved += pointersRemovedSendMessageHandler;
-            if ((SendMessageEvents & MessageType.PointersCancelled) != 0) touchManager.PointersCancelled += pointersCancelledSendMessageHandler;
+            if ((SendMessageEvents & MessageType.FrameStarted) != 0) Instance.FrameStarted += frameStartedSendMessageHandler;
+            if ((SendMessageEvents & MessageType.FrameFinished) != 0) Instance.FrameFinished += frameFinishedSendMessageHandler;
+            if ((SendMessageEvents & MessageType.PointersAdded) != 0) Instance.PointersAdded += pointersAddedSendMessageHandler;
+            if ((SendMessageEvents & MessageType.PointersUpdated) != 0) Instance.PointersUpdated += pointersUpdatedSendMessageHandler;
+            if ((SendMessageEvents & MessageType.PointersPressed) != 0) Instance.PointersPressed += pointersPressedSendMessageHandler;
+            if ((SendMessageEvents & MessageType.PointersReleased) != 0) Instance.PointersReleased += pointersReleasedSendMessageHandler;
+            if ((SendMessageEvents & MessageType.PointersRemoved) != 0) Instance.PointersRemoved += pointersRemovedSendMessageHandler;
+            if ((SendMessageEvents & MessageType.PointersCancelled) != 0) Instance.PointersCancelled += pointersCancelledSendMessageHandler;
         }
 
         private void removeSendMessageSubscriptions()
         {
             if (!Application.isPlaying) return;
-            var touchManager = Instance;
-            if (touchManager == null) return;
+            if (Instance == null) return;
 
-            touchManager.FrameStarted -= frameStartedSendMessageHandler;
-            touchManager.FrameFinished -= frameFinishedSendMessageHandler;
-            touchManager.PointersAdded -= pointersAddedSendMessageHandler;
-            touchManager.PointersUpdated -= pointersUpdatedSendMessageHandler;
-            touchManager.PointersPressed -= pointersPressedSendMessageHandler;
-            touchManager.PointersReleased -= pointersReleasedSendMessageHandler;
-            touchManager.PointersRemoved -= pointersRemovedSendMessageHandler;
-            touchManager.PointersCancelled -= pointersCancelledSendMessageHandler;
+            Instance.FrameStarted -= frameStartedSendMessageHandler;
+            Instance.FrameFinished -= frameFinishedSendMessageHandler;
+            Instance.PointersAdded -= pointersAddedSendMessageHandler;
+            Instance.PointersUpdated -= pointersUpdatedSendMessageHandler;
+            Instance.PointersPressed -= pointersPressedSendMessageHandler;
+            Instance.PointersReleased -= pointersReleasedSendMessageHandler;
+            Instance.PointersRemoved -= pointersRemovedSendMessageHandler;
+            Instance.PointersCancelled -= pointersCancelledSendMessageHandler;
         }
 
         private void pointersAddedSendMessageHandler(object sender, PointerEventArgs e)
@@ -543,37 +537,35 @@ namespace TouchScript
         private void updateUnityEventsSubscription()
         {
             if (!Application.isPlaying) return;
-            var touchManager = Instance;
-            if (touchManager == null) return;
+            if (Instance == null) return;
 
             removeUnityEventsSubscriptions();
 
             if (!useUnityEvents) return;
 
-            touchManager.FrameStarted += frameStartedUnityEventsHandler;
-            touchManager.FrameFinished += frameFinishedUnityEventsHandler;
-            touchManager.PointersAdded += pointersAddedUnityEventsHandler;
-            touchManager.PointersUpdated += pointersUpdatedUnityEventsHandler;
-            touchManager.PointersPressed += pointersPressedUnityEventsHandler;
-            touchManager.PointersReleased += pointersReleasedUnityEventsHandler;
-            touchManager.PointersRemoved += pointersRemovedUnityEventsHandler;
-            touchManager.PointersCancelled += pointersCancelledUnityEventsHandler;
+            Instance.FrameStarted += frameStartedUnityEventsHandler;
+            Instance.FrameFinished += frameFinishedUnityEventsHandler;
+            Instance.PointersAdded += pointersAddedUnityEventsHandler;
+            Instance.PointersUpdated += pointersUpdatedUnityEventsHandler;
+            Instance.PointersPressed += pointersPressedUnityEventsHandler;
+            Instance.PointersReleased += pointersReleasedUnityEventsHandler;
+            Instance.PointersRemoved += pointersRemovedUnityEventsHandler;
+            Instance.PointersCancelled += pointersCancelledUnityEventsHandler;
         }
 
         private void removeUnityEventsSubscriptions()
         {
             if (!Application.isPlaying) return;
-            var touchManager = Instance;
-            if (touchManager == null) return;
+            if (Instance == null) return;
 
-            touchManager.FrameStarted -= frameStartedUnityEventsHandler;
-            touchManager.FrameFinished -= frameFinishedUnityEventsHandler;
-            touchManager.PointersAdded -= pointersAddedUnityEventsHandler;
-            touchManager.PointersUpdated -= pointersUpdatedUnityEventsHandler;
-            touchManager.PointersPressed -= pointersPressedUnityEventsHandler;
-            touchManager.PointersReleased -= pointersReleasedUnityEventsHandler;
-            touchManager.PointersRemoved -= pointersRemovedUnityEventsHandler;
-            touchManager.PointersCancelled -= pointersCancelledUnityEventsHandler;
+            Instance.FrameStarted -= frameStartedUnityEventsHandler;
+            Instance.FrameFinished -= frameFinishedUnityEventsHandler;
+            Instance.PointersAdded -= pointersAddedUnityEventsHandler;
+            Instance.PointersUpdated -= pointersUpdatedUnityEventsHandler;
+            Instance.PointersPressed -= pointersPressedUnityEventsHandler;
+            Instance.PointersReleased -= pointersReleasedUnityEventsHandler;
+            Instance.PointersRemoved -= pointersRemovedUnityEventsHandler;
+            Instance.PointersCancelled -= pointersCancelledUnityEventsHandler;
         }
 
         private void pointersAddedUnityEventsHandler(object sender, PointerEventArgs e)

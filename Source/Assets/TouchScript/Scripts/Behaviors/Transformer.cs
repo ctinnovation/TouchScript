@@ -175,8 +175,7 @@ namespace TouchScript.Behaviors
         {
             gesture = GetComponent<TransformGestureBase>();
             gesture.StateChanged += stateChangedHandler;
-            var touchManager = TouchManager.Instance;
-            if (touchManager != null) touchManager.FrameFinished += frameFinishedHandler;
+            TouchManager.Instance.FrameFinished += frameFinishedHandler;
 
             stateIdle();
         }
@@ -184,8 +183,8 @@ namespace TouchScript.Behaviors
         private void OnDisable()
         {
             if (gesture != null) gesture.StateChanged -= stateChangedHandler;
-            var touchManager = TouchManager.Instance;
-            if (touchManager != null) touchManager.FrameFinished -= frameFinishedHandler;
+            if (TouchManager.Instance != null)
+                TouchManager.Instance.FrameFinished -= frameFinishedHandler;
 
             stateIdle();
         }

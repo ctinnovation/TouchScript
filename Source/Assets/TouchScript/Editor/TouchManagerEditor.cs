@@ -207,11 +207,7 @@ namespace TouchScript.Editor
                     var label = EditorGUI.BeginProperty(r, TEXT_SEND_MESSAGE_EVENTS, sendMessageEvents);
                     EditorGUI.BeginChangeCheck();
                     r = EditorGUI.PrefixLabel(r, label);
-#if UNITY_2017_3_OR_NEWER
-                    var sMask = (TouchManager.MessageType) EditorGUI.EnumFlagsField(r, instance.SendMessageEvents);
-#else
                     var sMask = (TouchManager.MessageType) EditorGUI.EnumMaskField(r, instance.SendMessageEvents);
-#endif
                     if (EditorGUI.EndChangeCheck())
                     {
                         instance.SendMessageEvents = sMask;
@@ -236,16 +232,12 @@ namespace TouchScript.Editor
             if (Application.isPlaying)
             {
                 layers.arraySize = 0;
-                var layerManager = LayerManager.Instance;
-                if (layerManager != null) 
-                {
-                    LayerManager.Instance.ForEach((l) =>
-                                {
-                                    layers.arraySize++;
-                                    layers.GetArrayElementAtIndex(layers.arraySize - 1).objectReferenceValue = l;
-                                    return true;
-                                });
-                }
+                LayerManager.Instance.ForEach((l) =>
+                            {
+                                layers.arraySize++;
+                                layers.GetArrayElementAtIndex(layers.arraySize - 1).objectReferenceValue = l;
+                                return true;
+                            });
             }
             else
             {

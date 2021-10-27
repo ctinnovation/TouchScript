@@ -48,10 +48,7 @@ namespace TouchScript.InputSources
 		protected bool basicEditor = true;
 
 		private ICoordinatesRemapper coordinatesRemapper;
-        private TouchManagerInstance touchManager;
-
-        protected int screenWidth;
-        protected int screenHeight;
+        private TouchManagerInstance manager;
 
         #endregion
 
@@ -62,6 +59,9 @@ namespace TouchScript.InputSources
         {
             return false;
         }
+
+        /// <inheritdoc />
+        public virtual void UpdateResolution() {}
 
         /// <inheritdoc />
         public virtual bool CancelPointer(Pointer pointer, bool shouldReturn)
@@ -76,13 +76,6 @@ namespace TouchScript.InputSources
         /// <inheritdoc />
         public virtual void INTERNAL_DiscardPointer(Pointer pointer) {}
 
-        /// <inheritdoc />
-        public virtual void INTERNAL_UpdateResolution()
-        {
-            screenWidth = Screen.width;
-            screenHeight = Screen.height;
-        }
-
         #endregion
 
         #region Unity methods
@@ -90,15 +83,11 @@ namespace TouchScript.InputSources
         /// <summary>
         /// Unity OnEnable callback.
         /// </summary>
-        private void OnEnable()
+        protected virtual void OnEnable()
         {
-            touchManager = TouchManagerInstance.Instance;
-            if (touchManager == null) throw new InvalidOperationException("TouchManager instance is required!");
-            touchManager.AddInput(this);
-
-            init();
-
-            INTERNAL_UpdateResolution();
+            manager = TouchManagerInstance.Instance;
+            if (manager == null) throw new InvalidOperationException("TouchManager instance is required!");
+            manager.AddInput(this);
         }
 
         /// <summary>
@@ -106,10 +95,10 @@ namespace TouchScript.InputSources
         /// </summary>
         protected virtual void OnDisable()
         {
-            if (touchManager != null)
+            if (manager != null)
             {
-                touchManager.RemoveInput(this);
-                touchManager = null;
+                manager.RemoveInput(this);
+                manager = null;
             }
         }
 
@@ -118,17 +107,12 @@ namespace TouchScript.InputSources
         #region Protected methods
 
         /// <summary>
-        /// Initializes the input source.
-        /// </summary>
-        protected virtual void init() {}
-
-        /// <summary>
         /// Adds the pointer to the system.
         /// </summary>
         /// <param name="pointer">The pointer to add.</param>
         protected virtual void addPointer(Pointer pointer)
         {
-            touchManager.INTERNAL_AddPointer(pointer);
+            manager.INTERNAL_AddPointer(pointer);
         }
 
         /// <summary>
@@ -138,7 +122,7 @@ namespace TouchScript.InputSources
         protected virtual void updatePointer(Pointer pointer)
         {
             if (pointer == null) return;
-            touchManager.INTERNAL_UpdatePointer(pointer.Id);
+            manager.INTERNAL_UpdatePointer(pointer.Id);
         }
 
         /// <summary>
@@ -148,7 +132,7 @@ namespace TouchScript.InputSources
         protected virtual void pressPointer(Pointer pointer)
         {
             if (pointer == null) return;
-            touchManager.INTERNAL_PressPointer(pointer.Id);
+            manager.INTERNAL_PressPointer(pointer.Id);
         }
 
         /// <summary>
@@ -159,7 +143,7 @@ namespace TouchScript.InputSources
         {
             if (pointer == null) return;
             pointer.Buttons &= ~Pointer.PointerButtonState.AnyButtonPressed;
-            touchManager.INTERNAL_ReleasePointer(pointer.Id);
+            manager.INTERNAL_ReleasePointer(pointer.Id);
         }
 
         /// <summary>
@@ -169,7 +153,7 @@ namespace TouchScript.InputSources
         protected virtual void removePointer(Pointer pointer)
         {
             if (pointer == null) return;
-            touchManager.INTERNAL_RemovePointer(pointer.Id);
+            manager.INTERNAL_RemovePointer(pointer.Id);
         }
 
         /// <summary>
@@ -179,7 +163,7 @@ namespace TouchScript.InputSources
         protected virtual void cancelPointer(Pointer pointer)
         {
             if (pointer == null) return;
-            touchManager.INTERNAL_CancelPointer(pointer.Id);
+            manager.INTERNAL_CancelPointer(pointer.Id);
         }
 
         /// <summary>

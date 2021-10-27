@@ -96,6 +96,8 @@ namespace TouchScript.InputSources
         private Dictionary<TuioCursor, TouchPointer> cursorToInternalId = new Dictionary<TuioCursor, TouchPointer>(10);
         private Dictionary<TuioBlob, ObjectPointer> blobToInternalId = new Dictionary<TuioBlob, ObjectPointer>();
         private Dictionary<TuioObject, ObjectPointer> objectToInternalId = new Dictionary<TuioObject, ObjectPointer>();
+        private int screenWidth;
+        private int screenHeight;
 
         private ObjectPool<TouchPointer> touchPool;
         private ObjectPool<ObjectPointer> objectPool;
@@ -113,6 +115,17 @@ namespace TouchScript.InputSources
         #endregion
 
         #region Public methods
+
+        /// <inheritdoc />
+        public override bool UpdateInput()
+        {
+            if (base.UpdateInput()) return true;
+
+            screenWidth = Screen.width;
+            screenHeight = Screen.height;
+
+            return true;
+        }
 
         /// <inheritdoc />
         public override bool CancelPointer(Pointer pointer, bool shouldReturn)
@@ -219,19 +232,13 @@ namespace TouchScript.InputSources
         #region Unity
 
         /// <inheritdoc />
-        protected override void OnDisable()
+        protected override void OnEnable()
         {
-            disconnect();
-            base.OnDisable();
-        }
+            base.OnEnable();
 
-        #endregion
+            screenWidth = Screen.width;
+            screenHeight = Screen.height;
 
-        #region Protected methods
-
-        /// <inheritdoc />
-        protected override void init()
-        {
             cursorProcessor = new CursorProcessor();
             cursorProcessor.CursorAdded += OnCursorAdded;
             cursorProcessor.CursorUpdated += OnCursorUpdated;
@@ -248,6 +255,13 @@ namespace TouchScript.InputSources
             objectProcessor.ObjectRemoved += OnObjectRemoved;
 
             connect();
+        }
+
+        /// <inheritdoc />
+        protected override void OnDisable()
+        {
+            disconnect();
+            base.OnDisable();
         }
 
         #endregion

@@ -48,18 +48,7 @@ namespace TouchScript.Layers
         /// <summary>
         /// Pointer layer's name.
         /// </summary>
-        public virtual string Name
-        {
-            get 
-            {
-                if (string.IsNullOrEmpty(layerName)) return "Layer";
-                return layerName;
-            }
-            set
-            {
-                layerName = value;
-            }
-        }
+        public string Name;
 
         /// <summary>
         /// Layers screen to world projection normal.
@@ -87,10 +76,7 @@ namespace TouchScript.Layers
         /// <summary>
         /// Layer manager.
         /// </summary>
-        protected ILayerManager layerManager;
-
-        [SerializeField]
-        protected string layerName;
+        protected ILayerManager manager;
 
         #endregion
 
@@ -139,9 +125,10 @@ namespace TouchScript.Layers
         /// </summary>
         protected virtual void Awake()
         {
+            setName();
             if (!Application.isPlaying) return;
 
-            layerManager = LayerManager.Instance;
+            manager = LayerManager.Instance;
             layerProjectionParams = createProjectionParams();
             StartCoroutine(lateAwake());
         }
@@ -151,7 +138,7 @@ namespace TouchScript.Layers
             yield return null;
 
             // Add ourselves after TouchManager finished adding layers in order
-            if (layerManager != null) layerManager.AddLayer(this, -1, false);
+            manager.AddLayer(this, -1, false);
         }
 
         // To be able to turn layers off
@@ -162,10 +149,10 @@ namespace TouchScript.Layers
         /// </summary>
         protected virtual void OnDestroy()
         {
-            if (!Application.isPlaying) return;
+            if (!Application.isPlaying || TouchManager.Instance == null) return;
 
             StopAllCoroutines();
-            if (layerManager != null) layerManager.RemoveLayer(this);
+            manager.RemoveLayer(this);
         }
 
         #endregion
@@ -230,6 +217,14 @@ namespace TouchScript.Layers
             }
 
             return hitResult;
+        }
+
+        /// <summary>
+        /// Updates pointer layers's name.
+        /// </summary>
+        protected virtual void setName()
+        {
+            if (string.IsNullOrEmpty(Name)) Name = "Layer";
         }
 
         /// <summary>
