@@ -211,7 +211,10 @@ namespace TouchScript.InputSources
             if (mouseHandler != null) mouseHandler.CoordinatesRemapper = remapper;
             if (touchHandler != null) touchHandler.CoordinatesRemapper = remapper;
 #if UNITY_STANDALONE_WIN && !UNITY_EDITOR
-            if (windows8PointerHandler != null) windows8PointerHandler.CoordinatesRemapper = remapper;
+            foreach (var pointerHandler in windows8PointerHandlers)
+            {
+                pointerHandler.CoordinatesRemapper = remapper;
+            }
 #endif
         }
         
@@ -246,7 +249,7 @@ namespace TouchScript.InputSources
             }
         }
         
-#if !UNITY_STANDALONE_WIN && !UNITY_EDITOR
+#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
         private void enableWindows8Touch()
         {
             // For every window of the current process, we check if it is of the unity window class, if so
