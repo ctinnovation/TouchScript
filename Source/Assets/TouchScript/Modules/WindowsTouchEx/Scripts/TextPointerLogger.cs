@@ -12,6 +12,7 @@ using UnityEngine.UI;
 
 namespace TouchScript.Debugging
 {
+    [DefaultExecutionOrder(-50)]
     public class TextPointerLogger : MonoBehaviour, IPointerLogger
     {
         [SerializeField] private Text text;
