@@ -889,7 +889,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 779098485}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7e5768c36d1bb4acea50bd233372843a, type: 3}
+  m_Script: {fileID: 11500000, guid: c14099eb65b541dba355e248416bbf66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Name: Camera (1)
@@ -1728,7 +1728,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1624796159}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7e5768c36d1bb4acea50bd233372843a, type: 3}
+  m_Script: {fileID: 11500000, guid: c14099eb65b541dba355e248416bbf66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Name: Camera (3)
@@ -1931,19 +1931,19 @@ PrefabInstance:
     - target: {fileID: 11400000, guid: 1c4dd8a13f501b04f84fe824120f70bb, type: 3}
       propertyPath: layers.Array.data[0]
       value: 
-      objectReference: {fileID: 779098489}
+      objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: 1c4dd8a13f501b04f84fe824120f70bb, type: 3}
       propertyPath: layers.Array.data[1]
       value: 
-      objectReference: {fileID: 1971014105}
+      objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: 1c4dd8a13f501b04f84fe824120f70bb, type: 3}
       propertyPath: layers.Array.data[2]
       value: 
-      objectReference: {fileID: 1624796161}
+      objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: 1c4dd8a13f501b04f84fe824120f70bb, type: 3}
       propertyPath: layers.Array.data[3]
       value: 
-      objectReference: {fileID: 2036120036}
+      objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: 1c4dd8a13f501b04f84fe824120f70bb, type: 3}
       propertyPath: layers.Array.data[4]
       value: 
@@ -1954,7 +1954,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 11478012, guid: 1c4dd8a13f501b04f84fe824120f70bb, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 11478012, guid: 1c4dd8a13f501b04f84fe824120f70bb, type: 3}
       propertyPath: basicEditor
@@ -1975,7 +1975,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1912466946}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e78583d4695c4985a1f28626e424798f, type: 3}
   m_Name: 
@@ -1998,6 +1998,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   text: {fileID: 836581784}
   numLines: 10
+--- !u!114 &1912466949
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1912466946}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 298acc65903f6bc4d816cefe58b58a69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayIndicesToActivate: 00000000010000000200000003000000
 --- !u!1 &1922969456
 GameObject:
   m_ObjectHideFlags: 0
@@ -2074,7 +2087,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1971014103}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7e5768c36d1bb4acea50bd233372843a, type: 3}
+  m_Script: {fileID: 11500000, guid: c14099eb65b541dba355e248416bbf66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Name: Camera (2)
@@ -2173,7 +2186,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2036120034}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7e5768c36d1bb4acea50bd233372843a, type: 3}
+  m_Script: {fileID: 11500000, guid: c14099eb65b541dba355e248416bbf66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Name: Camera (4)

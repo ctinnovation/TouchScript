@@ -65,12 +65,12 @@ namespace TouchScript.InputSources.Interop
 
         internal void Initialize(MessageCallback messageCallback, TOUCH_API api, IntPtr hWindow, PointerCallback pointerCallback)
         {
-            
+            PointerHandler_Initialize(handle, messageCallback, api, hWindow, pointerCallback);
         }
 
         internal void SetScreenParams(MessageCallback messageCallback, int width, int height, float offsetX, float offsetY, float scaleX, float scaleY)
         {
-            
+            PointerHandler_SetScreenParams(handle, messageCallback, width, height, offsetX, offsetY, scaleX, scaleY);
         }
     }
 }

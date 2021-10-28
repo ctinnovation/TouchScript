@@ -49,7 +49,7 @@ namespace TouchScript.Debugging
             var path = TransformUtils.GetHeirarchyPath(pointer.GetPressData().Target);
 
             var line =
-                $"{pointer.Type}({pointer.Id}):({pointer.Position.x}, {pointer.Position.y}) | ({pointer.PreviousPosition.x}, {pointer.PreviousPosition.y}) - ({path ?? ""})";
+                $"{pointer.Type}({pointer.Id}):({pointer.Position.x},{pointer.Flags}) {pointer.Position.y}) | ({pointer.PreviousPosition.x}, {pointer.PreviousPosition.y}) - ({path ?? ""})";
 
             lines.Add(line);
             if (lines.Count > numLines)

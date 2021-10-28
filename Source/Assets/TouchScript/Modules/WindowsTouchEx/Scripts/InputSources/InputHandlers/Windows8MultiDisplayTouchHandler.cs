@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace TouchScript.InputSources.InputHandlers
 {
-    class Windows8PointerHandlerEx : WindowsPointerHandlerEx
+    class Windows8MultiDisplayTouchHandler : MultiDisplayTouchHandler
     {
         /// <summary>
         /// Should the primary pointer also dispatch a mouse pointer.
@@ -42,7 +42,7 @@ namespace TouchScript.InputSources.InputHandlers
         
         private bool mouseInPointer = true;
         
-        public Windows8PointerHandlerEx(IntPtr hWindow, PointerDelegate addPointer, PointerDelegate updatePointer,
+        public Windows8MultiDisplayTouchHandler(IntPtr hWindow, PointerDelegate addPointer, PointerDelegate updatePointer,
             PointerDelegate pressPointer, PointerDelegate releasePointer, PointerDelegate removePointer,
             PointerDelegate cancelPointer)
             : base(hWindow, addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer)

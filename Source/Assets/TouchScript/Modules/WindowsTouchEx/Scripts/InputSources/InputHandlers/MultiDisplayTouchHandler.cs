@@ -14,9 +14,11 @@ namespace TouchScript.InputSources.InputHandlers
     /// <summary>
     /// Most is copied from WindowsPointerHandler, except we try to retrieve a window for a given display.
     /// </summary>
-    class WindowsPointerHandlerEx : IInputSource, IDisposable
+    class MultiDisplayTouchHandler : IMultiDisplayInputHandler, IDisposable
     {
         public const string PRESS_AND_HOLD_ATOM = "MicrosoftTabletPenServiceProperty";
+        
+        public int TargetDisplay { get; set; }
         
         /// <inheritdoc />
         public ICoordinatesRemapper CoordinatesRemapper { get; set; }
@@ -42,7 +44,7 @@ namespace TouchScript.InputSources.InputHandlers
         private MessageCallback messageCallback;
         private PointerCallback pointerCallback;
         
-        public WindowsPointerHandlerEx(IntPtr hWindow, PointerDelegate addPointer, PointerDelegate updatePointer,
+        public MultiDisplayTouchHandler(IntPtr hWindow, PointerDelegate addPointer, PointerDelegate updatePointer,
             PointerDelegate pressPointer, PointerDelegate releasePointer, PointerDelegate removePointer,
             PointerDelegate cancelPointer)
         {
@@ -57,8 +59,12 @@ namespace TouchScript.InputSources.InputHandlers
             
             messageCallback = OnNativeMessage;
             pointerCallback = OnNativePointer;
+            
+            touchPool = new ObjectPool<TouchPointer>(10, () => new TouchPointer(this), null, resetPointer);
 
             pointerHandler = new NativePointerHandler();
+            disablePressAndHold();
+            setScaling();
         }
         
         /// <inheritdoc />
@@ -243,21 +249,17 @@ namespace TouchScript.InputSources.InputHandlers
 
         private void setScaling()
         {
-            // TODO Get from window
-            var screenWidth = Screen.width;
-            var screenHeight = Screen.height;
-
+            // TODO not fullscreen
             if (!Screen.fullScreen)
             {
-                pointerHandler.SetScreenParams(OnNativeMessage, screenWidth, screenHeight, 0, 0, 1, 1);
+                pointerHandler.SetScreenParams(OnNativeMessage, Screen.width, Screen.height, 0, 0, 1, 1);
                 return;
             }
-
+            
             int width, height;
             WindowsUtilsEx.GetNativeMonitorResolution(hWindow, out width, out height);
-            float scale = Mathf.Max(screenWidth / ((float) width), screenHeight / ((float) height));
-            pointerHandler.SetScreenParams(OnNativeMessage, screenWidth, screenHeight,
-                (width - screenWidth / scale) * .5f, (height - screenHeight / scale) * .5f, scale, scale);
+            pointerHandler.SetScreenParams(OnNativeMessage, width, height,
+                0, 0, 1, 1);
         }
         
         private void OnNativeMessage(int messageType, string message)
