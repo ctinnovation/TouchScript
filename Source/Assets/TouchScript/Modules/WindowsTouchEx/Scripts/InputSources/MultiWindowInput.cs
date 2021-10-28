@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Text;
 #endif
 using TouchScript.InputSources.InputHandlers;
+using TouchScript.Pointers;
 using TouchScript.Utils.Attributes;
 #if UNITY_STANDALONE_WIN && !UNITY_EDITOR
 using TouchScript.Utils.Platform;
@@ -36,7 +37,21 @@ namespace TouchScript.InputSources
         private static readonly Version WIN8_VERSION = new Version(6, 2, 0, 0);
 #endif
         
-        [SerializeField] private int targetDisplay;
+        /// <summary>
+        /// Use emulated second mouse pointer with ALT or not.
+        /// </summary>
+        public bool EmulateSecondMousePointer
+        {
+            get { return emulateSecondMousePointer; }
+            set
+            {
+                emulateSecondMousePointer = value;
+                if (mouseHandler != null) mouseHandler.EmulateSecondMousePointer = value;
+            }
+        }
+        
+        private static MultiWindowInput instance;
+
         [ToggleLeft, SerializeField] private bool emulateSecondMousePointer = true;
         
         private MouseHandler mouseHandler;
@@ -49,12 +64,87 @@ namespace TouchScript.InputSources
 
         [SerializeField, HideInInspector] private bool generalProps; // Used in the custom inspector
         [SerializeField, HideInInspector] private bool windowsProps; // Used in the custom inspector
+        
+#pragma warning restore CS0414
+
+        /// <inheritdoc />
+        public override bool UpdateInput()
+        {
+            if (base.UpdateInput()) return true;
+
+            var handled = false;
+#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
+            if (windows8PointerHandlers.Count > 0) 
+            {
+                foreach (var pointerHandler in windows8PointerHandlers)
+                {
+                    handled |= pointerHandler.UpdateInput();
+                }
+            } 
+            else
+            {
+#endif
+                if (touchHandler != null)
+                {
+                    handled = touchHandler.UpdateInput();
+                }
+                if (mouseHandler != null)
+                {
+                    if (handled) mouseHandler.CancelMousePointer();
+                    else handled = mouseHandler.UpdateInput();
+                }
+#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
+            }
+#endif
+            return handled;
+        }
+
+        /// <inheritdoc />
+        public override void UpdateResolution()
+        {
+#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
+            foreach (var pointerHandler in windows8PointerHandlers)
+            {
+                pointerHandler.UpdateResolution();
+            }
+#endif
+            if (touchHandler != null) touchHandler.UpdateResolution();
+            if (mouseHandler != null) mouseHandler.UpdateResolution();
+        }
+
+        /// <inheritdoc />
+        public override bool CancelPointer(Pointer pointer, bool shouldReturn)
+        {
+            base.CancelPointer(pointer, shouldReturn);
+
+            var handled = false;
+            if (touchHandler != null) handled = touchHandler.CancelPointer(pointer, shouldReturn);
+            if (mouseHandler != null && !handled) handled = mouseHandler.CancelPointer(pointer, shouldReturn);
+#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
+            if (!handled && windows8PointerHandlers.Count > 0) 
+            {
+                foreach (var pointerHandler in windows8PointerHandlers)
+                {
+                    handled = pointerHandler.CancelPointer(pointer, shouldReturn);
+                    if (handled)
+                    {
+                        break;
+                    }
+                }
+            }
+#endif
+
+            return handled;
+        }
 
 #pragma warning restore CS0414
 
         /// <inheritdoc />
         protected override void OnEnable()
         {
+            if (instance != null) Destroy(instance);
+            instance = this;
+            
             base.OnEnable();
 
             Input.simulateMouseWithTouches = false;
