@@ -827,7 +827,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   debugMode: 0
   shouldActivateDisplays: 1
-  shouldAutoRefreshWindowHandlesOnDisplayActivation: 1
   shouldUpdateInputHandlers: 1
   basicEditor: 0
 --- !u!4 &734334434
@@ -1867,7 +1866,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   basicEditor: 1
-  targetDisplay: 4
+  targetDisplay: 0
   emulateSecondMousePointer: 1
   generalProps: 0
   windowsProps: 0
@@ -1884,7 +1883,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   basicEditor: 1
-  targetDisplay: 3
+  targetDisplay: 1
   emulateSecondMousePointer: 1
   generalProps: 0
   windowsProps: 0
@@ -1918,7 +1917,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   basicEditor: 1
-  targetDisplay: 1
+  targetDisplay: 3
   emulateSecondMousePointer: 1
   generalProps: 0
   windowsProps: 0
@@ -2110,7 +2109,8 @@ PrefabInstance:
       propertyPath: basicEditor
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 11478012, guid: 1c4dd8a13f501b04f84fe824120f70bb, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 1c4dd8a13f501b04f84fe824120f70bb, type: 3}
 --- !u!1 &1912466946 stripped
 GameObject:
@@ -2132,19 +2132,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   text: {fileID: 836581784}
   numLines: 10
---- !u!114 &1912466949
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1912466946}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 298acc65903f6bc4d816cefe58b58a69, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  displayIndicesToActivate: 00000000010000000200000003000000
 --- !u!1 &1922969456
 GameObject:
   m_ObjectHideFlags: 0

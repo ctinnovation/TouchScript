@@ -60,7 +60,12 @@ namespace TouchScript
 #endif
 
             Instance.ShouldActivateDisplays = shouldActivateDisplays;
-            Instance.ShouldUpdateInputHandlers = shouldUpdateInputHandlers;
+            Instance.ShouldUpdateInputHandlersOnStart = shouldUpdateInputHandlers;
+        }
+
+        private void Update()
+        {
+            //Debug.Log(Input.mousePosition.ToString("F3"));
         }
         
         [ContextMenu("Basic Editor")]

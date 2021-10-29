@@ -249,13 +249,6 @@ namespace TouchScript.InputSources.InputHandlers
 
         private void setScaling()
         {
-            // TODO not fullscreen
-            if (!Screen.fullScreen)
-            {
-                pointerHandler.SetScreenParams(OnNativeMessage, Screen.width, Screen.height, 0, 0, 1, 1);
-                return;
-            }
-            
             int width, height;
             WindowsUtilsEx.GetNativeMonitorResolution(hWindow, out width, out height);
             pointerHandler.SetScreenParams(OnNativeMessage, width, height,

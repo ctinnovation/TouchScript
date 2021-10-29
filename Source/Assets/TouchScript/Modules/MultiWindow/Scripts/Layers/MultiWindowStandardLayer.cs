@@ -2,6 +2,7 @@
 using TouchScript.InputSources;
 using TouchScript.InputSources.InputHandlers;
 using TouchScript.Pointers;
+using UnityEngine;
 
 namespace TouchScript.Layers
 {
@@ -14,6 +15,7 @@ namespace TouchScript.Layers
         public override HitResult Hit(IPointer pointer, out HitData hit)
         {
             var inputSource = pointer.InputSource;
+            
             if (inputSource is IMultiWindowInputHandler multiWindowInputHandler)
             {
                 if (multiWindowInputHandler.TargetDisplay != _camera.targetDisplay)

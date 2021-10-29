@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using TouchScript.Debugging.Filters;
 using TouchScript.Debugging.Loggers;
+using TouchScript.InputSources.InputHandlers;
 using TouchScript.Pointers;
 using TouchScript.Utils;
 using UnityEngine;
@@ -13,7 +14,7 @@ using UnityEngine.UI;
 namespace TouchScript.Debugging
 {
     [DefaultExecutionOrder(-50)]
-    public class TextPointerLogger : MonoBehaviour, IPointerLogger
+    public class DebugLogger : MonoBehaviour, IPointerLogger
     {
         [SerializeField] private Text text;
         [SerializeField] private int numLines = 10;
@@ -21,7 +22,7 @@ namespace TouchScript.Debugging
         /// <inheritdoc />
         public int PointerCount
         {
-            get { throw new NotImplementedException("TextPointerLogger doesn't support reading data."); }
+            get { throw new NotImplementedException("DebugLogger doesn't support reading data."); }
         }
 
         private List<string> lines = new List<string>();
@@ -48,8 +49,16 @@ namespace TouchScript.Debugging
         {
             var path = TransformUtils.GetHeirarchyPath(pointer.GetPressData().Target);
 
+            var inputSource = pointer.InputSource;
+            var targetDisplay = "1";
+            
+            if (inputSource is IMultiWindowInputHandler multiWindowInputHandler)
+            {
+                targetDisplay = multiWindowInputHandler.TargetDisplay.ToString();
+            }
+
             var line =
-                $"{pointer.Type}({pointer.Id}):({pointer.Position.x},{pointer.Flags}) {pointer.Position.y}) | ({pointer.PreviousPosition.x}, {pointer.PreviousPosition.y}) - ({path ?? ""})";
+                $"(Display {targetDisplay}): {pointer.Type}({pointer.Id}):({pointer.Position.x},{pointer.Flags}) {pointer.Position.y}) | ({pointer.PreviousPosition.x}, {pointer.PreviousPosition.y}) - ({path ?? ""})";
 
             lines.Add(line);
             if (lines.Count > numLines)
@@ -60,12 +69,12 @@ namespace TouchScript.Debugging
 
         public List<PointerData> GetFilteredPointerData(IPointerDataFilter filter = null)
         {
-            throw new NotImplementedException("TextPointerLogger doesn't support reading data.");
+            throw new NotImplementedException("DebugLogger doesn't support reading data.");
         }
 
         public List<PointerLog> GetFilteredLogsForPointer(int id, IPointerLogFilter filter = null)
         {
-            throw new NotImplementedException("TextPointerLogger doesn't support reading data.");
+            throw new NotImplementedException("DebugLogger doesn't support reading data.");
         }
 
         public void Dispose() { }

@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Text;
 using TouchScript.Utils.Platform;
 #endif
+using Debug = UnityEngine.Debug;
 
 namespace TouchScript.Core
 {
@@ -51,7 +52,7 @@ namespace TouchScript.Core
             set => shouldActivateDisplays = value;
         }
 
-        public bool ShouldUpdateInputHandlers
+        public bool ShouldUpdateInputHandlersOnStart
         {
             get => shouldUpdateInputHandlers;
             set => shouldUpdateInputHandlers = value;
@@ -85,6 +86,9 @@ namespace TouchScript.Core
             
             Input.simulateMouseWithTouches = false;
             
+            // First display is always activated
+            OnDisplayActivated(0);
+            
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
         
@@ -96,15 +100,12 @@ namespace TouchScript.Core
 
         private IEnumerator LateAwake()
         {
-            // First display is always activated
-            OnDisplayActivated(1);
-            
             // Wait 2 frames:
             // Frame 0: TouchManager prepares, inputs add themselves and optionally activate the screen
             // Frame 1: Displays are activated, we can retrieve handles and update the input handlers
             yield return null;
             
-            if (ShouldUpdateInputHandlers)
+            if (ShouldUpdateInputHandlersOnStart)
             {
                 UpdateInputHandlers();
             }

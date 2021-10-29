@@ -12,7 +12,7 @@ namespace TouchScript
         /// <summary>
         /// 
         /// </summary>
-        bool ShouldUpdateInputHandlers { get; set; }
+        bool ShouldUpdateInputHandlersOnStart { get; set; }
 
         /// <summary>
         /// 
