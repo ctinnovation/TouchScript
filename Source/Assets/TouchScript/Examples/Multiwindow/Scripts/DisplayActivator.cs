@@ -28,10 +28,10 @@ namespace TouchScript.Examples.Multiwindow
             var inputs = TouchManager.Instance.Inputs;
             foreach (var input in inputs)
             {
-                if (input is MultiDisplayInput multiWindowInput)
-                {
-                    multiWindowInput.RefreshInputHandlers();
-                }
+                // if (input is MultiDisplayInput multiWindowInput)
+                // {
+                //     multiWindowInput.RefreshInputHandlers();
+                // }
             }
         }
     }
