@@ -96,6 +96,9 @@ namespace TouchScript.Core
 
         private IEnumerator LateAwake()
         {
+            // First display is always activated
+            OnDisplayActivated(1);
+            
             // Wait 2 frames:
             // Frame 0: TouchManager prepares, inputs add themselves and optionally activate the screen
             // Frame 1: Displays are activated, we can retrieve handles and update the input handlers
