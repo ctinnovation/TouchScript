@@ -3,6 +3,10 @@ using TouchScript.InputSources;
 using TouchScript.InputSources.InputHandlers;
 using TouchScript.Pointers;
 using UnityEngine;
+#if UNITY_EDITOR
+using System.Reflection;
+using UnityEditor;
+#endif
 
 namespace TouchScript.Layers
 {
