@@ -484,12 +484,19 @@ namespace TouchScript.InputSources.InputHandlers
         private static FieldInfo lastFocusedPlayModeView;
         private static FieldInfo targetDisplay;
 
-        static MultiWindowMouseHandler()
+        [InitializeOnLoadMethod]
+        static void InitializeDisplayRelativeMouseAt()
         {
             var assembly = typeof(EditorWindow).Assembly;
+#if UNITY_2020_1_OR_NEWER
             var playModeViewType = assembly.GetType("UnityEditor.PlayModeView");
             lastFocusedPlayModeView =
                 playModeViewType.GetField("s_LastFocused", BindingFlags.NonPublic | BindingFlags.Static);
+#else
+            var playModeViewType = assembly.GetType("UnityEditor.GameView");
+            lastFocusedPlayModeView =
+                playModeViewType.GetField("s_LastFocusedGameView", BindingFlags.NonPublic | BindingFlags.Static);
+#endif
             targetDisplay =
                 playModeViewType.GetField("m_TargetDisplay", BindingFlags.NonPublic | BindingFlags.Instance);
         }
