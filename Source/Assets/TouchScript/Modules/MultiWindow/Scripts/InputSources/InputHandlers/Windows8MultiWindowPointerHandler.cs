@@ -1,11 +1,11 @@
-﻿using System;
+﻿#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
+
+using System;
 using TouchScript.InputSources.Interop;
 using TouchScript.Pointers;
 using TouchScript.Utils;
 using TouchScript.Utils.Platform;
 using UnityEngine;
-
-#if UNITY_STANDALONE_WIN
 
 namespace TouchScript.InputSources.InputHandlers
 {

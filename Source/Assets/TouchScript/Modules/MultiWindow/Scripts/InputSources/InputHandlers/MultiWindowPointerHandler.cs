@@ -1,4 +1,4 @@
-﻿#if UNITY_STANDALONE_WIN
+﻿#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
 
 using System;
 using System.Collections.Generic;
@@ -250,6 +250,7 @@ namespace TouchScript.InputSources.InputHandlers
         private void setScaling()
         {
             int width, height;
+            
             WindowsUtilsEx.GetNativeMonitorResolution(hWindow, out width, out height);
             pointerHandler.SetScreenParams(OnNativeMessage, width, height,
                 0, 0, 1, 1);
