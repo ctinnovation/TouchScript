@@ -27,7 +27,7 @@ namespace TouchScript.Editor.InputSources
         public static readonly GUIContent TEXT_TARGET_DISPLAY = new GUIContent("Target Display", "The target display for which this component gathers input data.");
         public static readonly GUIContent TEXT_EMULATE_MOUSE = new GUIContent("Emulate Second Mouse Pointer", "If selected, you can press ALT to make a stationary mouse pointer. This is used to simulate multi-touch.");
         
-        public static readonly GUIContent TEXT_HELP = new GUIContent("This component gathers window specific input data from mouse devices, and touch device on the Windows platform.");
+        public static readonly GUIContent TEXT_HELP = new GUIContent("This component gathers window specific input data from mouse devices, and touch device on the Windows and Linux platforms.");
         
         private SerializedProperty basicEditor;
         private SerializedProperty targetDisplay, emulateSecondMousePointer;

@@ -14,7 +14,7 @@ namespace TouchScript.InputSources.InputHandlers
     /// <summary>
     /// Most is copied from WindowsPointerHandler, except we try to retrieve a window for a given display.
     /// </summary>
-    class MultiWindowPointerHandler : IMultiWindowInputHandler, IDisposable
+    class WindowsMultiWindowPointerHandler : IMultiWindowInputHandler, IDisposable
     {
         public const string PRESS_AND_HOLD_ATOM = "MicrosoftTabletPenServiceProperty";
         
@@ -44,7 +44,7 @@ namespace TouchScript.InputSources.InputHandlers
         private MessageCallback messageCallback;
         private PointerCallback pointerCallback;
         
-        public MultiWindowPointerHandler(IntPtr hWindow, PointerDelegate addPointer, PointerDelegate updatePointer,
+        protected MultiWindowPointerHandler(IntPtr hWindow, PointerDelegate addPointer, PointerDelegate updatePointer,
             PointerDelegate pressPointer, PointerDelegate releasePointer, PointerDelegate removePointer,
             PointerDelegate cancelPointer)
         {

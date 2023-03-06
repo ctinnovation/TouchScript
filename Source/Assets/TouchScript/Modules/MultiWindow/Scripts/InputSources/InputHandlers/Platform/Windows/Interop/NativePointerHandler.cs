@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if UNITY_STANDALONE_WIN
+using System;
 using System.Runtime.InteropServices;
 
 namespace TouchScript.InputSources.Interop
@@ -72,3 +73,4 @@ namespace TouchScript.InputSources.Interop
         }
     }
 }
+#endif

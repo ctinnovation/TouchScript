@@ -1,15 +1,11 @@
-﻿#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
-
 using System;
-using TouchScript.InputSources.Interop;
 using TouchScript.Pointers;
 using TouchScript.Utils;
-using TouchScript.Utils.Platform;
 using UnityEngine;
 
 namespace TouchScript.InputSources.InputHandlers
 {
-    class Windows8MultiWindowPointerHandler : MultiWindowPointerHandler
+    class LinuxX11MultiWindowPointerHandler : LinuxMultiWindowPointHandler
     {
         /// <summary>
         /// Should the primary pointer also dispatch a mouse pointer.
@@ -19,7 +15,8 @@ namespace TouchScript.InputSources.InputHandlers
             get { return mouseInPointer; }
             set
             {
-                WindowsUtils.EnableMouseInPointer(value);
+                //WindowsUtils.EnableMouseInPointer(value);
+                
                 mouseInPointer = value;
                 if (mouseInPointer)
                 {
@@ -42,17 +39,13 @@ namespace TouchScript.InputSources.InputHandlers
         
         private bool mouseInPointer = true;
         
-        public Windows8MultiWindowPointerHandler(IntPtr hWindow, PointerDelegate addPointer, PointerDelegate updatePointer,
+        public LinuxX11MultiWindowPointerHandler(IntPtr window, PointerDelegate addPointer,
+            PointerDelegate updatePointer,
             PointerDelegate pressPointer, PointerDelegate releasePointer, PointerDelegate removePointer,
             PointerDelegate cancelPointer)
-            : base(hWindow, addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer)
+            : base(window, addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer)
         {
-            mousePool = new ObjectPool<MousePointer>(4, () => new MousePointer(this), null, resetPointer);
-            penPool = new ObjectPool<PenPointer>(2, () => new PenPointer(this), null, resetPointer);
-
-            mousePointer = internalAddMousePointer(Vector3.zero);
             
-            Initialize(TOUCH_API.WIN8);
         }
         
         /// <inheritdoc />
@@ -69,7 +62,7 @@ namespace TouchScript.InputSources.InputHandlers
                 penPointer = null;
             }
 
-            WindowsUtils.EnableMouseInPointer(false);
+            //WindowsUtils.EnableMouseInPointer(false);
 
             base.Dispose();
         }
@@ -77,7 +70,9 @@ namespace TouchScript.InputSources.InputHandlers
         /// <inheritdoc />
         public override bool UpdateInput()
         {
-            base.UpdateInput();
+            // base.UpdateInput();
+            // Proces the X11 
+            
             return true;
         }
 
@@ -109,5 +104,3 @@ namespace TouchScript.InputSources.InputHandlers
         }
     }
 }
-
-#endif

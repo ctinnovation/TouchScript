@@ -201,7 +201,9 @@ namespace TouchScript.InputSources.InputHandlers
             Debug.Log($"[TouchScript] Initialized Unity mouse input for {TargetDisplay}.");
         }
 
-#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
+#if !UNITY_EDITOR
+
+# if UNITY_STANDALONE_WIN
         private void EnableTouch()
         {
             var window = multiWindowManager.GetWindowHandle(targetDisplay);
@@ -219,6 +221,26 @@ namespace TouchScript.InputSources.InputHandlers
 
             Debug.Log($"[TouchScript] Initialized Windows 8 pointer input for {TargetDisplay}.");
         }
+
+# elif UNITY_STANDALONE_LINUX
+        private void EnableTouch()
+        {
+            var window = multiWindowManager.GetWindowHandle(targetDisplay);
+            if (window == IntPtr.Zero)
+            {
+                Debug.LogError($"[TouchScript] Failed to initialize Linux X11 pointer input for {TargetDisplay}.");
+                return;
+            }
+
+            var linux11PointerHandler = new LinuxX11MultiWindowPointerHandler(window, addPointer, updatePointer, pressPointer,
+                releasePointer, removePointer, cancelPointer);
+            linux11PointerHandler.MouseInPointer = true;
+            linux11PointerHandler.TargetDisplay = TargetDisplay;
+            pointerHandler = linux11PointerHandler;
+
+            Debug.Log($"[TouchScript] Initialized Linux X11 pointer input for {TargetDisplay}.");
+        }
+# endif
 #endif
 
         private void DoDisable()

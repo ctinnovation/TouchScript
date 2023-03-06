@@ -19,7 +19,6 @@ namespace TouchScript
         /// </summary>
         /// <param name="targetDisplay"></param>
         IntPtr OnDisplayActivated(int targetDisplay);
-        
         /// <summary>
         /// 
         /// </summary>
