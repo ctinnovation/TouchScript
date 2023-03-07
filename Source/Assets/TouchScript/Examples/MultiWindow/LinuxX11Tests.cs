@@ -8,6 +8,7 @@ namespace TouchScript.Examples.MultiWindow
 {
     public class LinuxX11Tests : MonoBehaviour
     {
+#if UNITY_STANDALONE_LINUX
         private void Update()
         {
             if (Input.GetKeyDown(KeyCode.F1))
@@ -25,5 +26,6 @@ namespace TouchScript.Examples.MultiWindow
             
             LinuxX11Utils.XCloseDisplay(display);
         }
+#endif
     }
 }

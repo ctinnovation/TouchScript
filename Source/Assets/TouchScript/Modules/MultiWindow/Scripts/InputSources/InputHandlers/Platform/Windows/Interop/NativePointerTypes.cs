@@ -2,7 +2,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace TouchScript.InputSources.Interop
+namespace TouchScript.InputSources.InputHandlers.Interop
 {
     enum TOUCH_API
     {

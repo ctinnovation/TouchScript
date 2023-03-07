@@ -25,7 +25,6 @@ namespace TouchScript.Utils.Platform
         [DllImport("libX11TouchMultiWindow")]
         internal static extern Result XFreeWindowsOfProcess(IntPtr windows);
         
-        
         // Attribute used for IL2CPP
         [AOT.MonoPInvokeCallback(typeof(MessageCallback))]
         internal static void OnNativeMessage(int messageType, string message)

@@ -1,3 +1,4 @@
+#if UNITY_STANDALONE_LINUX
 using System;
 using System.Runtime.InteropServices;
 using TouchScript.Utils.Platform.Interop;
@@ -79,3 +80,4 @@ namespace TouchScript.InputSources.InputHandlers.Interop
         }
     }
 }
+#endif

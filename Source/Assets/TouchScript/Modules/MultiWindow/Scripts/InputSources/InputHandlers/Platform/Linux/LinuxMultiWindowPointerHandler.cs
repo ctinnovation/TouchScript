@@ -1,3 +1,4 @@
+#if UNITY_STANDALONE_LINUX
 using System;
 using TouchScript.Pointers;
 using TouchScript.Utils;
@@ -228,3 +229,4 @@ namespace TouchScript.InputSources.InputHandlers
         // }
     }
 }
+#endif

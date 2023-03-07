@@ -1,8 +1,9 @@
-﻿#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
+﻿#if UNITY_STANDALONE_WIN
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
+using TouchScript.Utils.Platform.Interop;
 using UnityEngine;
 
 namespace TouchScript.Utils.Platform
@@ -24,6 +25,24 @@ namespace TouchScript.Utils.Platform
         
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
         public static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
+        
+        // Attribute used for IL2CPP
+        [AOT.MonoPInvokeCallback(typeof(MessageCallback))]
+        internal static void OnNativeMessage(int messageType, string message)
+        {
+            switch (messageType)
+            {
+                case 2:
+                    Debug.LogWarning("[libX11TouchMultiWindow.so]: " + message);
+                    break;
+                case 3:
+                    Debug.LogError("[libX11TouchMultiWindow.so]: " + message);
+                    break;
+                default:
+                    Debug.Log("[libX11TouchMultiWindow.so]: " + message);
+                    break;
+            }
+        }
         
         /// <summary>
         /// 

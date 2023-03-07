@@ -1,13 +1,14 @@
-﻿#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
+﻿#if UNITY_STANDALONE_WIN
 
 using System;
 using System.Collections.Generic;
-using TouchScript.InputSources.Interop;
+using TouchScript.InputSources.InputHandlers.Interop;
 using TouchScript.Pointers;
 using TouchScript.Utils;
 using TouchScript.Utils.Platform;
+using TouchScript.Utils.Platform.Interop;
 using UnityEngine;
-using PointerType = TouchScript.InputSources.Interop.PointerType;
+using PointerType = TouchScript.InputSources.InputHandlers.Interop.PointerType;
 
 namespace TouchScript.InputSources.InputHandlers
 {
@@ -44,7 +45,7 @@ namespace TouchScript.InputSources.InputHandlers
         private MessageCallback messageCallback;
         private PointerCallback pointerCallback;
         
-        protected MultiWindowPointerHandler(IntPtr hWindow, PointerDelegate addPointer, PointerDelegate updatePointer,
+        protected WindowsMultiWindowPointerHandler(IntPtr hWindow, PointerDelegate addPointer, PointerDelegate updatePointer,
             PointerDelegate pressPointer, PointerDelegate releasePointer, PointerDelegate removePointer,
             PointerDelegate cancelPointer)
         {
@@ -57,7 +58,7 @@ namespace TouchScript.InputSources.InputHandlers
             this.removePointer = removePointer;
             this.cancelPointer = cancelPointer;
             
-            messageCallback = OnNativeMessage;
+            messageCallback = WindowsUtilsEx.OnNativeMessage;
             pointerCallback = OnNativePointer;
             
             touchPool = new ObjectPool<TouchPointer>(10, () => new TouchPointer(this), null, resetPointer);
@@ -252,26 +253,8 @@ namespace TouchScript.InputSources.InputHandlers
             int width, height;
             
             WindowsUtilsEx.GetNativeMonitorResolution(hWindow, out width, out height);
-            pointerHandler.SetScreenParams(OnNativeMessage, width, height,
+            pointerHandler.SetScreenParams(WindowsUtilsEx.OnNativeMessage, width, height,
                 0, 0, 1, 1);
-        }
-        
-        // Attribute used for IL2CPP
-        [AOT.MonoPInvokeCallback(typeof(MessageCallback))]
-        private static void OnNativeMessage(int messageType, string message)
-        {
-            switch (messageType)
-            {
-                case 2:
-                    Debug.LogWarning("[MultiWindowsTouch.dll]: " + message);
-                    break;
-                case 3:
-                    Debug.LogError("[MultiWindowsTouch.dll]: " + message);
-                    break;
-                default:
-                    Debug.Log("[MultiWindowsTouch.dll]: " + message);
-                    break;
-            }
         }
 
         private void OnNativePointer(int id, PointerEvent evt, PointerType type, Vector2 position, PointerData data)

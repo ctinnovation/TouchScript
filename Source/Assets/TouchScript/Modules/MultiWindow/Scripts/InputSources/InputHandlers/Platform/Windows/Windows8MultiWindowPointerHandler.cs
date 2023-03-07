@@ -1,7 +1,7 @@
-﻿#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
+﻿#if UNITY_STANDALONE_WIN
 
 using System;
-using TouchScript.InputSources.Interop;
+using TouchScript.InputSources.InputHandlers.Interop;
 using TouchScript.Pointers;
 using TouchScript.Utils;
 using TouchScript.Utils.Platform;

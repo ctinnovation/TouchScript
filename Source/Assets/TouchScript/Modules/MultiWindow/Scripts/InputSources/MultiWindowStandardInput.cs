@@ -188,8 +188,7 @@ namespace TouchScript.InputSources.InputHandlers
                 EnableMouse();
             }
 # elif UNITY_STANDALONE_LINUX
-            // TODO Linux X11 Check?
-            Debug.LogWarning("[TouchScript]: TODO Enable Touch");
+            EnableTouch();
 # else
             EnableMouse();
 # endif
