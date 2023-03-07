@@ -8,7 +8,7 @@ namespace TouchScript.InputSources.InputHandlers
     /// <summary>
     /// Most is copied from WindowsPointerHandler, except we try to retrieve a window for a given display.
     /// </summary>
-    class LinuxMultiWindowPointHandler : IMultiWindowInputHandler, IDisposable
+    class LinuxMultiWindowPointerHandler : IMultiWindowInputHandler, IDisposable
     {
         public int TargetDisplay { get; set; }
         
@@ -30,7 +30,7 @@ namespace TouchScript.InputSources.InputHandlers
 
         private IntPtr window;
 
-        protected LinuxMultiWindowPointHandler(IntPtr window, PointerDelegate addPointer, PointerDelegate updatePointer,
+        protected LinuxMultiWindowPointerHandler(IntPtr window, PointerDelegate addPointer, PointerDelegate updatePointer,
             PointerDelegate pressPointer, PointerDelegate releasePointer, PointerDelegate removePointer,
             PointerDelegate cancelPointer)
         {
