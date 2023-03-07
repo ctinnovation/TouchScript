@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace TouchScript.InputSources.InputHandlers
 {
-    class Windows8MultiWindowPointerHandler : WindowsMultiWindowPointerHandler
+    sealed class Windows8MultiWindowPointerHandler : WindowsMultiWindowPointerHandler
     {
         /// <summary>
         /// Should the primary pointer also dispatch a mouse pointer.
@@ -52,7 +52,7 @@ namespace TouchScript.InputSources.InputHandlers
 
             mousePointer = internalAddMousePointer(Vector3.zero);
             
-            Initialize(TOUCH_API.WIN8);
+            initialize(TOUCH_API.WIN8);
         }
         
         /// <inheritdoc />

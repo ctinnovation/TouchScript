@@ -65,40 +65,6 @@ namespace TouchScript.Utils.Platform
             return dsProcRootWindows;
         }
         
-        public static List<IntPtr> GetWindows()
-        {
-            List<IntPtr> result = new List<IntPtr>();
-            GCHandle listHandle = GCHandle.Alloc(result);
-            try
-            {
-                EnumWindows(EnumWindow, GCHandle.ToIntPtr(listHandle));
-            }
-            finally
-            {
-                if (listHandle.IsAllocated)
-                {
-                    listHandle.Free();
-                }
-            }
-            return result;
-        }
-        
-        public static List<IntPtr> GetChildWindows(IntPtr parent)
-        {
-            List<IntPtr> result = new List<IntPtr>();
-            GCHandle listHandle = GCHandle.Alloc(result);
-            try
-            {
-                EnumChildWindows(parent, EnumWindow, GCHandle.ToIntPtr(listHandle));
-            }
-            finally
-            {
-                if (listHandle.IsAllocated)
-                    listHandle.Free();
-            }
-            return result;
-        }
-        
         /// <summary>
         /// Retrieves the native monitor resolution.
         /// </summary>
@@ -134,6 +100,22 @@ namespace TouchScript.Utils.Platform
             list.Add(handle);
             //  You can modify this to check to see if you want to cancel the operation, then return a null here
             return true;
+        }
+        
+        private static List<IntPtr> GetChildWindows(IntPtr parent)
+        {
+            List<IntPtr> result = new List<IntPtr>();
+            GCHandle listHandle = GCHandle.Alloc(result);
+            try
+            {
+                EnumChildWindows(parent, EnumWindow, GCHandle.ToIntPtr(listHandle));
+            }
+            finally
+            {
+                if (listHandle.IsAllocated)
+                    listHandle.Free();
+            }
+            return result;
         }
     }
 }

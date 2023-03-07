@@ -1,4 +1,5 @@
 #if UNITY_STANDALONE_LINUX
+
 using System;
 using TouchScript.InputSources.InputHandlers.Interop;
 using TouchScript.Pointers;
@@ -8,7 +9,7 @@ using UnityEngine;
 
 namespace TouchScript.InputSources.InputHandlers
 {
-    class LinuxX11MultiWindowPointerHandler : LinuxMultiWindowPointerHandler
+    sealed class LinuxX11MultiWindowPointerHandler : MultiWindowPointerHandler, IDisposable
     {
         /// <summary>
         /// Should the primary pointer also dispatch a mouse pointer.
@@ -41,20 +42,34 @@ namespace TouchScript.InputSources.InputHandlers
         }
         
         private bool mouseInPointer = true;
+        private readonly IntPtr window;
+
         private NativeX11PointerHandler pointerHandler;
+        private readonly MessageCallback messageCallback;
         
         public LinuxX11MultiWindowPointerHandler(IntPtr display, IntPtr window, PointerDelegate addPointer,
             PointerDelegate updatePointer,
             PointerDelegate pressPointer, PointerDelegate releasePointer, PointerDelegate removePointer,
             PointerDelegate cancelPointer)
-            : base(window, addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer)
+            : base(addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer)
         {
+            // mousePool = new ObjectPool<MousePointer>(4, () => new MousePointer(this), null, resetPointer);
+            // penPool = new ObjectPool<PenPointer>(2, () => new PenPointer(this), null, resetPointer);
+            //
+            // mousePointer = internalAddMousePointer(Vector3.zero);
+
+            this.window = window;
+            messageCallback = LinuxX11Utils.OnNativeMessage;
+            
             pointerHandler = new NativeX11PointerHandler();
-            pointerHandler.Initialize(LinuxX11Utils.OnNativeMessage, display, window);
+
+            pointerHandler.Initialize(messageCallback, display, window);
+            disablePressAndHold();
+            setScaling();
         }
         
         /// <inheritdoc />
-        public override void Dispose()
+        public virtual void Dispose()
         {
             if (mousePointer != null)
             {
@@ -69,7 +84,7 @@ namespace TouchScript.InputSources.InputHandlers
 
             //WindowsUtils.EnableMouseInPointer(false);
 
-            base.Dispose();
+            enablePressAndHold();
             
             pointerHandler.Dispose();
             pointerHandler = null;
@@ -80,7 +95,7 @@ namespace TouchScript.InputSources.InputHandlers
         {
             base.UpdateInput();
 
-            //pointerHandler.ProcessEventQueue(LinuxX11Utils.OnNativeMessage);
+            //pointerHandler.ProcessEventQueue(messageCallback);
             
             return true;
         }
@@ -101,7 +116,8 @@ namespace TouchScript.InputSources.InputHandlers
                 if (shouldReturn) penPointer = internalReturnPenPointer(penPointer);
                 return true;
             }
-            return base.CancelPointer(pointer, shouldReturn);
+
+            return false;
         }
 
         /// <inheritdoc />
@@ -112,7 +128,12 @@ namespace TouchScript.InputSources.InputHandlers
             else base.INTERNAL_DiscardPointer(pointer);
         }
 
-        protected override void enablePressAndHold()
+        protected void disablePressAndHold()
+        {
+            
+        }
+
+        protected void enablePressAndHold()
         {
             
         }
@@ -121,8 +142,8 @@ namespace TouchScript.InputSources.InputHandlers
         {
             int width, height;
 
-            pointerHandler.GetNativeScreenResolution(LinuxX11Utils.OnNativeMessage, out width, out height);
-            pointerHandler.SetScreenParams(LinuxX11Utils.OnNativeMessage, width, height, 0, 0, 1, 1);
+            pointerHandler.GetNativeScreenResolution(messageCallback, out width, out height);
+            pointerHandler.SetScreenParams(messageCallback, width, height, 0, 0, 1, 1);
         }
     }
 }

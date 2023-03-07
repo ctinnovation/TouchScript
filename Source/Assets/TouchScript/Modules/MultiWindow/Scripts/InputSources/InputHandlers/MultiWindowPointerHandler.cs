@@ -1,15 +1,11 @@
-#if UNITY_STANDALONE_LINUX
-using System;
+﻿using System;
 using TouchScript.Pointers;
 using TouchScript.Utils;
 using UnityEngine;
 
 namespace TouchScript.InputSources.InputHandlers
 {
-    /// <summary>
-    /// Most is copied from WindowsPointerHandler, except we try to retrieve a window for a given display.
-    /// </summary>
-    abstract class LinuxMultiWindowPointerHandler : IMultiWindowInputHandler, IDisposable
+    public abstract class MultiWindowPointerHandler : IMultiWindowInputHandler
     {
         public int TargetDisplay { get; set; }
         
@@ -28,26 +24,19 @@ namespace TouchScript.InputSources.InputHandlers
         protected ObjectPool<PenPointer> penPool;
         protected MousePointer mousePointer;
         protected PenPointer penPointer;
-        
-        protected IntPtr window;
 
-        protected LinuxMultiWindowPointerHandler(IntPtr window, PointerDelegate addPointer, PointerDelegate updatePointer,
+        public MultiWindowPointerHandler(PointerDelegate addPointer, PointerDelegate updatePointer,
             PointerDelegate pressPointer, PointerDelegate releasePointer, PointerDelegate removePointer,
             PointerDelegate cancelPointer)
         {
-            this.window = window;
-
             this.addPointer = addPointer;
             this.updatePointer = updatePointer;
             this.pressPointer = pressPointer;
             this.releasePointer = releasePointer;
             this.removePointer = removePointer;
             this.cancelPointer = cancelPointer;
-
-            touchPool = new ObjectPool<TouchPointer>(10, () => new TouchPointer(this), null, resetPointer);
             
-            disablePressAndHold();
-            setScaling();
+            touchPool = new ObjectPool<TouchPointer>(10, () => new TouchPointer(this), null, resetPointer);
         }
         
         /// <inheritdoc />
@@ -62,39 +51,9 @@ namespace TouchScript.InputSources.InputHandlers
             setScaling();
             if (mousePointer != null) TouchManager.Instance.CancelPointer(mousePointer.Id);
         }
-        
+
         /// <inheritdoc />
-        public virtual bool CancelPointer(Pointer pointer, bool shouldReturn)
-        {
-            var touch = pointer as TouchPointer;
-            if (touch == null) return false;
-
-            int internalTouchId = -1;
-            // foreach (var t in winTouchToInternalId)
-            // {
-            //     if (t.Value == touch)
-            //     {
-            //         internalTouchId = t.Key;
-            //         break;
-            //     }
-            // }
-            if (internalTouchId > -1)
-            {
-                cancelPointer(touch);
-                // winTouchToInternalId.Remove(internalTouchId);
-                // if (shouldReturn) winTouchToInternalId[internalTouchId] = internalReturnTouchPointer(touch);
-                return true;
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Releases resources.
-        /// </summary>
-        public virtual void Dispose()
-        {
-            enablePressAndHold();
-        }
+        public abstract bool CancelPointer(Pointer pointer, bool shouldReturn);
         
         /// <inheritdoc />
         public virtual void INTERNAL_DiscardPointer(Pointer pointer)
@@ -197,36 +156,7 @@ namespace TouchScript.InputSources.InputHandlers
         {
             p.INTERNAL_Reset();
         }
-        
-        private void disablePressAndHold()
-        {
-            // https://msdn.microsoft.com/en-us/library/bb969148(v=vs.85).aspx
-            // pressAndHoldAtomID = WindowsUtils.GlobalAddAtom(PRESS_AND_HOLD_ATOM);
-            // WindowsUtils.SetProp(hWindow, PRESS_AND_HOLD_ATOM,
-            //     WindowsUtils.TABLET_DISABLE_PRESSANDHOLD | // disables press and hold (right-click) gesture
-            //     WindowsUtils.TABLET_DISABLE_PENTAPFEEDBACK | // disables UI feedback on pen up (waves)
-            //     WindowsUtils.TABLET_DISABLE_PENBARRELFEEDBACK | // disables UI feedback on pen button down (circle)
-            //     WindowsUtils.TABLET_DISABLE_FLICKS // disables pen flicks (back, forward, drag down, drag up);
-            // );
-        }
-
-        protected abstract void enablePressAndHold();
-        //{
-            // if (pressAndHoldAtomID != 0)
-            // {
-            //     WindowsUtils.RemoveProp(hWindow, PRESS_AND_HOLD_ATOM);
-            //     WindowsUtils.GlobalDeleteAtom(pressAndHoldAtomID);
-            // }
-        //}
 
         protected abstract void setScaling();
-        // {
-        //     int width, height;
-        //
-        //     // WindowsUtilsEx.GetNativeMonitorResolution(hWindow, out width, out height);
-        //     // pointerHandler.SetScreenParams(OnNativeMessage, width, height,
-        //     //     0, 0, 1, 1);
-        // }
     }
 }
-#endif

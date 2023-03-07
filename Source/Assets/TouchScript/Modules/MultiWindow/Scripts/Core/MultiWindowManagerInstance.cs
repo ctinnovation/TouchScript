@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TouchScript.InputSources.InputHandlers;
-using TouchScript.Utils.Platform;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 #if !UNITY_EDITOR
@@ -64,12 +63,10 @@ namespace TouchScript.Core
         private bool shouldUpdateInputHandlers = true;
         
         private Dictionary<int, IntPtr> targetDisplayWindowHandles = new Dictionary<int, IntPtr>();
-#if !UNITY_EDITOR
         private List<IntPtr> unityWindowHandles = new List<IntPtr>();
-#endif
-        
+
 #if UNITY_STANDALONE_LINUX
-        // TODO Cache the X server connection
+        // The X server connection
         private IntPtr display;
 #endif
 
