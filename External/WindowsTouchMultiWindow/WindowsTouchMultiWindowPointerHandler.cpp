@@ -3,7 +3,7 @@
 * Most is copied from WindowsTouch.cpp as authored by Valentin Simonov / http://va.lent.in/
 */
 
-#include "MultiWindowsTouchPointerHandler.h"
+#include "WindowsTouchMultiWindowPointerHandler.h"
 
 const wchar_t* instancePropName = L"__PointerHandler_Prop_Instance__";
 

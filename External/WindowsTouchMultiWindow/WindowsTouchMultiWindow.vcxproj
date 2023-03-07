@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{3DA127F7-7335-4A2A-9B8B-D25651AC9AA5}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>MultiWindowsTouch</RootNamespace>
-    <ProjectName>MultiWindowsTouch</ProjectName>
+    <RootNamespace>WindowsTouchMultiWindow</RootNamespace>
+    <ProjectName>WindowsTouchMultiWindow</ProjectName>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -172,12 +172,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="MultiWindowsTouchPointerHandler.cpp" />
+    <ClCompile Include="WindowsTouchMultiWindowPointerHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MultiWindowsTouch.h" />
-    <ClInclude Include="MultiWindowsTouchPointerHandler.h" />
-    <ClInclude Include="MultiWindowsTouchCommon.h" />
+    <ClInclude Include="WindowsTouchMultiWindow.h" />
+    <ClInclude Include="WindowsTouchMultiWindowPointerHandler.h" />
+    <ClInclude Include="WindowsTouchMultiWindowCommon.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -5,7 +5,7 @@
 #pragma once
 
 #include <comdef.h>
-#include "MultiWindowsTouch.h"
+#include "WindowsTouchMultiWindow.h"
 
 #define EXPORT_API __declspec(dllexport)
 

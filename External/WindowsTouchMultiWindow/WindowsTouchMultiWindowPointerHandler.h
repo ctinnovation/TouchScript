@@ -6,8 +6,8 @@
 
 #include <string>
 
-#include "MultiWindowsTouch.h"
-#include "MultiWindowsTouchCommon.h"
+#include "WindowsTouchMultiWindow.h"
+#include "WindowsTouchMultiWindowCommon.h"
 
 class EXPORT_API PointerHandler
 {

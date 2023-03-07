@@ -9,14 +9,14 @@ namespace TouchScript.InputSources.InputHandlers.Interop
     {
         #region Native Methods
         
-        [DllImport("MultiWindowsTouch")]
+        [DllImport("WindowsTouchMultiWindow")]
         private static extern Result PointerHandler_Create(ref IntPtr handle);
-        [DllImport("MultiWindowsTouch")]
+        [DllImport("WindowsTouchMultiWindow")]
         private static extern Result PointerHandler_Destroy(IntPtr handle);
-        [DllImport("MultiWindowsTouch")]
+        [DllImport("WindowsTouchMultiWindow")]
         private static extern Result PointerHandler_Initialize(IntPtr handle, MessageCallback messageCallback,
             TOUCH_API api, IntPtr windowHandle, PointerCallback pointerCallback);
-        [DllImport("MultiWindowsTouch")]
+        [DllImport("WindowsTouchMultiWindow")]
         private static extern Result PointerHandler_SetScreenParams(IntPtr handle, MessageCallback messageCallback,
             int width, int height, float offsetX, float offsetY, float scaleX, float scaleY);
         
