@@ -30,13 +30,13 @@ Result PointerHandler::initialize(MessageCallback messageCallback, Display* disp
 
 	if (display == NULL)
 	{
-		sendMessage(messageCallback, MessageType::ERROR, "display is NULL");
+		sendMessage(messageCallback, MessageType::ERROR, "'display' is NULL");
 		return Result::ERROR_NULL_POINTER;
 	}
 
     if (window == None)
     {
-        sendMessage(messageCallback, MessageType::ERROR, "window is None");
+        sendMessage(messageCallback, MessageType::ERROR, "'window' is None");
         return Result::ERROR_NULL_POINTER;
     }
 
@@ -44,6 +44,23 @@ Result PointerHandler::initialize(MessageCallback messageCallback, Display* disp
     mWindow = window;
 
     return Result::OK;
+}
+// ----------------------------------------------------------------------------
+Result PointerHandler::getScreenResolution(MessageCallback messageCallback, int* width, int* height)
+{
+    // Get the screen for the window
+    XWindowAttributes attributes; 
+    if (XGetWindowAttributes(mDisplay, mWindow, &attributes) != 0)
+    {
+        *width = XWidthOfScreen(attributes.Screen);
+        *height = XHeightOfScreen(attributes.Screen);
+        return Result::OK;
+    }
+    else
+    {
+        sendMessage(messageCallback, MessageType::ERROR, "Failed to retrieve XWindowAttributes");
+        return Result::ERROR_API;
+    }
 }
 // ----------------------------------------------------------------------------
 Result PointerHandler::setScreenParams(MessageCallback messageCallback,
@@ -78,6 +95,13 @@ extern "C" EXPORT_API Result PointerHandler_Initialize(
 	Display* display, Window window)
 {
     return handler->initialize(messageCallback, display, window);
+}
+// ----------------------------------------------------------------------------
+extern "C" EXPORT_API Result PointerHandler_GetScreenResolution(
+	PointerHandler* handler, MessageCallback messageCallback,
+	int* width, int* height)
+{
+    return handler->getScreenResolution(messageCallback, width, height);
 }
 // ----------------------------------------------------------------------------
 extern "C" EXPORT_API Result PointerHandler_SetScreenParams(

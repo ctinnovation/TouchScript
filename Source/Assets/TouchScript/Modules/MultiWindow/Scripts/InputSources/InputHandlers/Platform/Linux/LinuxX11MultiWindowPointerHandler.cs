@@ -142,7 +142,7 @@ namespace TouchScript.InputSources.InputHandlers
         {
             int width, height;
 
-            pointerHandler.GetNativeScreenResolution(messageCallback, out width, out height);
+            pointerHandler.GetScreenResolution(messageCallback, out width, out height);
             pointerHandler.SetScreenParams(messageCallback, width, height, 0, 0, 1, 1);
         }
     }

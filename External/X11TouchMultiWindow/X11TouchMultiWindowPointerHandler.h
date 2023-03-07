@@ -27,5 +27,6 @@ public:
     ~PointerHandler();
 
     Result initialize(MessageCallback messageCallback, Display* display, Window window);
+    Result getScreenResolution(MessageCallback messageCallback, int* width, int* height);
     Result setScreenParams(MessageCallback messageCallback, int width, int height, float offsetX, float offsetY, float scaleX, float scaleY);
 };

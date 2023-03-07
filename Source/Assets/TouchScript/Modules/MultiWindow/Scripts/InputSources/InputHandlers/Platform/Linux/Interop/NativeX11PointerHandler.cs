@@ -5,7 +5,7 @@ using TouchScript.Utils.Platform.Interop;
 
 namespace TouchScript.InputSources.InputHandlers.Interop
 {
-    public class NativeX11PointerHandler : IDisposable
+    sealed class NativeX11PointerHandler : IDisposable
     {
         #region Native Methods
         
@@ -16,6 +16,9 @@ namespace TouchScript.InputSources.InputHandlers.Interop
         [DllImport("libX11TouchMultiWindow")]
         private static extern Result PointerHandler_Initialize(IntPtr handle, MessageCallback messageCallback,
             IntPtr display, IntPtr window);
+        [DllImport("libX11TouchMultiWindow")]
+        private static extern Result PointerHandler_GetScreenResolution(IntPtr handle, MessageCallback messageCallback,
+            out int width, out int height);
         [DllImport("libX11TouchMultiWindow")]
         private static extern Result PointerHandler_SetScreenParams(IntPtr handle, MessageCallback messageCallback,
             int width, int height, float offsetX, float offsetY, float scaleX, float scaleY);
@@ -68,9 +71,9 @@ namespace TouchScript.InputSources.InputHandlers.Interop
             PointerHandler_Initialize(handle, messageCallback, display, window);
         }
 
-        internal void GetNativeScreenResolution(MessageCallback messageCallback, out int width, out int height)
+        internal void GetScreenResolution(MessageCallback messageCallback, out int width, out int height)
         {
-            width = height = 0;
+            PointerHandler_GetScreenResolution(handle, messageCallback, out width, out height);
         }
         
         internal void SetScreenParams(MessageCallback messageCallback, int width, int height,
