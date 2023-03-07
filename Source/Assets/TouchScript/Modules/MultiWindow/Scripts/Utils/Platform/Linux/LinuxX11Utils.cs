@@ -9,15 +9,9 @@ namespace TouchScript.Utils.Platform
 {
     public static class LinuxX11Utils
     {
-        private const int None = 0;
-        
-        // Name of the window manager process id property
-        private const string AtomNetWmPID = "_NET_WM_PID";
-        private const int AtomXACardinal = 6;
-
-        [DllImport("libX11.so.6", EntryPoint = "XOpenDisplay")]
+        [DllImport("libX11", EntryPoint = "XOpenDisplay")]
         public static extern IntPtr XOpenDisplay(string displayName);
-        [DllImport("libX11.so.6", EntryPoint = "XCloseDisplay")]
+        [DllImport("libX11", EntryPoint = "XCloseDisplay")]
         public static extern int XCloseDisplay(IntPtr display);
 
         [DllImport("libX11TouchMultiWindow")]
