@@ -3,20 +3,22 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using TMPro;
 using TouchScript.Debugging.Filters;
 using TouchScript.Debugging.Loggers;
 using TouchScript.InputSources.InputHandlers;
 using TouchScript.Pointers;
 using TouchScript.Utils;
 using UnityEngine;
-using UnityEngine.UI;
+
+#endif
 
 namespace TouchScript.Debugging
 {
     [DefaultExecutionOrder(-50)]
     public class DebugLogger : MonoBehaviour, IPointerLogger
     {
-        [SerializeField] private Text text;
+        [SerializeField] private TextMeshProUGUI text;
         [SerializeField] private int numLines = 10;
         
         /// <inheritdoc />
@@ -28,6 +30,7 @@ namespace TouchScript.Debugging
         private List<string> lines = new List<string>();
         private StringBuilder linesBuilder = new StringBuilder();
 
+#if TOUCHSCRIPT_DEBUG
         private void Awake()
         {
             TouchScriptDebugger.Instance.PointerLogger = this;
@@ -44,10 +47,12 @@ namespace TouchScript.Debugging
 
             text.text = linesBuilder.ToString();
         }
+#endif
         
         public void Log(Pointer pointer, PointerEvent evt)
         {
-            var path = TransformUtils.GetHeirarchyPath(pointer.GetPressData().Target);
+#if TOUCHSCRIPT_DEBUG
+            var path = TransformUtils.GetHierarchyPath(pointer.GetPressData().Target);
 
             var inputSource = pointer.InputSource;
             var targetDisplay = "1";
@@ -65,6 +70,7 @@ namespace TouchScript.Debugging
             {
                 lines.RemoveAt(0);
             }
+#endif
         }
 
         public List<PointerData> GetFilteredPointerData(IPointerDataFilter filter = null)
@@ -80,5 +86,3 @@ namespace TouchScript.Debugging
         public void Dispose() { }
     }
 }
-
-#endif

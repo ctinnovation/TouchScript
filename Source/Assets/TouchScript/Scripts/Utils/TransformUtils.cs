@@ -64,7 +64,7 @@ namespace TouchScript.Utils
         /// </summary>
         /// <param name="transform">The transform.</param>
         /// <returns>The path in the hierarchy.</returns>
-        public static string GetHeirarchyPath(Transform transform)
+        public static string GetHierarchyPath(Transform transform)
         {
             initStringBuilder();
 

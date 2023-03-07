@@ -41,7 +41,7 @@ namespace TouchScript.Debugging.Loggers
         /// <inheritdoc />
         public void Log(Pointer pointer, PointerEvent evt)
         {
-            var path = TransformUtils.GetHeirarchyPath(pointer.GetPressData().Target);
+            var path = TransformUtils.GetHierarchyPath(pointer.GetPressData().Target);
 
             writer.Write((uint) pointer.Type);
             writer.Write(eventCount);
