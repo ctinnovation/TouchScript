@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TouchScript.InputSources.InputHandlers;
+using TouchScript.Utils.Platform;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 #if !UNITY_EDITOR
@@ -69,6 +70,7 @@ namespace TouchScript.Core
         
 #if UNITY_STANDALONE_LINUX
         // TODO Cache the X server connection
+        private IntPtr display;
 #endif
 
         private void Awake()
@@ -87,6 +89,15 @@ namespace TouchScript.Core
             DontDestroyOnLoad(gameObject);
             
             Input.simulateMouseWithTouches = false;
+            
+#if UNITY_STANDALONE_LINUX
+            display = LinuxX11Utils.XOpenDisplay(null);
+            if (display == IntPtr.Zero)
+            {
+                Debug.LogError($"[TouchScript] Failed to open X11 display connection.");
+                return;
+            }
+#endif
             
             // First display is always activated
             OnDisplayActivated(0);
@@ -116,6 +127,19 @@ namespace TouchScript.Core
         private void OnApplicationQuit()
         {
             shuttingDown = true;
+        }
+
+        private void OnDestroy()
+        {
+#if UNITY_STANDALONE_LINUX
+            if (display != IntPtr.Zero)
+            {
+                LinuxX11Utils.XCloseDisplay(display);
+                display = IntPtr.Zero;
+            }
+#endif
+
+            instance = null;
         }
 
         public IntPtr OnDisplayActivated(int targetDisplay)
@@ -181,9 +205,13 @@ namespace TouchScript.Core
         private void RefreshWindowHandles()
         {
             unityWindowHandles.Clear();
-            LinuxX11Utils.GetWindowsOfProcess(Process.GetCurrentProcess().Id, unityWindowHandles);
+            LinuxX11Utils.GetWindowsOfProcess(x11Display, Process.GetCurrentProcess().Id, unityWindowHandles);
         }
 # endif
+#endif
+        
+#if UNITY_STANDALONE_LINUX
+        public IntPtr GetDisplay() => display;
 #endif
         
         public IntPtr GetWindowHandle(int targetDisplay)

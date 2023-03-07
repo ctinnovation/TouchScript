@@ -1,8 +1,11 @@
+/*
+@author Jorrit de Vries (jorrit@jorritdevries.com)
+*/
 #pragma once
 
 #include <string>
 
-#include "MultiWindowsTouchCommon.h"
+#include "X11TouchMultiWindowCommon.h"
 
 /// @brief Sends a message to the given callback. This callback is passed from Unity.
 /// @param messageCallback 

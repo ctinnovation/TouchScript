@@ -8,7 +8,7 @@ namespace TouchScript.InputSources.InputHandlers
     /// <summary>
     /// Most is copied from WindowsPointerHandler, except we try to retrieve a window for a given display.
     /// </summary>
-    class LinuxMultiWindowPointerHandler : IMultiWindowInputHandler, IDisposable
+    abstract class LinuxMultiWindowPointerHandler : IMultiWindowInputHandler, IDisposable
     {
         public int TargetDisplay { get; set; }
         
@@ -27,8 +27,8 @@ namespace TouchScript.InputSources.InputHandlers
         protected ObjectPool<PenPointer> penPool;
         protected MousePointer mousePointer;
         protected PenPointer penPointer;
-
-        private IntPtr window;
+        
+        protected IntPtr window;
 
         protected LinuxMultiWindowPointerHandler(IntPtr window, PointerDelegate addPointer, PointerDelegate updatePointer,
             PointerDelegate pressPointer, PointerDelegate releasePointer, PointerDelegate removePointer,
@@ -92,13 +92,7 @@ namespace TouchScript.InputSources.InputHandlers
         /// </summary>
         public virtual void Dispose()
         {
-            // foreach (var i in winTouchToInternalId) cancelPointer(i.Value);
-            // winTouchToInternalId.Clear();
-
             enablePressAndHold();
-            
-            // pointerHandler.Dispose();
-            // pointerHandler = null;
         }
         
         /// <inheritdoc />
@@ -215,22 +209,22 @@ namespace TouchScript.InputSources.InputHandlers
             // );
         }
 
-        private void enablePressAndHold()
-        {
+        protected abstract void enablePressAndHold();
+        //{
             // if (pressAndHoldAtomID != 0)
             // {
             //     WindowsUtils.RemoveProp(hWindow, PRESS_AND_HOLD_ATOM);
             //     WindowsUtils.GlobalDeleteAtom(pressAndHoldAtomID);
             // }
-        }
+        //}
 
-        private void setScaling()
-        {
-            int width, height;
-            
-            // WindowsUtilsEx.GetNativeMonitorResolution(hWindow, out width, out height);
-            // pointerHandler.SetScreenParams(OnNativeMessage, width, height,
-            //     0, 0, 1, 1);
-        }
+        protected abstract void setScaling();
+        // {
+        //     int width, height;
+        //
+        //     // WindowsUtilsEx.GetNativeMonitorResolution(hWindow, out width, out height);
+        //     // pointerHandler.SetScreenParams(OnNativeMessage, width, height,
+        //     //     0, 0, 1, 1);
+        // }
     }
 }

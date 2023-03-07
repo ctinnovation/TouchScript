@@ -1,14 +1,13 @@
 /*
 @author Jorrit de Vries (jorrit@jorritdevries.com)
-
 */
 #include <cstring>
 #include <vector>
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 
-#include "MultiWindowsTouchCommon.h"
-#include "MultiWindowsTouchUtils.h"
+#include "X11TouchMultiWindowCommon.h"
+#include "X11TouchMultiWindowUtils.h"
 
 // ----------------------------------------------------------------------------
 void sendMessage(MessageCallback messageCallback, MessageType messageType, const std::string& message)
@@ -88,6 +87,22 @@ extern "C" EXPORT_API Result XGetWindowsOfProcess(Display* display, int processP
     getWindowsOfProcess(display, defaultRootWindow, processPID, atomPID, result);
 
     *numWindows = result.size();
+
+    // Copy the data to an array
+    *windows = new Window[result.size()];
+    std::copy(result.begin(), result.end(), *windows);
+
+    return Result::OK;
+}
+// ----------------------------------------------------------------------------
+extern "C" EXPORT_API Result XFreeWindowsOfProcess(Window** windows)
+{
+    if (windows == NULL)
+    {
+        return Result::ERROR_NULL_POINTER;
+    }
+
+    delete[] *windows;
 
     return Result::OK;
 }

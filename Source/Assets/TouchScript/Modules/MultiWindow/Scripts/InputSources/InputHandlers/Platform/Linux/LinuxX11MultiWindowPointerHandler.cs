@@ -1,6 +1,8 @@
 using System;
+using TouchScript.InputSources.InputHandlers.Interop;
 using TouchScript.Pointers;
 using TouchScript.Utils;
+using TouchScript.Utils.Platform;
 using UnityEngine;
 
 namespace TouchScript.InputSources.InputHandlers
@@ -38,14 +40,16 @@ namespace TouchScript.InputSources.InputHandlers
         }
         
         private bool mouseInPointer = true;
+        private NativeX11PointerHandler pointerHandler;
         
-        public LinuxX11MultiWindowPointerHandler(IntPtr window, PointerDelegate addPointer,
+        public LinuxX11MultiWindowPointerHandler(IntPtr display, IntPtr window, PointerDelegate addPointer,
             PointerDelegate updatePointer,
             PointerDelegate pressPointer, PointerDelegate releasePointer, PointerDelegate removePointer,
             PointerDelegate cancelPointer)
             : base(window, addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer)
         {
-            
+            pointerHandler = new NativeX11PointerHandler();
+            pointerHandler.Initialize(LinuxX11Utils.OnNativeMessage, display, window);
         }
         
         /// <inheritdoc />
@@ -65,13 +69,17 @@ namespace TouchScript.InputSources.InputHandlers
             //WindowsUtils.EnableMouseInPointer(false);
 
             base.Dispose();
+            
+            pointerHandler.Dispose();
+            pointerHandler = null;
         }
         
         /// <inheritdoc />
         public override bool UpdateInput()
         {
-            // base.UpdateInput();
-            // Process the X11 event queue for this window
+            base.UpdateInput();
+
+            //pointerHandler.ProcessEventQueue(LinuxX11Utils.OnNativeMessage);
             
             return true;
         }
@@ -101,6 +109,19 @@ namespace TouchScript.InputSources.InputHandlers
             if (pointer is MousePointer) mousePool.Release(pointer as MousePointer);
             else if (pointer is PenPointer) penPool.Release(pointer as PenPointer);
             else base.INTERNAL_DiscardPointer(pointer);
+        }
+
+        protected override void enablePressAndHold()
+        {
+            
+        }
+
+        protected override void setScaling()
+        {
+            int width, height;
+
+            pointerHandler.GetNativeScreenResolution(LinuxX11Utils.OnNativeMessage, out width, out height);
+            pointerHandler.SetScreenParams(LinuxX11Utils.OnNativeMessage, width, height, 0, 0, 1, 1);
         }
     }
 }
