@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace TouchScript.InputSources.InputHandlers
 {
-    class LinuxX11MultiWindowPointerHandler : LinuxMultiWindowPointHandler
+    class LinuxX11MultiWindowPointerHandler : LinuxMultiWindowPointerHandler
     {
         /// <summary>
         /// Should the primary pointer also dispatch a mouse pointer.
@@ -71,7 +71,7 @@ namespace TouchScript.InputSources.InputHandlers
         public override bool UpdateInput()
         {
             // base.UpdateInput();
-            // Proces the X11 
+            // Process the X11 event queue for this window
             
             return true;
         }

@@ -263,13 +263,13 @@ namespace TouchScript.InputSources.InputHandlers
             switch (messageType)
             {
                 case 2:
-                    Debug.LogWarning("[WindowsTouchEx.dll]: " + message);
+                    Debug.LogWarning("[MultiWindowsTouch.dll]: " + message);
                     break;
                 case 3:
-                    Debug.LogError("[WindowsTouchEx.dll]: " + message);
+                    Debug.LogError("[MultiWindowsTouch.dll]: " + message);
                     break;
                 default:
-                    Debug.Log("[WindowsTouchEx.dll]: " + message);
+                    Debug.Log("[MultiWindowsTouch.dll]: " + message);
                     break;
             }
         }

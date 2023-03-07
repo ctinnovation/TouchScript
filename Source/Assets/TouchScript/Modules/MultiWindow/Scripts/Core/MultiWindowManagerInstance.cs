@@ -120,9 +120,9 @@ namespace TouchScript.Core
 
         public IntPtr OnDisplayActivated(int targetDisplay)
         {
-            if (targetDisplayWindowHandles.TryGetValue(targetDisplay, out var windowHandle))
+            if (targetDisplayWindowHandles.TryGetValue(targetDisplay, out var window))
             {
-                return windowHandle;
+                return window;
             }
             
 #if !UNITY_EDITOR
@@ -131,9 +131,9 @@ namespace TouchScript.Core
             // Now we check for every pointer, if it is present in the dictionary
             foreach (var windowHandle in unityWindowHandles)
             {
-                if (!targetDisplayWindows.ContainsValue(windowHandle))
+                if (!targetDisplayWindowHandles.ContainsValue(windowHandle))
                 {
-                    targetDisplayWindows.Add(targetDisplay, windowHandle);
+                    targetDisplayWindowHandles.Add(targetDisplay, windowHandle);
 
                     Debug.Log($"[TouchScript]: Registered window handle for display {targetDisplay}.");
                     
@@ -181,7 +181,7 @@ namespace TouchScript.Core
         private void RefreshWindowHandles()
         {
             unityWindowHandles.Clear();
-            LinuxUtilsEx.GetWindowsOfProcess(Process.GetCurrentProcess().Id, unityWindowHandles);
+            LinuxX11Utils.GetWindowsOfProcess(Process.GetCurrentProcess().Id, unityWindowHandles);
         }
 # endif
 #endif

@@ -91,7 +91,8 @@ int main()
     }
     else
     {
-        FindWindows(display, defaultRootWindow, NULL, atomPID, 0);
+        cout << "Atom PID: " << atomPID << endl;
+        FindWindows(display, defaultRootWindow, None, atomPID, 0);
     }
 
     XCloseDisplay(display);
