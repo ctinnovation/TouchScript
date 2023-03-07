@@ -1,5 +1,5 @@
 /*
-* @author Jorrit de Vries (jorrit@jorritdevries.com)
+* @author Jorrit de Vries (jorrit@ijsfontein.nl)
 */
 
 #pragma once

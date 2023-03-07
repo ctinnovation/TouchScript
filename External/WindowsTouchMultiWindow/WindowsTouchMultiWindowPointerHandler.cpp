@@ -1,5 +1,5 @@
 /*
-* @author Jorrit de Vries (jorrit@jorritdevries.com)
+* @author Jorrit de Vries (jorrit@ijsfontein.nl)
 * Most is copied from WindowsTouch.cpp as authored by Valentin Simonov / http://va.lent.in/
 */
 
