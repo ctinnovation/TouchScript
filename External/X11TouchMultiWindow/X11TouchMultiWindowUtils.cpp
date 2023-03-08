@@ -95,14 +95,14 @@ extern "C" EXPORT_API Result XGetWindowsOfProcess(Display* display, int processP
     return Result::OK;
 }
 // ----------------------------------------------------------------------------
-extern "C" EXPORT_API Result XFreeWindowsOfProcess(Window** windows)
+extern "C" EXPORT_API Result XFreeWindowsOfProcess(Window* windows)
 {
     if (windows == NULL)
     {
         return Result::ERROR_NULL_POINTER;
     }
 
-    delete[] *windows;
+    delete[] windows;
 
     return Result::OK;
 }
