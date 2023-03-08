@@ -26,7 +26,7 @@ typedef enum
 /**	*/
 typedef void(*MessageCallback)(int, char*);
 /** */
-typedef void(*TouchEventCallback)();
+typedef void(*PointerCallback)();
 
 #if _UNICODE
 #define CONSOLE_WRITE_LINE(message) { \

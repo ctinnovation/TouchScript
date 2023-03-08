@@ -91,7 +91,7 @@ namespace TouchScript.Core
             Input.simulateMouseWithTouches = false;
             
 #if UNITY_STANDALONE_LINUX
-            display = LinuxX11Utils.OpenDisplayConnection();
+            display = X11Utils.OpenDisplayConnection();
             if (display == IntPtr.Zero)
             {
                 return;
@@ -135,7 +135,7 @@ namespace TouchScript.Core
 #if UNITY_STANDALONE_LINUX
             if (display != IntPtr.Zero)
             {
-                LinuxX11Utils.CloseDisplayConnection(display);
+                X11Utils.CloseDisplayConnection(display);
                 display = IntPtr.Zero;
             }
 #endif
@@ -206,7 +206,7 @@ namespace TouchScript.Core
         private void RefreshWindowHandles()
         {
             unityWindowHandles.Clear();
-            LinuxX11Utils.GetWindowsOfProcess(display, Process.GetCurrentProcess().Id, unityWindowHandles);
+            X11Utils.GetWindowsOfProcess(display, Process.GetCurrentProcess().Id, unityWindowHandles);
         }
 # endif
 #endif

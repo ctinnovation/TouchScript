@@ -10,12 +10,10 @@ namespace TouchScript.InputSources.InputHandlers.Interop
         #region Native Methods
         
         [DllImport("libX11TouchMultiWindow")]
-        private static extern Result PointerHandler_Create(ref IntPtr handle);
+        private static extern Result PointerHandler_Create(MessageCallback messageCallback,
+            IntPtr display, IntPtr window, PointerCallback pointerCallback, ref IntPtr handle);
         [DllImport("libX11TouchMultiWindow")]
         private static extern Result PointerHandler_Destroy(IntPtr handle);
-        [DllImport("libX11TouchMultiWindow")]
-        private static extern Result PointerHandler_Initialize(IntPtr handle, MessageCallback messageCallback,
-            IntPtr display, IntPtr window);
         [DllImport("libX11TouchMultiWindow")]
         private static extern Result PointerHandler_GetScreenResolution(IntPtr handle, MessageCallback messageCallback,
             out int width, out int height);
@@ -23,18 +21,17 @@ namespace TouchScript.InputSources.InputHandlers.Interop
         private static extern Result PointerHandler_SetScreenParams(IntPtr handle, MessageCallback messageCallback,
             int width, int height, float offsetX, float offsetY, float scaleX, float scaleY);
         [DllImport("libX11TouchMultiWindow")]
-        private static extern Result PointerHandler_ProcessEventQueue(IntPtr handle, MessageCallback messageCallback,
-            TouchEventCallback touchEventCallback);
+        private static extern Result PointerHandler_ProcessEventQueue(IntPtr handle, MessageCallback messageCallback, int frameCount);
         
         #endregion
         
         private IntPtr handle;
 
-        internal NativeX11PointerHandler()
+        internal NativeX11PointerHandler(MessageCallback messageCallback, IntPtr display, IntPtr window, PointerCallback pointerCallback)
         {
             // Create native resources
             handle = new IntPtr();
-            var result = PointerHandler_Create(ref handle);
+            var result = PointerHandler_Create(messageCallback, display, window, pointerCallback, ref handle);
             if (result != Result.Ok)
             {
                 handle = IntPtr.Zero;
@@ -68,14 +65,6 @@ namespace TouchScript.InputSources.InputHandlers.Interop
                 handle = IntPtr.Zero;
             }
         }
-        
-        internal void Initialize(MessageCallback messageCallback, IntPtr display, IntPtr window)
-        {
-            var result = PointerHandler_Initialize(handle, messageCallback, display, window);
-#if TOUCHSCRIPT_DEBUG
-            ResultHelper.CheckResult(result);
-#endif
-        }
 
         internal void GetScreenResolution(MessageCallback messageCallback, out int width, out int height)
         {
@@ -94,9 +83,9 @@ namespace TouchScript.InputSources.InputHandlers.Interop
 #endif
         }
 
-        internal void ProcessEventQueue(MessageCallback messageCallback, TouchEventCallback touchEventCallback)
+        internal void ProcessEventQueue(MessageCallback messageCallback, int frameCount)
         {
-            
+            PointerHandler_ProcessEventQueue(handle, messageCallback, frameCount);
         }
     }
 }

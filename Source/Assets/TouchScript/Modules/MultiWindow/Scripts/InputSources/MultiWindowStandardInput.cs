@@ -236,10 +236,10 @@ namespace TouchScript.InputSources.InputHandlers
                 return;
             }
 
-            var linux11PointerHandler = new LinuxX11MultiWindowPointerHandler(display, window, addPointer, updatePointer, pressPointer,
+            var x11PointerHandler = new X11MultiWindowPointerHandler(display, window, addPointer, updatePointer, pressPointer,
                 releasePointer, removePointer, cancelPointer);
-            linux11PointerHandler.TargetDisplay = TargetDisplay;
-            pointerHandler = linux11PointerHandler;
+            x11PointerHandler.TargetDisplay = TargetDisplay;
+            pointerHandler = x11PointerHandler;
 
             Debug.Log($"[TouchScript] Initialized X11 pointer input for display {TargetDisplay + 1}.");
         }

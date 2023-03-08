@@ -8,13 +8,16 @@
 
 #include "X11TouchMultiWindowCommon.h"
 
+
+
 class EXPORT_API PointerHandler
 {
 private:
     Display* mDisplay;
     Window mWindow;
+    PointerCallback mPointerCallback;
 
-    int mXInput2Opcode;
+    int mXInputOpcode;
 
     int mWidth;
 	int mHeight;
@@ -25,11 +28,12 @@ private:
 	float mScaleX;
 	float mScaleY;
 public:
-    PointerHandler();
+    PointerHandler(Display* display, Window window, PointerCallback pointerCallback);
     ~PointerHandler();
 
-    Result initialize(MessageCallback messageCallback, Display* display, Window window);
+    Window getWindow() const { return mWindow; }
+
+    Result initialize(MessageCallback messageCallback);
     Result getScreenResolution(MessageCallback messageCallback, int* width, int* height);
     Result setScreenParams(MessageCallback messageCallback, int width, int height, float offsetX, float offsetY, float scaleX, float scaleY);
-    Result processEventQueue(MessageCallback messageCallback, TouchEventCallback touchEventCallback);
 };

@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace TouchScript.InputSources.InputHandlers
 {
-    sealed class LinuxX11MultiWindowPointerHandler : MultiWindowPointerHandler
+    sealed class X11MultiWindowPointerHandler : MultiWindowPointerHandler
     {
         // /// <summary>
         // /// Should the primary pointer also dispatch a mouse pointer.
@@ -46,9 +46,8 @@ namespace TouchScript.InputSources.InputHandlers
 
         private NativeX11PointerHandler pointerHandler;
         private readonly MessageCallback messageCallback;
-        private readonly TouchEventCallback touchEventCallback;
         
-        public LinuxX11MultiWindowPointerHandler(IntPtr display, IntPtr window, PointerDelegate addPointer,
+        public X11MultiWindowPointerHandler(IntPtr display, IntPtr window, PointerDelegate addPointer,
             PointerDelegate updatePointer,
             PointerDelegate pressPointer, PointerDelegate releasePointer, PointerDelegate removePointer,
             PointerDelegate cancelPointer)
@@ -59,11 +58,9 @@ namespace TouchScript.InputSources.InputHandlers
 
             mousePointer = internalAddMousePointer(Vector3.zero);
 
-            messageCallback = LinuxX11Utils.OnNativeMessage;
-            touchEventCallback = onNativeTouchEvent;
+            messageCallback = X11Utils.OnNativeMessage;
             
-            pointerHandler = new NativeX11PointerHandler();
-            pointerHandler.Initialize(messageCallback, display, window);
+            pointerHandler = new NativeX11PointerHandler(messageCallback, display, window, onNativePointerEvent);
             
             disablePressAndHold();
             setScaling();
@@ -92,7 +89,9 @@ namespace TouchScript.InputSources.InputHandlers
         /// <inheritdoc />
         public override bool UpdateInput()
         {
-            pointerHandler.ProcessEventQueue(messageCallback, touchEventCallback);
+            // We pass in the frame count, cause we only need to execute the event pump once for each frame
+            // See comments on the native side why...
+            pointerHandler.ProcessEventQueue(messageCallback, Time.frameCount);
             return true;
         }
 
@@ -142,7 +141,7 @@ namespace TouchScript.InputSources.InputHandlers
             pointerHandler.SetScreenParams(messageCallback, width, height, 0, 0, 1, 1);
         }
 
-        private void onNativeTouchEvent()
+        private void onNativePointerEvent()
         {
             
         }

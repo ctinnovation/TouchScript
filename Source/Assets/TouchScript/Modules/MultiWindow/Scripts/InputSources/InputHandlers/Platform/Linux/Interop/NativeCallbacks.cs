@@ -6,5 +6,5 @@ namespace TouchScript.InputSources.InputHandlers.Interop
     /// 
     /// </summary>
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-    delegate void TouchEventCallback();
+    delegate void PointerCallback();
 }

@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace TouchScript.Utils.Platform
 {
-    public static class LinuxX11Utils
+    public static class X11Utils
     {
         [DllImport("libX11")]
         private static extern IntPtr XOpenDisplay(string displayName);
@@ -62,12 +62,12 @@ namespace TouchScript.Utils.Platform
                 return IntPtr.Zero;
             }
 
-            // Check the XInput extension version, which we expect to be 2.0
+            // Check the minimum XInput extension version, which we expect to be 2.3+
             var majorVersion = 2;
-            var minorVersion = 0;
+            var minorVersion = 3;
             if (XIQueryVersion(display, ref majorVersion, ref minorVersion) != 0)
             {
-                Debug.LogError($"[TouchScript]: Unsupported XInput extension version: expected 2.0, actual {majorVersion}.{minorVersion}");
+                Debug.LogError($"[TouchScript]: Unsupported XInput extension version: expected 2.3+, actual {majorVersion}.{minorVersion}");
             
                 XCloseDisplay(display);
                 return IntPtr.Zero;
