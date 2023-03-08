@@ -91,12 +91,13 @@ namespace TouchScript.Core
             Input.simulateMouseWithTouches = false;
             
 #if UNITY_STANDALONE_LINUX
-            display = LinuxX11Utils.XOpenDisplay(null);
+            display = LinuxX11Utils.OpenDisplayConnection();
             if (display == IntPtr.Zero)
             {
-                Debug.LogError($"[TouchScript] Failed to open X11 display connection.");
                 return;
             }
+            
+            // Check version
 #endif
             
             // First display is always activated
@@ -134,7 +135,7 @@ namespace TouchScript.Core
 #if UNITY_STANDALONE_LINUX
             if (display != IntPtr.Zero)
             {
-                LinuxX11Utils.XCloseDisplay(display);
+                LinuxX11Utils.CloseDisplayConnection(display);
                 display = IntPtr.Zero;
             }
 #endif

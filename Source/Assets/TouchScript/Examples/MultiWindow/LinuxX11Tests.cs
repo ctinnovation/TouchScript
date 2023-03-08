@@ -19,12 +19,16 @@ namespace TouchScript.Examples.MultiWindow
         
         public void GetWindows()
         {
-            var display = LinuxX11Utils.XOpenDisplay(null);
+            var display = LinuxX11Utils.OpenDisplayConnection();
+            if (display == IntPtr.Zero)
+            {
+                return;
+            }
             
             var procWindows = new List<IntPtr>();
             LinuxX11Utils.GetWindowsOfProcess(display, Process.GetCurrentProcess().Id, procWindows);
             
-            LinuxX11Utils.XCloseDisplay(display);
+            LinuxX11Utils.CloseDisplayConnection(display);
         }
 #endif
     }
