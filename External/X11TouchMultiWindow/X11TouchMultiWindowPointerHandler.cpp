@@ -52,8 +52,8 @@ Result PointerHandler::getScreenResolution(MessageCallback messageCallback, int*
     XWindowAttributes attributes; 
     if (XGetWindowAttributes(mDisplay, mWindow, &attributes) != 0)
     {
-        *width = XWidthOfScreen(attributes.Screen);
-        *height = XHeightOfScreen(attributes.Screen);
+        *width = XWidthOfScreen(attributes.screen);
+        *height = XHeightOfScreen(attributes.screen);
         return Result::OK;
     }
     else
