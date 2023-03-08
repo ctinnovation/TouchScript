@@ -1,7 +1,7 @@
 #if UNITY_STANDALONE_LINUX
 using System;
 
-namespace TouchScript.InputSources.InputHandlers.Interop
+namespace TouchScript.Utils.Platform.Interop
 {
     public enum Result
     {

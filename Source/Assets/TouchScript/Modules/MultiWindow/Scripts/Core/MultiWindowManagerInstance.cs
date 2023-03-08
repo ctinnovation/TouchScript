@@ -9,6 +9,9 @@ using System.Diagnostics;
 using System.Text;
 using TouchScript.Utils.Platform;
 #endif
+#if UNITY_STANDALONE_LINUX
+using TouchScript.Utils.Platform;
+#endif
 using Debug = UnityEngine.Debug;
 
 namespace TouchScript.Core

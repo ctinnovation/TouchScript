@@ -5,6 +5,7 @@ using TouchScript.InputSources.InputHandlers.Interop;
 using TouchScript.Pointers;
 using TouchScript.Utils;
 using TouchScript.Utils.Platform;
+using TouchScript.Utils.Platform.Interop;
 using UnityEngine;
 
 namespace TouchScript.InputSources.InputHandlers
@@ -69,7 +70,7 @@ namespace TouchScript.InputSources.InputHandlers
         }
         
         /// <inheritdoc />
-        public virtual void Dispose()
+        public void Dispose()
         {
             if (mousePointer != null)
             {
