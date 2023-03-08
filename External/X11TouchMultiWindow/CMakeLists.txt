@@ -1,11 +1,11 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.16)
 project(X11TouchMultiWindow)
 
 set (CMAKE_CXX_STANDARD 11)
 
 find_package(X11 REQUIRED)
 if (NOT X11_FOUND)
-  message(WARNING "X11TouchMultiWindow: Failed find required X11 library (on debian/ubuntu try 'sudo apt-get install libx11-dev' to install)")
+  message(WARNING "X11TouchMultiWindow: Failed find required X11 library (on debian/ubuntu try 'sudo apt-get install libx11-dev libxi-dev' to install)")
 endif()
 
 file(GLOB HEADER_FILES "${CMAKE_CURRENT_SOURCE_DIR}/*.h")

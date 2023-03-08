@@ -10,7 +10,8 @@ typedef enum
 {
 	OK = 0,
 	ERROR_NULL_POINTER = -101,
-	ERROR_API = -102
+	ERROR_API = -102,
+	ERROR_UNSUPPORTED = -103
 } Result;
 
 /**	*/
@@ -24,6 +25,8 @@ typedef enum
 
 /**	*/
 typedef void(*MessageCallback)(int, char*);
+/** */
+typedef void(*TouchEventCallback)();
 
 #if _UNICODE
 #define CONSOLE_WRITE_LINE(message) { \
