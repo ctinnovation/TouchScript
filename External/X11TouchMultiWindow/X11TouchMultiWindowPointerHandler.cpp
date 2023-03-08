@@ -64,19 +64,19 @@ Result PointerHandler::initialize(MessageCallback messageCallback)
 	XISetMask(mask, XI_TouchEnd);
 
 	XIEventMask eventMask = {
-		.deviceid = XIAllDevices, // TODO Only touch devices?
+		.deviceid = XIAllDevices, // TODO Only touch devices? Or XIAllMasterDevices?
 		.mask_len = sizeof(mask),
 		.mask = mask
 	};
 
 	Status status = XISelectEvents(mDisplay, mWindow, &eventMask, 1);
+	free(eventMask.mask);
+	
 	if (status != Success)
 	{
 		sendMessage(messageCallback, MessageType::ERROR, "Failed to select pointer events on window: " + std::to_string(status));
 		return Result::ERROR_UNSUPPORTED;
 	}
-
-	XFlush(mDisplay);
 
     return Result::OK;
 }
@@ -108,6 +108,19 @@ Result PointerHandler::setScreenParams(MessageCallback messageCallback,
 	mScaleX = scaleX;
 	mScaleY = scaleY;
 
+	return Result::OK;
+}
+// ----------------------------------------------------------------------------
+Result PointerHandler::processEvents(MessageCallback messageCallback, int frameCount)
+{
+	// We use the same architecture for pointer handlers and input. And as we
+	// can't hook into the window procedures as we can on on Windows, for now
+	// we do a process only once every frame.
+
+	// An actual refactor of the C# side is required (creating a single MultiWindowStandardInput with multiple pointer handlers)
+	// but that's for later.
+
+	PointerHandlerManager::processEvents(mDisplay, mXInputOpcode, frameCount);
 	return Result::OK;
 }
 
@@ -153,13 +166,5 @@ extern "C" EXPORT_API Result PointerHandler_SetScreenParams(
 extern "C" EXPORT_API Result PointerHandler_ProcessEventQueue(
 	PointerHandler* handler, MessageCallback messageCallback, int frameCount)
 {
-	// We use the same architecture for pointer handlers and input. And as we
-	// can't hook into the window procedures as we can on on Windows, for now
-	// we do a process only once every frame.
-
-	// An actual refactor of the C# side is required (creating a single MultiWindowStandardInput with multiple pointer handlers)
-	// but that's for later.
-
-	PointerHandlerManager::processEvents(frameCount);
-	return Result::OK;
+	return handler->processEvents(messageCallback, frameCount);
 }

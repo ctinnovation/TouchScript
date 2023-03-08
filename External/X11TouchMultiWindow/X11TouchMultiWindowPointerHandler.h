@@ -16,7 +16,6 @@ private:
     Display* mDisplay;
     Window mWindow;
     PointerCallback mPointerCallback;
-
     int mXInputOpcode;
 
     int mWidth;
@@ -36,4 +35,5 @@ public:
     Result initialize(MessageCallback messageCallback);
     Result getScreenResolution(MessageCallback messageCallback, int* width, int* height);
     Result setScreenParams(MessageCallback messageCallback, int width, int height, float offsetX, float offsetY, float scaleX, float scaleY);
+    Result processEvents(MessageCallback messageCallback, int frameCount);
 };

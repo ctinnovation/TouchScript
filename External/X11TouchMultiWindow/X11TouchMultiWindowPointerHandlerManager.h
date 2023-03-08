@@ -3,6 +3,8 @@
 #include <map>
 #include <X11/Xlib.h>
 
+#include "X11TouchMultiWindowCommon.h"
+
 class PointerHandler;
 typedef std::map<Window, PointerHandler*> PointerHandlerMap;
 typedef PointerHandlerMap::iterator PointerHandlerMapIterator;
@@ -16,5 +18,5 @@ public:
 private:
     PointerHandlerManager();
 public:
-    static void processEvents(int frameCount);
+    static void processEvents(MessageCallback messageCallback, Display* display, int opcode, int frameCount);
 };
