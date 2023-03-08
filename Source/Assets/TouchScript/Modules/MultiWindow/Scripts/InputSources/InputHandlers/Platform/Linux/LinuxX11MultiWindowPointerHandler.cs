@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace TouchScript.InputSources.InputHandlers
 {
-    sealed class LinuxX11MultiWindowPointerHandler : MultiWindowPointerHandler, IDisposable
+    sealed class LinuxX11MultiWindowPointerHandler : MultiWindowPointerHandler
     {
         /// <summary>
         /// Should the primary pointer also dispatch a mouse pointer.
@@ -54,10 +54,10 @@ namespace TouchScript.InputSources.InputHandlers
             PointerDelegate cancelPointer)
             : base(addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer)
         {
-            // mousePool = new ObjectPool<MousePointer>(4, () => new MousePointer(this), null, resetPointer);
-            // penPool = new ObjectPool<PenPointer>(2, () => new PenPointer(this), null, resetPointer);
-            //
-            // mousePointer = internalAddMousePointer(Vector3.zero);
+            mousePool = new ObjectPool<MousePointer>(4, () => new MousePointer(this), null, resetPointer);
+            penPool = new ObjectPool<PenPointer>(2, () => new PenPointer(this), null, resetPointer);
+
+            mousePointer = internalAddMousePointer(Vector3.zero);
 
             this.window = window;
             messageCallback = LinuxX11Utils.OnNativeMessage;
@@ -70,7 +70,7 @@ namespace TouchScript.InputSources.InputHandlers
         }
         
         /// <inheritdoc />
-        public void Dispose()
+        public override void Dispose()
         {
             if (mousePointer != null)
             {

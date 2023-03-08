@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace TouchScript.InputSources.InputHandlers
 {
-    public abstract class MultiWindowPointerHandler : IMultiWindowInputHandler
+    public abstract class MultiWindowPointerHandler : IMultiWindowInputHandler, IDisposable
     {
         public int TargetDisplay { get; set; }
         
@@ -38,6 +38,8 @@ namespace TouchScript.InputSources.InputHandlers
             
             touchPool = new ObjectPool<TouchPointer>(10, () => new TouchPointer(this), null, resetPointer);
         }
+        
+        public abstract void Dispose();
         
         /// <inheritdoc />
         public virtual bool UpdateInput()

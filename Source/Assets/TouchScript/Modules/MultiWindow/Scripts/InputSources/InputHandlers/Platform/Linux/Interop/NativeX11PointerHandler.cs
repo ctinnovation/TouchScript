@@ -68,18 +68,27 @@ namespace TouchScript.InputSources.InputHandlers.Interop
         
         internal void Initialize(MessageCallback messageCallback, IntPtr display, IntPtr window)
         {
-            PointerHandler_Initialize(handle, messageCallback, display, window);
+            var result = PointerHandler_Initialize(handle, messageCallback, display, window);
+#if TOUCHSCRIPT_DEBUG
+            ResultHelper.CheckResult(result);
+#endif
         }
 
         internal void GetScreenResolution(MessageCallback messageCallback, out int width, out int height)
         {
-            PointerHandler_GetScreenResolution(handle, messageCallback, out width, out height);
+            var result = PointerHandler_GetScreenResolution(handle, messageCallback, out width, out height);
+#if TOUCHSCRIPT_DEBUG
+            ResultHelper.CheckResult(result);
+#endif
         }
         
         internal void SetScreenParams(MessageCallback messageCallback, int width, int height,
             float offsetX, float offsetY, float scaleX, float scaleY)
         {
-            PointerHandler_SetScreenParams(handle, messageCallback, width, height, offsetX, offsetY, scaleX, scaleY);
+            var result = PointerHandler_SetScreenParams(handle, messageCallback, width, height, offsetX, offsetY, scaleX, scaleY);
+#if TOUCHSCRIPT_DEBUG
+            ResultHelper.CheckResult(result);
+#endif
         }
     }
 }

@@ -67,7 +67,7 @@ namespace TouchScript.InputSources.InputHandlers
         /// <summary>
         /// Releases resources.
         /// </summary>
-        public virtual void Dispose()
+        public override void Dispose()
         {
             foreach (var i in winTouchToInternalId) cancelPointer(i.Value);
             winTouchToInternalId.Clear();

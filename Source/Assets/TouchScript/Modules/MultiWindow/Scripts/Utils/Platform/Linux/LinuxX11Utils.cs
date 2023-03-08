@@ -40,8 +40,8 @@ namespace TouchScript.Utils.Platform
         public static void GetWindowsOfProcess(IntPtr display, int pid, List<IntPtr> procWindows)
         {
             var result = XGetWindowsOfProcess(display, pid, out var windows, out uint numWindows);
-            //Debug.Log($"[TouchScript]: Found {numWindows} application windows for process {pid}");
-
+            ResultHelper.CheckResult(result);
+            
             // Copy window handles
             IntPtr[] w = new IntPtr[numWindows];
             Marshal.Copy(windows, w, 0, (int)numWindows);

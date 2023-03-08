@@ -159,7 +159,7 @@ namespace TouchScript.Core
                 {
                     targetDisplayWindowHandles.Add(targetDisplay, windowHandle);
 
-                    Debug.Log($"[TouchScript]: Registered window handle for display {targetDisplay}.");
+                    Debug.Log($"[TouchScript]: Registered window handle for display {targetDisplay + 1}.");
                     
                     return windowHandle;
                 }
@@ -205,7 +205,7 @@ namespace TouchScript.Core
         private void RefreshWindowHandles()
         {
             unityWindowHandles.Clear();
-            LinuxX11Utils.GetWindowsOfProcess(x11Display, Process.GetCurrentProcess().Id, unityWindowHandles);
+            LinuxX11Utils.GetWindowsOfProcess(display, Process.GetCurrentProcess().Id, unityWindowHandles);
         }
 # endif
 #endif
