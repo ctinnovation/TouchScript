@@ -61,12 +61,12 @@ namespace TouchScript.Utils.Platform
                 return IntPtr.Zero;
             }
 
-            // Check the XInput version, which we expect to be 2.0
+            // Check the XInput extension version, which we expect to be 2.0
             var majorVersion = 2;
             var minorVersion = 0;
             if (XIQueryVersion(display, ref majorVersion, ref minorVersion) != 0)
             {
-                Debug.LogError($"[TouchScript]: Unsupported XInput extension version {majorVersion}.{minorVersion}");
+                Debug.LogError($"[TouchScript]: Unsupported XInput extension version: expected 2.0, actual {majorVersion}.{minorVersion}");
             
                 XCloseDisplay(display);
                 return IntPtr.Zero;
