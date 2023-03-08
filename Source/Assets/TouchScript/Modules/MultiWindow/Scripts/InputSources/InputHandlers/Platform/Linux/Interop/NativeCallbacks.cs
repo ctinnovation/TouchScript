@@ -1,7 +1,10 @@
+using System.Runtime.InteropServices;
+
 namespace TouchScript.InputSources.InputHandlers.Interop
 {
-    public class NativeCallbacks
-    {
-        
-    }
+    /// <summary>
+    /// 
+    /// </summary>
+    [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+    delegate void TouchEventCallback();
 }

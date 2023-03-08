@@ -232,17 +232,16 @@ namespace TouchScript.InputSources.InputHandlers
             var window = multiWindowManager.GetWindowHandle(targetDisplay);
             if (window == IntPtr.Zero)
             {
-                Debug.LogError($"[TouchScript] Failed to initialize Linux X11 pointer input for display {TargetDisplay + 1}.");
+                Debug.LogError($"[TouchScript] Failed to initialize X11 pointer input for display {TargetDisplay + 1}.");
                 return;
             }
 
             var linux11PointerHandler = new LinuxX11MultiWindowPointerHandler(display, window, addPointer, updatePointer, pressPointer,
                 releasePointer, removePointer, cancelPointer);
-            linux11PointerHandler.MouseInPointer = true;
             linux11PointerHandler.TargetDisplay = TargetDisplay;
             pointerHandler = linux11PointerHandler;
 
-            Debug.Log($"[TouchScript] Initialized Linux X11 pointer input for display {TargetDisplay + 1}.");
+            Debug.Log($"[TouchScript] Initialized X11 pointer input for display {TargetDisplay + 1}.");
         }
 # endif
 #endif
@@ -274,7 +273,7 @@ namespace TouchScript.InputSources.InputHandlers
                 pointerHandler.Dispose();
                 pointerHandler = null;
 
-                Debug.Log($"[TouchScript] Disposed Windows 8 pointer input for display {TargetDisplay + 1}.");
+                Debug.Log($"[TouchScript] Disposed pointer input for display {TargetDisplay + 1}.");
             }
         }
 #endif

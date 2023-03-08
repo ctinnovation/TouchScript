@@ -12,41 +12,41 @@ namespace TouchScript.InputSources.InputHandlers
 {
     sealed class LinuxX11MultiWindowPointerHandler : MultiWindowPointerHandler
     {
-        /// <summary>
-        /// Should the primary pointer also dispatch a mouse pointer.
-        /// </summary>
-        public bool MouseInPointer
-        {
-            get { return mouseInPointer; }
-            set
-            {
-                //WindowsUtils.EnableMouseInPointer(value);
-                
-                mouseInPointer = value;
-                if (mouseInPointer)
-                {
-                    if (mousePointer == null) mousePointer = internalAddMousePointer(Vector3.zero);
-                }
-                else
-                {
-                    if (mousePointer != null)
-                    {
-                        if ((mousePointer.Buttons & Pointer.PointerButtonState.AnyButtonPressed) != 0)
-                        {
-                            mousePointer.Buttons = PointerUtils.UpPressedButtons(mousePointer.Buttons);
-                            releasePointer(mousePointer);
-                        }
-                        removePointer(mousePointer);
-                    }
-                }
-            }
-        }
-        
-        private bool mouseInPointer = true;
-        private readonly IntPtr window;
+        // /// <summary>
+        // /// Should the primary pointer also dispatch a mouse pointer.
+        // /// </summary>
+        // public bool MouseInPointer
+        // {
+        //     get { return mouseInPointer; }
+        //     set
+        //     {
+        //         //WindowsUtils.EnableMouseInPointer(value);
+        //         
+        //         mouseInPointer = value;
+        //         if (mouseInPointer)
+        //         {
+        //             if (mousePointer == null) mousePointer = internalAddMousePointer(Vector3.zero);
+        //         }
+        //         else
+        //         {
+        //             if (mousePointer != null)
+        //             {
+        //                 if ((mousePointer.Buttons & Pointer.PointerButtonState.AnyButtonPressed) != 0)
+        //                 {
+        //                     mousePointer.Buttons = PointerUtils.UpPressedButtons(mousePointer.Buttons);
+        //                     releasePointer(mousePointer);
+        //                 }
+        //                 removePointer(mousePointer);
+        //             }
+        //         }
+        //     }
+        // }
+        //
+        // private bool mouseInPointer = true;
 
         private NativeX11PointerHandler pointerHandler;
         private readonly MessageCallback messageCallback;
+        private readonly TouchEventCallback touchEventCallback;
         
         public LinuxX11MultiWindowPointerHandler(IntPtr display, IntPtr window, PointerDelegate addPointer,
             PointerDelegate updatePointer,
@@ -59,12 +59,12 @@ namespace TouchScript.InputSources.InputHandlers
 
             mousePointer = internalAddMousePointer(Vector3.zero);
 
-            this.window = window;
             messageCallback = LinuxX11Utils.OnNativeMessage;
+            touchEventCallback = onNativeTouchEvent;
             
             pointerHandler = new NativeX11PointerHandler();
-
             pointerHandler.Initialize(messageCallback, display, window);
+            
             disablePressAndHold();
             setScaling();
         }
@@ -83,8 +83,6 @@ namespace TouchScript.InputSources.InputHandlers
                 penPointer = null;
             }
 
-            //WindowsUtils.EnableMouseInPointer(false);
-
             enablePressAndHold();
             
             pointerHandler.Dispose();
@@ -94,10 +92,7 @@ namespace TouchScript.InputSources.InputHandlers
         /// <inheritdoc />
         public override bool UpdateInput()
         {
-            base.UpdateInput();
-
-            //pointerHandler.ProcessEventQueue(messageCallback);
-            
+            pointerHandler.ProcessEventQueue(messageCallback, touchEventCallback);
             return true;
         }
 
@@ -145,6 +140,11 @@ namespace TouchScript.InputSources.InputHandlers
 
             pointerHandler.GetScreenResolution(messageCallback, out width, out height);
             pointerHandler.SetScreenParams(messageCallback, width, height, 0, 0, 1, 1);
+        }
+
+        private void onNativeTouchEvent()
+        {
+            
         }
     }
 }

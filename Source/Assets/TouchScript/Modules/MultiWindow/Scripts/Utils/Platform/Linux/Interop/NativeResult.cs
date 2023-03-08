@@ -7,7 +7,8 @@ namespace TouchScript.Utils.Platform.Interop
     {
         Ok = 0,
         ErrorNullPointer = -101,
-        ErrorAPI = -102
+        ErrorAPI = -102,
+        ErrorUnsupported = -103
     }
 
     public static class ResultHelper
@@ -25,6 +26,7 @@ namespace TouchScript.Utils.Platform.Interop
                 case Result.ErrorNullPointer:
                     throw new InvalidOperationException(errorMessage);
                 case Result.ErrorAPI:
+                case Result.ErrorUnsupported:
                     throw new Exception(errorMessage);
             }
         }

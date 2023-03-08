@@ -22,6 +22,9 @@ namespace TouchScript.InputSources.InputHandlers.Interop
         [DllImport("libX11TouchMultiWindow")]
         private static extern Result PointerHandler_SetScreenParams(IntPtr handle, MessageCallback messageCallback,
             int width, int height, float offsetX, float offsetY, float scaleX, float scaleY);
+        [DllImport("libX11TouchMultiWindow")]
+        private static extern Result PointerHandler_ProcessEventQueue(IntPtr handle, MessageCallback messageCallback,
+            TouchEventCallback touchEventCallback);
         
         #endregion
         
@@ -89,6 +92,11 @@ namespace TouchScript.InputSources.InputHandlers.Interop
 #if TOUCHSCRIPT_DEBUG
             ResultHelper.CheckResult(result);
 #endif
+        }
+
+        internal void ProcessEventQueue(MessageCallback messageCallback, TouchEventCallback touchEventCallback)
+        {
+            
         }
     }
 }

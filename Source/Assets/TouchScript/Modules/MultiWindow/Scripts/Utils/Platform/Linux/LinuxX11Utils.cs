@@ -14,6 +14,7 @@ namespace TouchScript.Utils.Platform
         [DllImport("libX11")]
         private static extern int XCloseDisplay(IntPtr display);
         [DllImport("libX11")]
+        [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool XQueryExtension(IntPtr display, string extension, out int opcode, out int evt,
             out int err);
         
