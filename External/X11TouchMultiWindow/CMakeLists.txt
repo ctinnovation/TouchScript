@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 project(X11TouchMultiWindow)
 
-set (CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_GENERATOR_PLATFORM x64)
 
 find_package(X11 REQUIRED)
 if (NOT X11_FOUND)

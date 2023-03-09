@@ -228,7 +228,7 @@ namespace TouchScript.InputSources.InputHandlers
 # elif UNITY_STANDALONE_LINUX
         private void EnableTouch()
         {
-            var x11PointerSystem = multiWindowManager.GetX11PointerSystem();
+            var handlerSystem = multiWindowManager.GetPointerHandlerSystem();
             var window = multiWindowManager.GetWindowHandle(targetDisplay);
             if (window == IntPtr.Zero)
             {
@@ -236,7 +236,7 @@ namespace TouchScript.InputSources.InputHandlers
                 return;
             }
 
-            var x11PointerHandler = new X11MultiWindowPointerHandler(x11PointerSystem, window, addPointer, updatePointer, pressPointer,
+            var x11PointerHandler = new X11MultiWindowPointerHandler(handlerSystem, window, addPointer, updatePointer, pressPointer,
                 releasePointer, removePointer, cancelPointer);
             x11PointerHandler.TargetDisplay = TargetDisplay;
             pointerHandler = x11PointerHandler;

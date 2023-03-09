@@ -4,11 +4,11 @@
 #include <X11/extensions/XInput2.h>
 
 #include "X11TouchMultiWindowPointerHandler.h"
-#include "X11TouchMultiWindowPointerSystem.h"
+#include "X11TouchMultiWindowPointerHandlerSystem.h"
 #include "X11TouchMultiWindowUtils.h"
 
 // ----------------------------------------------------------------------------
-PointerSystem::PointerSystem(MessageCallback messageCallback)
+PointerHandlerSystem::PointerHandlerSystem(MessageCallback messageCallback)
     : mDisplay(NULL)
     , mOpcode(0)
     , mMessageCallback(messageCallback)
@@ -16,7 +16,7 @@ PointerSystem::PointerSystem(MessageCallback messageCallback)
     
 }
 // ----------------------------------------------------------------------------
-PointerSystem::~PointerSystem()
+PointerHandlerSystem::~PointerHandlerSystem()
 {
     // Cleanup remaining handlers
     PointerHandlerMapIterator it;
@@ -34,8 +34,10 @@ PointerSystem::~PointerSystem()
     }
 }
 // ----------------------------------------------------------------------------
-Result PointerSystem::initialize()
+Result PointerHandlerSystem::initialize()
 {
+    sendMessage(mMessageCallback, MessageType::INFO, "Initializing system...");
+
     mDisplay = XOpenDisplay(NULL);
     if (mDisplay == NULL)
     {
@@ -66,10 +68,12 @@ Result PointerSystem::initialize()
         return Result::ERROR_API;
     }
 
+    sendMessage(mMessageCallback, MessageType::INFO, "System intialized...");
+
     return Result::OK;
 }
 // ----------------------------------------------------------------------------
-Result PointerSystem::createHandler(Window window, PointerCallback pointerCallback, void** handle)
+Result PointerHandlerSystem::createHandler(Window window, PointerCallback pointerCallback, void** handle)
 {
     if (mPointerHandlers.find(window) != mPointerHandlers.end())
     {
@@ -84,7 +88,7 @@ Result PointerSystem::createHandler(Window window, PointerCallback pointerCallba
     return handler->initialize();
 }
 // ----------------------------------------------------------------------------
-PointerHandler* PointerSystem::getHandler(Window window) const
+PointerHandler* PointerHandlerSystem::getHandler(Window window) const
 {
     ConstPointerHandlerMapIterator it = mPointerHandlers.find(window);
     if (it != mPointerHandlers.end())
@@ -95,7 +99,7 @@ PointerHandler* PointerSystem::getHandler(Window window) const
     return nullptr;
 }
 // ----------------------------------------------------------------------------
-Result PointerSystem::destroyHandler(PointerHandler* handler)
+Result PointerHandlerSystem::destroyHandler(PointerHandler* handler)
 {
     PointerHandlerMapIterator it = mPointerHandlers.find(handler->getWindow());
 	if (it != mPointerHandlers.end())
@@ -107,35 +111,35 @@ Result PointerSystem::destroyHandler(PointerHandler* handler)
 	return Result::OK;
 }
 // ----------------------------------------------------------------------------
-Result PointerSystem::processEventQueue()
+Result PointerHandlerSystem::processEventQueue()
 {
-    XEvent e;
-    while (XEventsQueued(mDisplay, QueuedAlready))
-    {
-        XNextEvent(mDisplay, &e);
-        if (e.type != GenericEvent || e.xcookie.extension != mOpcode)
-        {
-            // Received a non xinput event
-            continue;
-        }
+    // XEvent e;
+    // while (XEventsQueued(mDisplay, QueuedAlready))
+    // {
+    //     XNextEvent(mDisplay, &e);
+    //     if (e.type != GenericEvent || e.xcookie.extension != mOpcode)
+    //     {
+    //         // Received a non xinput event
+    //         continue;
+    //     }
 
-        XIDeviceEvent* xiEvent = (XIDeviceEvent*)e.xcookie.data;
+    //     XIDeviceEvent* xiEvent = (XIDeviceEvent*)e.xcookie.data;
         
-        Window window = xiEvent->event;
-        PointerHandlerMapIterator it = mPointerHandlers.find(window);
-	    if (it == mPointerHandlers.end())
-	    {
-            sendMessage(mMessageCallback, MessageType::WARNING, "Failed to retrieve handler for window " + std::to_string(window));
-            continue;
-        }
+    //     Window window = xiEvent->event;
+    //     PointerHandlerMapIterator it = mPointerHandlers.find(window);
+	//     if (it == mPointerHandlers.end())
+	//     {
+    //         sendMessage(mMessageCallback, MessageType::WARNING, "Failed to retrieve handler for window " + std::to_string(window));
+    //         continue;
+    //     }
 
-        it->second->processEvent(xiEvent);
-    }
+    //     it->second->processEvent(xiEvent);
+    // }
 
     return Result::OK;
 }
 // ----------------------------------------------------------------------------
-Result PointerSystem::getWindowsOfProcess(unsigned long pid, Window** windows, uint* numWindows)
+Result PointerHandlerSystem::getWindowsOfProcess(unsigned long pid, Window** windows, uint* numWindows)
 {
     if (windows == NULL)
     {
@@ -157,7 +161,7 @@ Result PointerSystem::getWindowsOfProcess(unsigned long pid, Window** windows, u
     return Result::OK;
 }
 // ----------------------------------------------------------------------------
-Result PointerSystem::freeWindowsOfProcess(Window* windows)
+Result PointerHandlerSystem::freeWindowsOfProcess(Window* windows)
 {
     if (windows == NULL)
     {
@@ -169,7 +173,7 @@ Result PointerSystem::freeWindowsOfProcess(Window* windows)
     return Result::OK;
 }
 // ----------------------------------------------------------------------------
-void PointerSystem::getWindowsOfProcess(Window window, unsigned long pid,
+void PointerHandlerSystem::getWindowsOfProcess(Window window, unsigned long pid,
     Atom atomPID, std::vector<Window>& windows)
 {
     Atom           type;
@@ -212,48 +216,4 @@ void PointerSystem::getWindowsOfProcess(Window window, unsigned long pid,
             XFree(childWindows);
         }
     }
-}
-
-// .NET available interface
-// ----------------------------------------------------------------------------
-extern "C" EXPORT_API Result PointerSystem_Create(MessageCallback messageCallback,
-    void** handle) throw()
-{
-    PointerSystem* system = new PointerSystem(messageCallback);
-	*handle = system;
-
-    return system->initialize();
-}
-// ----------------------------------------------------------------------------
-extern "C" EXPORT_API Result PointerSystem_Destroy(PointerSystem* system) throw()
-{
-    delete system;
-	return Result::OK;
-}
-// ----------------------------------------------------------------------------
-extern "C" EXPORT_API Result PointerSystem_CreateHandler(PointerSystem* system,
-    Window window, PointerCallback pointerCallback, void** handle) throw()
-{
-	return system->createHandler(window, pointerCallback, handle);
-}
-// ----------------------------------------------------------------------------
-extern "C" EXPORT_API Result PointerSystem_DestroyHandler(PointerSystem* system, PointerHandler* handler) throw()
-{
-	return system->destroyHandler(handler);
-}
-// ----------------------------------------------------------------------------
-extern "C" EXPORT_API Result PointerSystem_ProcessEventQueue(PointerSystem* system)
-{
-    return system->processEventQueue();
-}
-// ----------------------------------------------------------------------------
-extern "C" EXPORT_API Result PointerSystem_GetWindowsOfProcess(PointerSystem* system,
-    int processID, Window** windows, uint* numWindows)
-{
-    return system->getWindowsOfProcess(processID, windows, numWindows);
-}
-// ----------------------------------------------------------------------------
-extern "C" EXPORT_API Result XFreeWindowsOfProcess(PointerSystem* system, Window* windows)
-{
-    return system->freeWindowsOfProcess(windows);
 }

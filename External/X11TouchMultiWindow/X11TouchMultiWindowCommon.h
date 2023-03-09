@@ -27,7 +27,7 @@ typedef enum
 /**	*/
 typedef void(*MessageCallback)(int, char*);
 /** */
-typedef void(*PointerCallback)();
+typedef void(*PointerCallback)(void);
 
 #if _UNICODE
 #define CONSOLE_WRITE_LINE(message) { \
@@ -38,3 +38,6 @@ typedef void(*PointerCallback)();
 			std::cout << message << std::endl; \
 		}
 #endif
+
+class PointerHandler;
+class PointerHandlerSystem;

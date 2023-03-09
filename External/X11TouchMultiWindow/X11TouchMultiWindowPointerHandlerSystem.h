@@ -10,13 +10,12 @@
 
 #include "X11TouchMultiWindowCommon.h"
 
-class PointerHandler;
-typedef std::map<Window, PointerHandler*> PointerHandlerMap;
-typedef PointerHandlerMap::iterator PointerHandlerMapIterator;
-typedef PointerHandlerMap::const_iterator ConstPointerHandlerMapIterator;
-
-class EXPORT_API PointerSystem
+class EXPORT_API PointerHandlerSystem
 {
+    typedef std::map<Window, PointerHandler*> PointerHandlerMap;
+    typedef PointerHandlerMap::iterator PointerHandlerMapIterator;
+    typedef PointerHandlerMap::const_iterator ConstPointerHandlerMapIterator;
+
 private:
     Display* mDisplay;
     int mOpcode;
@@ -24,8 +23,8 @@ private:
     PointerHandlerMap mPointerHandlers;
 
 public:
-    PointerSystem(MessageCallback messageCallback);
-    ~PointerSystem();
+    PointerHandlerSystem(MessageCallback messageCallback);
+    ~PointerHandlerSystem();
 
     Result initialize();
 

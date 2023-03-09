@@ -12,7 +12,7 @@ namespace TouchScript.InputSources.InputHandlers
     {
         private NativeX11PointerHandler pointerHandler;
         
-        public X11MultiWindowPointerHandler(X11PointerSystem system, IntPtr window, PointerDelegate addPointer, PointerDelegate updatePointer,
+        public X11MultiWindowPointerHandler(X11PointerHandlerSystem handlerSystem, IntPtr window, PointerDelegate addPointer, PointerDelegate updatePointer,
             PointerDelegate pressPointer, PointerDelegate releasePointer, PointerDelegate removePointer,
             PointerDelegate cancelPointer)
             : base(addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer)
@@ -22,7 +22,7 @@ namespace TouchScript.InputSources.InputHandlers
 
             mousePointer = internalAddMousePointer(Vector3.zero);
 
-            pointerHandler = new NativeX11PointerHandler(system, window, OnNativePointerEvent);
+            pointerHandler = new NativeX11PointerHandler(handlerSystem, window, OnNativePointerEvent);
             
             disablePressAndHold();
             setScaling();

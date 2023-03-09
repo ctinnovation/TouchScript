@@ -68,6 +68,8 @@ Result PointerHandler::initialize()
 		return Result::ERROR_UNSUPPORTED;
 	}
 
+	sendMessage(mMessageCallback, MessageType::INFO, "Handler initialized...");
+
     return Result::OK;
 }
 // ----------------------------------------------------------------------------
@@ -115,18 +117,4 @@ void PointerHandler::processEvent(XIDeviceEvent* xiEvent)
 		case XI_TouchEnd:
 			break;
 	}
-}
-
-// .NET available interface
-// ----------------------------------------------------------------------------
-extern "C" EXPORT_API Result PointerHandler_GetScreenResolution(
-	PointerHandler* handler, int* width, int* height)
-{
-    return handler->getScreenResolution(width, height);
-}
-// ----------------------------------------------------------------------------
-extern "C" EXPORT_API Result PointerHandler_SetScreenParams(
-	PointerHandler* handler, int width, int height, float offsetX, float offsetY, float scaleX, float scaleY)
-{
-	return handler->setScreenParams(width, height, offsetX, offsetY, scaleX, scaleY);
 }
