@@ -659,8 +659,7 @@ namespace TouchScript.Core
 #if UNITY_5_6_OR_NEWER
             samplerUpdateInputs.Begin();
 #endif
-            for (var i = 0; i < systemCount; i++) systems[i].Process();
-            
+            for (var i = 0; i < systemCount; i++) systems[i].PrepareInputs();
             for (var i = 0; i < inputCount; i++) inputs[i].UpdateInput();
 #if UNITY_5_6_OR_NEWER
             samplerUpdateInputs.End();

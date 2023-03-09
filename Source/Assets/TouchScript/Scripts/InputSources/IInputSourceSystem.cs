@@ -9,6 +9,6 @@
         /// This method is called by <see cref="ITouchManager"/> to synchronously process the system. It is called right
         /// before the update of the input sources.
         /// </summary>
-        void Process();
+        void PrepareInputs();
     }
 }

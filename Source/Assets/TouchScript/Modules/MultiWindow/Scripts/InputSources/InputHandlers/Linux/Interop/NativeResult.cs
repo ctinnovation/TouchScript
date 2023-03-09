@@ -8,7 +8,8 @@ namespace TouchScript.InputSources.InputHandlers.Interop
         Ok = 0,
         ErrorNullPointer = -101,
         ErrorAPI = -102,
-        ErrorUnsupported = -103
+        ErrorUnsupported = -103,
+        DuplicateItem = -104
     }
 
     public static class ResultHelper
@@ -24,6 +25,7 @@ namespace TouchScript.InputSources.InputHandlers.Interop
             switch (result)
             {
                 case Result.ErrorNullPointer:
+                case Result.DuplicateItem:
                     throw new InvalidOperationException(errorMessage);
                 case Result.ErrorAPI:
                 case Result.ErrorUnsupported:

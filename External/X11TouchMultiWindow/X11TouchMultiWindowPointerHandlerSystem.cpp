@@ -116,13 +116,16 @@ Result PointerHandlerSystem::processEventQueue()
     // XEvent e;
     // while (XEventsQueued(mDisplay, QueuedAlready))
     // {
-    //     XNextEvent(mDisplay, &e);
-    //     if (e.type != GenericEvent || e.xcookie.extension != mOpcode)
+    //     XNextEvent(mDisplay, &xEvent);
+    //     if (xEvent.type != GenericEvent || xEvent.xcookie.extension != mOpcode)
     //     {
     //         // Received a non xinput event
+    //         sendMessage(mMessageCallback, MessageType::WARNING, "Received event of type " +
+    //             std::to_string(e.type) + " for window " + std::to_string(window));
     //         continue;
     //     }
 
+    //     XGetEventData(mDisplay, e.xcookie);
     //     XIDeviceEvent* xiEvent = (XIDeviceEvent*)e.xcookie.data;
         
     //     Window window = xiEvent->event;
@@ -134,6 +137,8 @@ Result PointerHandlerSystem::processEventQueue()
     //     }
 
     //     it->second->processEvent(xiEvent);
+
+    //     XFreeEventData(mDisplay, e.xcookie);
     // }
 
     return Result::OK;

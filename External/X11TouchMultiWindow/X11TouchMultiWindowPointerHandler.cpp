@@ -49,6 +49,7 @@ Result PointerHandler::initialize()
 	memset(mask, 0, sizeof(mask));
 	XISetMask(mask, XI_ButtonPress);
 	XISetMask(mask, XI_ButtonRelease);
+	XISetMask(mask, XI_Motion);
 	XISetMask(mask, XI_TouchBegin);
 	XISetMask(mask, XI_TouchUpdate);
 	XISetMask(mask, XI_TouchEnd);
@@ -107,8 +108,11 @@ void PointerHandler::processEvent(XIDeviceEvent* xiEvent)
 	switch (xiEvent->evtype)
 	{
 		case XI_ButtonPress:
+			
 			break;
 		case XI_ButtonRelease:
+			break;
+		case XI_Motion:
 			break;
 		case XI_TouchBegin:
 			break;

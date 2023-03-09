@@ -8,21 +8,42 @@ using UnityEngine;
 
 namespace TouchScript.InputSources.InputHandlers
 {
-    public class X11PointerHandlerSystem : IInputSourceSystem
+    public class X11PointerHandlerSystem : IInputSourceSystem, IDisposable
     {
-        [DllImport("libX11TouchMultiWindow", EntryPoint = "PointerHandlerSystem_ProcessEventQueue")]
+        [DllImport("libX11TouchMultiWindow")]
         private static extern Result PointerHandlerSystem_ProcessEventQueue();
-        [DllImport("libX11TouchMultiWindow", EntryPoint = "PointerHandlerSystem_GetWindowsOfProcess")]
-        private static extern Result PointerHandlerSystem_GetWindowsOfProcess(int pid, out IntPtr windows, out uint numWindows);
-        [DllImport("libX11TouchMultiWindow", EntryPoint = "PointerHandlerSystem_FreeWindowsOfProcess")]
+        [DllImport("libX11TouchMultiWindow")]
+        private static extern Result PointerHandlerSystem_GetWindowsOfProcess(MessageCallback messageCallback,
+            int pid, out IntPtr windows, out uint numWindows);
+        [DllImport("libX11TouchMultiWindow")]
         private static extern Result PointerHandlerSystem_FreeWindowsOfProcess(IntPtr windows);
-
-        public X11PointerHandlerSystem()
+        [DllImport("libX11TouchMultiWindow")]
+        private static extern Result PointerHandlerSystem_Destroy();
+        
+        ~X11PointerHandlerSystem()
         {
-            
+            Dispose(false);
         }
         
-        public void Process()
+        /// <inheritdoc/>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                // Free managed resources
+            }
+
+            // Free native resources
+            PointerHandlerSystem_Destroy();
+        }
+
+        public void PrepareInputs()
         {
             var result = PointerHandlerSystem_ProcessEventQueue();
 #if TOUCHSCRIPT_DEBUG
@@ -32,7 +53,8 @@ namespace TouchScript.InputSources.InputHandlers
 
         public void GetWindowsOfProcess(int pid, List<IntPtr> procWindows)
         {
-            var result = PointerHandlerSystem_GetWindowsOfProcess(, pid, out var windows, out uint numWindows);
+            var result =
+                PointerHandlerSystem_GetWindowsOfProcess(OnNativeMessage, pid, out var windows, out uint numWindows);
             ResultHelper.CheckResult(result);
             
             // Copy window handles
@@ -40,7 +62,7 @@ namespace TouchScript.InputSources.InputHandlers
             Marshal.Copy(windows, w, 0, (int)numWindows);
             
             // Cleanup native side
-            PointerHandlerSystem_FreeWindowsOfProcess(handle, windows);
+            PointerHandlerSystem_FreeWindowsOfProcess(windows);
             
             procWindows.AddRange(w);
             
@@ -49,7 +71,7 @@ namespace TouchScript.InputSources.InputHandlers
         
         // Attribute used for IL2CPP
         [AOT.MonoPInvokeCallback(typeof(MessageCallback))]
-        private void OnNativeMessage(int messageType, string message)
+        public static void OnNativeMessage(int messageType, string message)
         {
             switch (messageType)
             {

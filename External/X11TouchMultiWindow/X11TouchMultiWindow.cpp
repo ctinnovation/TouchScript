@@ -1,3 +1,7 @@
+/*
+@author Jorrit de Vries (jorrit@ijsfontein.nl)
+*/
+
 #include "X11TouchMultiWindowPointerHandler.h"
 #include "X11TouchMultiWindowPointerHandlerSystem.h"
 
@@ -39,6 +43,17 @@ extern "C" EXPORT_API Result PointerHandlerSystem_FreeWindowsOfProcess(Window* w
     }
     
     return system->freeWindowsOfProcess(windows);
+}
+// ----------------------------------------------------------------------------
+extern "C" EXPORT_API Result PointerHandlerSystem_Destroy()
+{
+    if (system != nullptr)
+    {
+        delete system;
+        system = 0;
+    }
+
+    return Result::OK;
 }
 
 // ----------------------------------------------------------------------------

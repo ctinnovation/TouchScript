@@ -7,25 +7,27 @@ namespace TouchScript.InputSources.InputHandlers.Interop
     sealed class NativeX11PointerHandler : IDisposable
     {
         #region Native Methods
-        
-        [DllImport("libX11TouchMultiWindow", EntryPoint = "PointerHandler_GetScreenResolution")]
+
+        [DllImport("libX11TouchMultiWindow")]
+        private static extern Result PointerHandler_Create(IntPtr window, MessageCallback messageCallback,
+            PointerCallback pointerCallback, ref IntPtr handle);
+        [DllImport("libX11TouchMultiWindow")]
+        private static extern Result PointerHandler_Destroy(IntPtr handle);
+        [DllImport("libX11TouchMultiWindow")]
         private static extern Result PointerHandler_GetScreenResolution(IntPtr handle, out int width, out int height);
-        [DllImport("libX11TouchMultiWindow", EntryPoint = "PointerHandler_SetScreenParams")]
+        [DllImport("libX11TouchMultiWindow")]
         private static extern Result PointerHandler_SetScreenParams(IntPtr handle, int width, int height,
             float offsetX, float offsetY, float scaleX, float scaleY);
         
         #endregion
         
-        private X11PointerHandlerSystem system;
         private IntPtr handle;
 
-        internal NativeX11PointerHandler(X11PointerHandlerSystem handlerSystem, IntPtr window, PointerCallback pointerCallback)
+        internal NativeX11PointerHandler(IntPtr window, PointerCallback pointerCallback)
         {
-            this.system = handlerSystem;
-
             // Create native resources
             handle = new IntPtr();
-            var result = X11PointerHandlerSystem.PointerHandlerSystem_CreateHandler(handlerSystem.Handle, window, pointerCallback, ref handle);
+            var result = PointerHandler_Create(window, X11PointerHandlerSystem.OnNativeMessage, pointerCallback, ref handle);
             if (result != Result.Ok)
             {
                 handle = IntPtr.Zero;
@@ -53,9 +55,9 @@ namespace TouchScript.InputSources.InputHandlers.Interop
             }
 
             // Free native resources
-            if (system.Handle != IntPtr.Zero && handle != IntPtr.Zero)
+            if (handle != IntPtr.Zero)
             {
-                X11PointerHandlerSystem.PointerHandlerSystem_DestroyHandler(system.Handle, handle);
+                PointerHandler_Destroy(handle);
             }
             handle = IntPtr.Zero;
         }
