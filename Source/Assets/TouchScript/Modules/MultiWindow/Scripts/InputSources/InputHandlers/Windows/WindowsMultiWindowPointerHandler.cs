@@ -249,9 +249,6 @@ namespace TouchScript.InputSources.InputHandlers
         {
             var currentUpDown = ((uint) current) & 0xFFFFFC00;
             var pressed = ((uint) flags >> 4) & 0x1F;
-            
-            Debug.Log($"0x{((uint)flags).ToString("X8")} | {((uint)flags & 0x1F0000).ToString("X8")} | 0x{pressed.ToString("X8")} | {pressed}");
-            
             var newUpDown = 0U;
             if (change != ButtonChangeType.None) newUpDown = 1U << (10 + (int) change);
             var combined = (Pointer.PointerButtonState) (pressed | newUpDown | currentUpDown);
