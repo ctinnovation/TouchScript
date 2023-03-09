@@ -9,9 +9,6 @@ using System.Diagnostics;
 using System.Text;
 using TouchScript.Utils.Platform;
 #endif
-#if UNITY_STANDALONE_LINUX
-using TouchScript.Utils.Platform;
-#endif
 using Debug = UnityEngine.Debug;
 
 namespace TouchScript.Core
@@ -69,8 +66,7 @@ namespace TouchScript.Core
         private List<IntPtr> unityWindowHandles = new List<IntPtr>();
 
 #if UNITY_STANDALONE_LINUX
-        // The X server connection
-        private IntPtr display;
+        private X11PointerSystem x11PointerSystem;
 #endif
 
         private void Awake()
@@ -91,13 +87,7 @@ namespace TouchScript.Core
             Input.simulateMouseWithTouches = false;
             
 #if UNITY_STANDALONE_LINUX
-            display = X11Utils.OpenDisplayConnection();
-            if (display == IntPtr.Zero)
-            {
-                return;
-            }
-            
-            // Check version
+            x11PointerSystem = new X11PointerSystem();
 #endif
             
             // First display is always activated
@@ -119,6 +109,10 @@ namespace TouchScript.Core
             // Frame 1: Displays are activated, we can retrieve handles and update the input handlers
             yield return null;
             
+#if UNITY_STANDALONE_LINUX
+            TouchManager.Instance.AddSystem(x11PointerSystem);
+#endif
+            
             if (ShouldUpdateInputHandlersOnStart)
             {
                 UpdateInputHandlers();
@@ -127,17 +121,16 @@ namespace TouchScript.Core
         
         private void OnApplicationQuit()
         {
+#if UNITY_STANDALONE_LINUX
+            TouchManager.Instance.RemoveSystem(x11PointerSystem);
+#endif
             shuttingDown = true;
         }
 
         private void OnDestroy()
         {
 #if UNITY_STANDALONE_LINUX
-            if (display != IntPtr.Zero)
-            {
-                X11Utils.CloseDisplayConnection(display);
-                display = IntPtr.Zero;
-            }
+            x11PointerSystem.Dispose();
 #endif
 
             instance = null;
@@ -206,13 +199,13 @@ namespace TouchScript.Core
         private void RefreshWindowHandles()
         {
             unityWindowHandles.Clear();
-            X11Utils.GetWindowsOfProcess(display, Process.GetCurrentProcess().Id, unityWindowHandles);
+            x11PointerSystem.GetWindowsOfProcess(Process.GetCurrentProcess().Id, unityWindowHandles);
         }
 # endif
 #endif
         
 #if UNITY_STANDALONE_LINUX
-        public IntPtr GetDisplay() => display;
+        public X11PointerSystem GetX11PointerSystem() => x11PointerSystem;
 #endif
         
         public IntPtr GetWindowHandle(int targetDisplay)

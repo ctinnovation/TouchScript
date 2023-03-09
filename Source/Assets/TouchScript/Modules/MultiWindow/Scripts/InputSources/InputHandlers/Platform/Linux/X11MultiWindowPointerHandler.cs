@@ -4,51 +4,15 @@ using System;
 using TouchScript.InputSources.InputHandlers.Interop;
 using TouchScript.Pointers;
 using TouchScript.Utils;
-using TouchScript.Utils.Platform;
-using TouchScript.Utils.Platform.Interop;
 using UnityEngine;
 
 namespace TouchScript.InputSources.InputHandlers
 {
     sealed class X11MultiWindowPointerHandler : MultiWindowPointerHandler
     {
-        // /// <summary>
-        // /// Should the primary pointer also dispatch a mouse pointer.
-        // /// </summary>
-        // public bool MouseInPointer
-        // {
-        //     get { return mouseInPointer; }
-        //     set
-        //     {
-        //         //WindowsUtils.EnableMouseInPointer(value);
-        //         
-        //         mouseInPointer = value;
-        //         if (mouseInPointer)
-        //         {
-        //             if (mousePointer == null) mousePointer = internalAddMousePointer(Vector3.zero);
-        //         }
-        //         else
-        //         {
-        //             if (mousePointer != null)
-        //             {
-        //                 if ((mousePointer.Buttons & Pointer.PointerButtonState.AnyButtonPressed) != 0)
-        //                 {
-        //                     mousePointer.Buttons = PointerUtils.UpPressedButtons(mousePointer.Buttons);
-        //                     releasePointer(mousePointer);
-        //                 }
-        //                 removePointer(mousePointer);
-        //             }
-        //         }
-        //     }
-        // }
-        //
-        // private bool mouseInPointer = true;
-
         private NativeX11PointerHandler pointerHandler;
-        private readonly MessageCallback messageCallback;
         
-        public X11MultiWindowPointerHandler(IntPtr display, IntPtr window, PointerDelegate addPointer,
-            PointerDelegate updatePointer,
+        public X11MultiWindowPointerHandler(X11PointerSystem system, IntPtr window, PointerDelegate addPointer, PointerDelegate updatePointer,
             PointerDelegate pressPointer, PointerDelegate releasePointer, PointerDelegate removePointer,
             PointerDelegate cancelPointer)
             : base(addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer)
@@ -58,9 +22,7 @@ namespace TouchScript.InputSources.InputHandlers
 
             mousePointer = internalAddMousePointer(Vector3.zero);
 
-            messageCallback = X11Utils.OnNativeMessage;
-            
-            pointerHandler = new NativeX11PointerHandler(messageCallback, display, window, onNativePointerEvent);
+            pointerHandler = new NativeX11PointerHandler(system, window, OnNativePointerEvent);
             
             disablePressAndHold();
             setScaling();
@@ -89,9 +51,6 @@ namespace TouchScript.InputSources.InputHandlers
         /// <inheritdoc />
         public override bool UpdateInput()
         {
-            // We pass in the frame count, cause we only need to execute the event pump once for each frame
-            // See comments on the native side why...
-            pointerHandler.ProcessEventQueue(messageCallback, Time.frameCount);
             return true;
         }
 
@@ -137,11 +96,11 @@ namespace TouchScript.InputSources.InputHandlers
         {
             int width, height;
 
-            pointerHandler.GetScreenResolution(messageCallback, out width, out height);
-            pointerHandler.SetScreenParams(messageCallback, width, height, 0, 0, 1, 1);
+            pointerHandler.GetScreenResolution(out width, out height);
+            pointerHandler.SetScreenParams(width, height, 0, 0, 1, 1);
         }
 
-        private void onNativePointerEvent()
+        private void OnNativePointerEvent()
         {
             
         }

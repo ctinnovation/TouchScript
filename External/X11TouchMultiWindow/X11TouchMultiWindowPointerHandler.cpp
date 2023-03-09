@@ -1,20 +1,19 @@
 /*
 @author Jorrit de Vries (jorrit@ijsfontein.nl)
 */
-
 #include <cstring>
-#include <X11/extensions/XInput2.h>
 
 #include "X11TouchMultiWindowPointerHandler.h"
 #include "X11TouchMultiWindowPointerHandlerManager.h"
 #include "X11TouchMultiWindowUtils.h"
 
 // ----------------------------------------------------------------------------
-PointerHandler::PointerHandler(Display* display, Window window, PointerCallback pointerCallback)
+PointerHandler::PointerHandler(Display* display, Window window,
+	MessageCallback messageCallback, PointerCallback pointerCallback)
     : mDisplay(display)
 	, mWindow(window)
+	, mMessageCallback(messageCallback)
 	, mPointerCallback(pointerCallback)
-	, mXInputOpcode(0)
     , mWidth(0)
 	, mHeight(0)
 	, mOffsetX(0.0f)
@@ -30,29 +29,21 @@ PointerHandler::~PointerHandler()
 
 }
 // ----------------------------------------------------------------------------
-Result PointerHandler::initialize(MessageCallback messageCallback)
+Result PointerHandler::initialize()
 {
-    sendMessage(messageCallback, MessageType::INFO, "Initializing handler...");
+    sendMessage(mMessageCallback, MessageType::INFO, "Initializing handler...");
 
 	if (mDisplay == NULL)
 	{
-		sendMessage(messageCallback, MessageType::ERROR, "'display' is NULL");
+		sendMessage(mMessageCallback, MessageType::ERROR, "'display' is NULL");
 		return Result::ERROR_NULL_POINTER;
 	}
 
     if (mWindow == None)
     {
-        sendMessage(messageCallback, MessageType::ERROR, "'window' is None");
+        sendMessage(mMessageCallback, MessageType::ERROR, "'window' is None");
         return Result::ERROR_NULL_POINTER;
     }
-
-	// Request the opcode for XInput2
-	int evt, err;
-	if (!XQueryExtension(mDisplay, "XInputExtension", &mXInputOpcode, &evt, &err))
-	{
-		sendMessage(messageCallback, MessageType::ERROR, "'XInput extension is not available");
-		return Result::ERROR_UNSUPPORTED;
-	}
 
 	// Setup the event mask fore the events we want to listen to
 	unsigned char mask[XIMaskLen(XI_LASTEVENT)];
@@ -74,14 +65,14 @@ Result PointerHandler::initialize(MessageCallback messageCallback)
 	
 	if (status != Success)
 	{
-		sendMessage(messageCallback, MessageType::ERROR, "Failed to select pointer events on window: " + std::to_string(status));
+		sendMessage(mMessageCallback, MessageType::ERROR, "Failed to select pointer events on window: " + std::to_string(status));
 		return Result::ERROR_UNSUPPORTED;
 	}
 
     return Result::OK;
 }
 // ----------------------------------------------------------------------------
-Result PointerHandler::getScreenResolution(MessageCallback messageCallback, int* width, int* height)
+Result PointerHandler::getScreenResolution(int* width, int* height)
 {
     // Get the screen for the window
     XWindowAttributes attributes; 
@@ -93,13 +84,12 @@ Result PointerHandler::getScreenResolution(MessageCallback messageCallback, int*
     }
     else
     {
-        sendMessage(messageCallback, MessageType::ERROR, "Failed to retrieve XWindowAttributes");
+        sendMessage(mMessageCallback, MessageType::ERROR, "Failed to retrieve XWindowAttributes");
         return Result::ERROR_API;
     }
 }
 // ----------------------------------------------------------------------------
-Result PointerHandler::setScreenParams(MessageCallback messageCallback,
-	int width, int height, float offsetX, float offsetY, float scaleX, float scaleY)
+Result PointerHandler::setScreenParams(int width, int height, float offsetX, float offsetY, float scaleX, float scaleY)
 {
 	mWidth = width;
 	mHeight = height;
@@ -111,60 +101,33 @@ Result PointerHandler::setScreenParams(MessageCallback messageCallback,
 	return Result::OK;
 }
 // ----------------------------------------------------------------------------
-Result PointerHandler::processEvents(MessageCallback messageCallback, int frameCount)
+void PointerHandler::processEvent(XIDeviceEvent* xiEvent)
 {
-	// We use the same architecture for pointer handlers and input. And as we
-	// can't hook into the window procedures as we can on on Windows, for now
-	// we do a process only once every frame.
-
-	// An actual refactor of the C# side is required (creating a single MultiWindowStandardInput with multiple pointer handlers)
-	// but that's for later.
-
-	PointerHandlerManager::processEvents(mDisplay, mXInputOpcode, frameCount);
-	return Result::OK;
+	switch (xiEvent->evtype)
+	{
+		case XI_ButtonPress:
+			break;
+		case XI_ButtonRelease:
+			break;
+		case XI_TouchBegin:
+			break;
+		case XI_TouchUpdate:
+			break;
+		case XI_TouchEnd:
+			break;
+	}
 }
 
 // .NET available interface
 // ----------------------------------------------------------------------------
-extern "C" EXPORT_API Result PointerHandler_Create(MessageCallback messageCallback,
-	Display* display, Window window, PointerCallback pointerCallback, void** handle) throw()
-{
-	PointerHandler* handler = new PointerHandler(display, window, pointerCallback);
-	*handle = handler;
-
-	PointerHandlerManager::pointerHandlers.insert(std::make_pair(window, handler));
-
-	return handler->initialize(messageCallback);
-}
-// ----------------------------------------------------------------------------
-extern "C" EXPORT_API Result PointerHandler_Destroy(PointerHandler* handler) throw()
-{
-	PointerHandlerMapIterator it = PointerHandlerManager::pointerHandlers.find(handler->getWindow());
-	if (it != PointerHandlerManager::pointerHandlers.end())
-	{
-		PointerHandlerManager::pointerHandlers.erase(it);
-	}
-
-	delete handler;
-	return Result::OK;
-}
-// ----------------------------------------------------------------------------
 extern "C" EXPORT_API Result PointerHandler_GetScreenResolution(
-	PointerHandler* handler, MessageCallback messageCallback,
-	int* width, int* height)
+	PointerHandler* handler, int* width, int* height)
 {
-    return handler->getScreenResolution(messageCallback, width, height);
+    return handler->getScreenResolution(width, height);
 }
 // ----------------------------------------------------------------------------
 extern "C" EXPORT_API Result PointerHandler_SetScreenParams(
-	PointerHandler* handler, MessageCallback messageCallback,
-	int width, int height, float offsetX, float offsetY, float scaleX, float scaleY)
+	PointerHandler* handler, int width, int height, float offsetX, float offsetY, float scaleX, float scaleY)
 {
-	return handler->setScreenParams(messageCallback, width, height, offsetX, offsetY, scaleX, scaleY);
-}
-// ----------------------------------------------------------------------------
-extern "C" EXPORT_API Result PointerHandler_ProcessEventQueue(
-	PointerHandler* handler, MessageCallback messageCallback, int frameCount)
-{
-	return handler->processEvents(messageCallback, frameCount);
+	return handler->setScreenParams(width, height, offsetX, offsetY, scaleX, scaleY);
 }

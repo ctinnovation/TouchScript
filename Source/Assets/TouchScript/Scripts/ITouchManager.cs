@@ -149,6 +149,20 @@ namespace TouchScript
         bool IsInsidePointerFrame { get; }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="system"></param>
+        /// <returns></returns>
+        bool AddSystem(IInputSourceSystem system);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="system"></param>
+        /// <returns></returns>
+        bool RemoveSystem(IInputSourceSystem system);
+
+        /// <summary>
         /// Adds an input source.
         /// </summary>
         /// <param name="input"> Input source to add. </param>

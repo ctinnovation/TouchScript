@@ -222,6 +222,9 @@ namespace TouchScript.Core
 
         private ILayerManager layerManager;
 
+        private List<IInputSourceSystem> systems = new List<IInputSourceSystem>();
+        private int systemCount = 0;
+
         private List<IInputSource> inputs = new List<IInputSource>(3);
         private int inputCount = 0;
 
@@ -271,6 +274,23 @@ namespace TouchScript.Core
         #endregion
 
         #region Public methods
+
+        public bool AddSystem(IInputSourceSystem system)
+        {
+            if (system == null) return false;
+            if (systems.Contains(system)) return true;
+            systems.Add(system);
+            systemCount++;
+            return true;
+        }
+
+        public bool RemoveSystem(IInputSourceSystem system)
+        {
+            if (system == null) return false;
+            var result = systems.Remove(system);
+            if (result) systemCount--;
+            return result;
+        }
 
         /// <inheritdoc />
         public bool AddInput(IInputSource input)
@@ -632,6 +652,8 @@ namespace TouchScript.Core
 #if UNITY_5_6_OR_NEWER
             samplerUpdateInputs.Begin();
 #endif
+            for (var i = 0; i < systemCount; i++) systems[i].Process();
+            
             for (var i = 0; i < inputCount; i++) inputs[i].UpdateInput();
 #if UNITY_5_6_OR_NEWER
             samplerUpdateInputs.End();

@@ -1,7 +1,6 @@
 ﻿#if UNITY_STANDALONE_WIN
 using System;
 using System.Runtime.InteropServices;
-using TouchScript.Utils.Platform.Interop;
 
 namespace TouchScript.InputSources.InputHandlers.Interop
 {
