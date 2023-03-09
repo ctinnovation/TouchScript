@@ -25,8 +25,7 @@ namespace TouchScript.Core
         {
             get
             {
-                if (shuttingDown) return null;
-                if (instance == null)
+                if (instance == null && !shuttingDown)
                 {
                     if (!Application.isPlaying) return null;
                     var objects = FindObjectsOfType<MultiWindowManagerInstance>();
@@ -130,10 +129,13 @@ namespace TouchScript.Core
         private void OnDestroy()
         {
 #if UNITY_STANDALONE_LINUX
-            x11PointerSystem.Dispose();
+            x11PointerSystem?.Dispose();
 #endif
 
-            instance = null;
+            if (instance == this)
+            {
+                instance = null;
+            }
         }
 
         public IntPtr OnDisplayActivated(int targetDisplay)

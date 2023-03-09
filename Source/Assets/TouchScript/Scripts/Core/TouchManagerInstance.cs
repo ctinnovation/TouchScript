@@ -103,8 +103,7 @@ namespace TouchScript.Core
         {
             get
             {
-                if (shuttingDown) return null;
-                if (instance == null)
+                if (instance == null && !shuttingDown)
                 {
                     if (!Application.isPlaying) return null;
                     var objects = FindObjectsOfType<TouchManagerInstance>();
@@ -605,6 +604,14 @@ namespace TouchScript.Core
         private void OnApplicationQuit()
         {
             shuttingDown = true;
+        }
+
+        private void OnDestroy()
+        {
+            if (instance == this)
+            {
+                instance = null;
+            }
         }
 
         #endregion
