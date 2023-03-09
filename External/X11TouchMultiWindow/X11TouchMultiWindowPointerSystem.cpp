@@ -5,9 +5,10 @@
 
 #include "X11TouchMultiWindowPointerHandler.h"
 #include "X11TouchMultiWindowPointerSystem.h"
+#include "X11TouchMultiWindowUtils.h"
 
 // ----------------------------------------------------------------------------
-PointerSytem::PointerSytem(MessageCallback messageCallback)
+PointerSystem::PointerSystem(MessageCallback messageCallback)
     : mDisplay(NULL)
     , mOpcode(0)
     , mMessageCallback(messageCallback)
@@ -54,9 +55,9 @@ Result PointerSystem::initialize()
     }
 
     int major = 2, minor = 3;
-    if (XIQueryVersion(dpy, &major, &minor) == BadRequest)
+    if (XIQueryVersion(mDisplay, &major, &minor) == BadRequest)
     {
-        sendMessage(mMessageCallback, MessageType::Error, "Unsupported XInput extension version: expected 2.3+, actual " +
+        sendMessage(mMessageCallback, MessageType::ERROR, "Unsupported XInput extension version: expected 2.3+, actual " +
             std::to_string(major) + "." + std::to_string(minor));
 
         XCloseDisplay(mDisplay);
@@ -65,7 +66,7 @@ Result PointerSystem::initialize()
         return Result::ERROR_API;
     }
 
-    return Result:OK;
+    return Result::OK;
 }
 // ----------------------------------------------------------------------------
 Result PointerSystem::createHandler(Window window, PointerCallback pointerCallback, void** handle)
@@ -85,7 +86,13 @@ Result PointerSystem::createHandler(Window window, PointerCallback pointerCallba
 // ----------------------------------------------------------------------------
 PointerHandler* PointerSystem::getHandler(Window window) const
 {
-    return mPointerHandlers[window];
+    ConstPointerHandlerMapIterator it = mPointerHandlers.find(window);
+    if (it != mPointerHandlers.end())
+    {
+        return it->second;
+    }
+
+    return nullptr;
 }
 // ----------------------------------------------------------------------------
 Result PointerSystem::destroyHandler(PointerHandler* handler)
@@ -103,10 +110,10 @@ Result PointerSystem::destroyHandler(PointerHandler* handler)
 Result PointerSystem::processEventQueue()
 {
     XEvent e;
-    while (XEventsQueued(display, QueuedAlready))
+    while (XEventsQueued(mDisplay, QueuedAlready))
     {
-        NextEvent(display, &e);
-        if (e.type != GenericEvent || e.xcookie.extension != opcode)
+        XNextEvent(mDisplay, &e);
+        if (e.type != GenericEvent || e.xcookie.extension != mOpcode)
         {
             // Received a non xinput event
             continue;
@@ -115,7 +122,7 @@ Result PointerSystem::processEventQueue()
         XIDeviceEvent* xiEvent = (XIDeviceEvent*)e.xcookie.data;
         
         Window window = xiEvent->event;
-        PointerHandlerMapIterator it = mPointerHandlers.find(handler->getWindow());
+        PointerHandlerMapIterator it = mPointerHandlers.find(window);
 	    if (it == mPointerHandlers.end())
 	    {
             sendMessage(mMessageCallback, MessageType::WARNING, "Failed to retrieve handler for window " + std::to_string(window));
@@ -139,7 +146,7 @@ Result PointerSystem::getWindowsOfProcess(unsigned long pid, Window** windows, u
     Atom atomPID = XInternAtom(mDisplay, "_NET_WM_PID", True);
     
     std::vector<Window> result;
-    getWindowsOfProcess(defaultRootWindow, processID, atomPID, result);
+    getWindowsOfProcess(defaultRootWindow, pid, atomPID, result);
 
     *numWindows = result.size();
 
@@ -197,7 +204,7 @@ void PointerSystem::getWindowsOfProcess(Window window, unsigned long pid,
     {
         for (unsigned i = 0; i < numChildWindows; i++)
         {
-            getWindowsOfProcess(mDisplay, childWindows[i], pid, atomPID, windows);
+            getWindowsOfProcess(childWindows[i], pid, atomPID, windows);
         }
 
         if (childWindows)
@@ -243,7 +250,7 @@ extern "C" EXPORT_API Result PointerSystem_ProcessEventQueue(PointerSystem* syst
 extern "C" EXPORT_API Result PointerSystem_GetWindowsOfProcess(PointerSystem* system,
     int processID, Window** windows, uint* numWindows)
 {
-    return system->getWindowsOfProcess(procesID, window, numWindows);
+    return system->getWindowsOfProcess(processID, windows, numWindows);
 }
 // ----------------------------------------------------------------------------
 extern "C" EXPORT_API Result XFreeWindowsOfProcess(PointerSystem* system, Window* windows)

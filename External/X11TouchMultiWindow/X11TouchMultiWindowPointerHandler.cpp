@@ -4,7 +4,6 @@
 #include <cstring>
 
 #include "X11TouchMultiWindowPointerHandler.h"
-#include "X11TouchMultiWindowPointerHandlerManager.h"
 #include "X11TouchMultiWindowUtils.h"
 
 // ----------------------------------------------------------------------------

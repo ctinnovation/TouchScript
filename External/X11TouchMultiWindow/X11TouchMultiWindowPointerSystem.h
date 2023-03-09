@@ -13,6 +13,7 @@
 class PointerHandler;
 typedef std::map<Window, PointerHandler*> PointerHandlerMap;
 typedef PointerHandlerMap::iterator PointerHandlerMapIterator;
+typedef PointerHandlerMap::const_iterator ConstPointerHandlerMapIterator;
 
 class EXPORT_API PointerSystem
 {
@@ -23,7 +24,7 @@ private:
     PointerHandlerMap mPointerHandlers;
 
 public:
-    PointerSytem(MessageCallback messageCallback);
+    PointerSystem(MessageCallback messageCallback);
     ~PointerSystem();
 
     Result initialize();
@@ -37,5 +38,5 @@ public:
     Result getWindowsOfProcess(unsigned long  pid, Window** windows, uint* numWindows);
     Result freeWindowsOfProcess(Window* windows);
 private:
-    void getWindowsOfProcess(Display* display, Window window, unsigned long pid, Atom atomPID, std::vector<Window>& windows)
+    void getWindowsOfProcess(Window window, unsigned long pid, Atom atomPID, std::vector<Window>& windows);
 };

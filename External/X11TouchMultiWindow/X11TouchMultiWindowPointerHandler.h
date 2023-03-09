@@ -28,6 +28,8 @@ public:
     PointerHandler(Display* display, Window window, MessageCallback messageCallback, PointerCallback pointerCallback);
     ~PointerHandler();
 
+    Window getWindow() const { return mWindow; }
+
     Result initialize();
     Result getScreenResolution(int* width, int* height);
     Result setScreenParams(int width, int height, float offsetX, float offsetY, float scaleX, float scaleY);
