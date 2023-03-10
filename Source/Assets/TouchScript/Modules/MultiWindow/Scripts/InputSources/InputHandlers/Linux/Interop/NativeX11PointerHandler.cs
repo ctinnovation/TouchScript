@@ -9,8 +9,7 @@ namespace TouchScript.InputSources.InputHandlers.Interop
         #region Native Methods
 
         [DllImport("libX11TouchMultiWindow")]
-        private static extern Result PointerHandler_Create(IntPtr window, MessageCallback messageCallback,
-            PointerCallback pointerCallback, ref IntPtr handle);
+        private static extern Result PointerHandler_Create(IntPtr window, PointerCallback pointerCallback, ref IntPtr handle);
         [DllImport("libX11TouchMultiWindow")]
         private static extern Result PointerHandler_Destroy(IntPtr handle);
         [DllImport("libX11TouchMultiWindow")]
@@ -27,7 +26,7 @@ namespace TouchScript.InputSources.InputHandlers.Interop
         {
             // Create native resources
             handle = new IntPtr();
-            var result = PointerHandler_Create(window, X11PointerHandlerSystem.OnNativeMessage, pointerCallback, ref handle);
+            var result = PointerHandler_Create(window, pointerCallback, ref handle);
             if (result != Result.Ok)
             {
                 handle = IntPtr.Zero;
@@ -58,8 +57,8 @@ namespace TouchScript.InputSources.InputHandlers.Interop
             if (handle != IntPtr.Zero)
             {
                 PointerHandler_Destroy(handle);
+                handle = IntPtr.Zero;
             }
-            handle = IntPtr.Zero;
         }
 
         internal void GetScreenResolution(out int width, out int height)

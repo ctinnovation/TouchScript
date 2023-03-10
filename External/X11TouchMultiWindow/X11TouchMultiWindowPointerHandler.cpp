@@ -30,18 +30,18 @@ PointerHandler::~PointerHandler()
 // ----------------------------------------------------------------------------
 Result PointerHandler::initialize()
 {
-    sendMessage(mMessageCallback, MessageType::INFO, "Initializing handler...");
+    sendMessage(mMessageCallback, MessageType::MT_INFO, "Initializing handler...");
 
 	if (mDisplay == NULL)
 	{
-		sendMessage(mMessageCallback, MessageType::ERROR, "'display' is NULL");
-		return Result::ERROR_NULL_POINTER;
+		sendMessage(mMessageCallback, MessageType::MT_ERROR, "'display' is NULL");
+		return Result::R_ERROR_NULL_POINTER;
 	}
 
     if (mWindow == None)
     {
-        sendMessage(mMessageCallback, MessageType::ERROR, "'window' is None");
-        return Result::ERROR_NULL_POINTER;
+        sendMessage(mMessageCallback, MessageType::MT_ERROR, "'window' is None");
+        return Result::R_ERROR_NULL_POINTER;
     }
 
 	// Setup the event mask fore the events we want to listen to
@@ -61,17 +61,15 @@ Result PointerHandler::initialize()
 	};
 
 	Status status = XISelectEvents(mDisplay, mWindow, &eventMask, 1);
-	free(eventMask.mask);
-	
 	if (status != Success)
 	{
-		sendMessage(mMessageCallback, MessageType::ERROR, "Failed to select pointer events on window: " + std::to_string(status));
-		return Result::ERROR_UNSUPPORTED;
+		sendMessage(mMessageCallback, MessageType::MT_ERROR, "Failed to select pointer events on window: " + std::to_string(status));
+		return Result::R_ERROR_UNSUPPORTED;
 	}
 
-	sendMessage(mMessageCallback, MessageType::INFO, "Handler initialized...");
+	sendMessage(mMessageCallback, MessageType::MT_INFO, "Handler initialized...");
 
-    return Result::OK;
+    return Result::R_OK;
 }
 // ----------------------------------------------------------------------------
 Result PointerHandler::getScreenResolution(int* width, int* height)
@@ -82,12 +80,12 @@ Result PointerHandler::getScreenResolution(int* width, int* height)
     {
         *width = XWidthOfScreen(attributes.screen);
         *height = XHeightOfScreen(attributes.screen);
-        return Result::OK;
+        return Result::R_OK;
     }
     else
     {
-        sendMessage(mMessageCallback, MessageType::ERROR, "Failed to retrieve XWindowAttributes");
-        return Result::ERROR_API;
+        sendMessage(mMessageCallback, MessageType::MT_ERROR, "Failed to retrieve XWindowAttributes");
+        return Result::R_ERROR_API;
     }
 }
 // ----------------------------------------------------------------------------
@@ -100,7 +98,7 @@ Result PointerHandler::setScreenParams(int width, int height, float offsetX, flo
 	mScaleX = scaleX;
 	mScaleY = scaleY;
 
-	return Result::OK;
+	return Result::R_OK;
 }
 // ----------------------------------------------------------------------------
 void PointerHandler::processEvent(XIDeviceEvent* xiEvent)

@@ -17,16 +17,21 @@ class EXPORT_API PointerHandlerSystem
     typedef PointerHandlerMap::const_iterator ConstPointerHandlerMapIterator;
 
 private:
+    static PointerHandlerSystem* msInstance;
+
     Display* mDisplay;
     int mOpcode;
     MessageCallback mMessageCallback;
     PointerHandlerMap mPointerHandlers;
 
 public:
-    PointerHandlerSystem(MessageCallback messageCallback);
+    PointerHandlerSystem(Display* display, MessageCallback messageCallback);
     ~PointerHandlerSystem();
 
+    static PointerHandlerSystem* getInstance() { return msInstance; }
+
     Result initialize();
+    Result uninitialize();
 
     Result createHandler(Window window, PointerCallback pointerCallback, void** handle);
     PointerHandler* getHandler(Window window) const;

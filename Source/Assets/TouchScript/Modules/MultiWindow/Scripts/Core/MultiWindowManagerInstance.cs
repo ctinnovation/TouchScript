@@ -132,6 +132,7 @@ namespace TouchScript.Core
         private void OnDestroy()
         {
 #if UNITY_STANDALONE_LINUX
+            pointerHandlerSystem?.Dispose();
             pointerHandlerSystem = null;
 #endif
 
