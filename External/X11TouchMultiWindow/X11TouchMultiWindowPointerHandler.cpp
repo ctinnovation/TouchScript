@@ -47,15 +47,18 @@ Result PointerHandler::initialize()
 	// Setup the event mask fore the events we want to listen to
 	unsigned char mask[XIMaskLen(XI_LASTEVENT)];
 	memset(mask, 0, sizeof(mask));
+	// Mouse buttons
 	XISetMask(mask, XI_ButtonPress);
 	XISetMask(mask, XI_ButtonRelease);
+	// Mouse motion
 	XISetMask(mask, XI_Motion);
+	// Touch
 	XISetMask(mask, XI_TouchBegin);
 	XISetMask(mask, XI_TouchUpdate);
 	XISetMask(mask, XI_TouchEnd);
 
 	XIEventMask eventMask = {
-		.deviceid = XIAllDevices, // TODO Only touch devices? Or XIAllMasterDevices?
+		.deviceid = XIAllMasterDevices, // TODO Only touch devices? Or XIAllDevices?
 		.mask_len = sizeof(mask),
 		.mask = mask
 	};
@@ -66,6 +69,9 @@ Result PointerHandler::initialize()
 		sendMessage(mMessageCallback, MessageType::MT_ERROR, "Failed to select pointer events on window: " + std::to_string(status));
 		return Result::R_ERROR_UNSUPPORTED;
 	}
+
+	// Propagate request to X server
+	XFlush(mDisplay);
 
 	sendMessage(mMessageCallback, MessageType::MT_INFO, "Handler initialized...");
 
@@ -103,20 +109,81 @@ Result PointerHandler::setScreenParams(int width, int height, float offsetX, flo
 // ----------------------------------------------------------------------------
 void PointerHandler::processEvent(XIDeviceEvent* xiEvent)
 {
+	int pointerId = 0;
+	PointerType pointerType = PointerType::PT_NONE;
+	PointerEvent pointerEvent;
+	PointerData pointerData;
+
 	switch (xiEvent->evtype)
 	{
 		case XI_ButtonPress:
-			
+			{
+				int button = xiEvent->detail;
+				if (button < 1 || button > 5)
+				{
+					return;
+				}
+
+				pointerType = PointerType::PT_MOUSE;
+				pointerEvent = PointerEvent::PE_DOWN;
+
+				pointerData.flags = (PointerFlags)(0x10 << (button - 1));
+				pointerData.changedButtons = (PointerButtonChangeType)((button * 2) - 1);
+			}
 			break;
 		case XI_ButtonRelease:
+			{
+				int button = xiEvent->detail;
+				if (button < 1 || button > 5)
+				{
+					return;
+				}
+
+				pointerType = PointerType::PT_MOUSE;
+				pointerEvent = PointerEvent::PE_UP;
+
+				pointerData.flags = (PointerFlags)(0x10 << (button - 1));
+				pointerData.changedButtons = (PointerButtonChangeType)(button * 2);
+			}
 			break;
 		case XI_Motion:
+			{
+				pointerType = PointerType::PT_MOUSE;
+				pointerEvent = PointerEvent::PE_UPDATE;
+				pointerData.changedButtons = PointerButtonChangeType::PBCT_NONE;
+			}
 			break;
 		case XI_TouchBegin:
+			{
+				pointerId = xiEvent->detail;
+				pointerType = PointerType::PT_TOUCH;
+				pointerEvent = PointerEvent::PE_DOWN;
+			}
 			break;
 		case XI_TouchUpdate:
+			{
+				pointerId = xiEvent->detail;
+				pointerType = PointerType::PT_TOUCH;
+				pointerEvent = PointerEvent::PE_UPDATE;
+			}
 			break;
 		case XI_TouchEnd:
+			{
+				pointerId = xiEvent->detail;
+				pointerType = PointerType::PT_TOUCH;
+				pointerEvent = PointerEvent::PE_UP;
+			}
 			break;
 	}
+
+	if (pointerType == PointerType::PT_NONE)
+	{
+		return;
+	}
+ 
+	Vector2 position = Vector2(
+		((float)xiEvent->event_x - mOffsetX) * mScaleX,
+		mHeight - ((float)xiEvent->event_y - mOffsetY) * mScaleY);
+
+	mPointerCallback(pointerId, pointerEvent, pointerType, position, pointerData);
 }

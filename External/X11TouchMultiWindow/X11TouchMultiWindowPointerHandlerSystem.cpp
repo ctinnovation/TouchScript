@@ -93,35 +93,49 @@ Result PointerHandlerSystem::destroyHandler(PointerHandler* handler)
 // ----------------------------------------------------------------------------
 Result PointerHandlerSystem::processEventQueue()
 {
+    // Flush the output buffer before reading the number of events queued. This
+    // is needed as we use QueuedAlready when checking for new events. Using this
+    // flag saves a call to flushing, as XNextEvent already flushes the output
+    // buffer
+    XFlush(mDisplay);
+
+    // The actual processing of the event queue
     XEvent xEvent;
     while (XEventsQueued(mDisplay, QueuedAlready))
     {
         XNextEvent(mDisplay, &xEvent);
-        if (xEvent.type != GenericEvent || xEvent.xcookie.extension != mOpcode)
+        switch (xEvent.type)
         {
-            // Received a non xinput event
-            sendMessage(mMessageCallback, MessageType::MT_WARNING,
-                "Received event of type " + std::to_string(xEvent.type));
-            continue;
+            case GenericEvent:
+                {
+                    if (xEvent.xcookie.extension != mOpcode)
+                    {
+                        // Received a non xinput event
+                        sendMessage(mMessageCallback, MessageType::MT_INFO,
+                            "Received event of type " + std::to_string(xEvent.type));
+                        continue;
+                    }
+
+                    XGetEventData(mDisplay, &xEvent.xcookie);
+                    XIDeviceEvent* xiEvent = (XIDeviceEvent*)xEvent.xcookie.data;
+                    
+                    Window window = xiEvent->event;
+                    PointerHandlerMapIterator it = mPointerHandlers.find(window);
+                    if (it == mPointerHandlers.end())
+                    {
+                        XFreeEventData(mDisplay, &xEvent.xcookie);
+
+                        sendMessage(mMessageCallback, MessageType::MT_WARNING,
+                            "Failed to retrieve handler for window " + std::to_string(window));
+                        continue;
+                    }
+
+                    it->second->processEvent(xiEvent);
+
+                    XFreeEventData(mDisplay, &xEvent.xcookie);
+                }
+            break;
         }
-
-        XGetEventData(mDisplay, &xEvent.xcookie);
-        XIDeviceEvent* xiEvent = (XIDeviceEvent*)xEvent.xcookie.data;
-        
-        Window window = xiEvent->event;
-        PointerHandlerMapIterator it = mPointerHandlers.find(window);
-	    if (it == mPointerHandlers.end())
-	    {
-            XFreeEventData(mDisplay, &xEvent.xcookie);
-
-            sendMessage(mMessageCallback, MessageType::MT_WARNING,
-                "Failed to retrieve handler for window " + std::to_string(window));
-            continue;
-        }
-
-        it->second->processEvent(xiEvent);
-
-        XFreeEventData(mDisplay, &xEvent.xcookie);
     }
 
     return Result::R_OK;

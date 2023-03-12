@@ -33,6 +33,7 @@ typedef enum
 
 typedef enum
 {
+	PT_NONE = 0,
 	PT_MOUSE = 1,
 	PT_TOUCH = 2
 } PointerType;
@@ -79,6 +80,7 @@ struct Vector2
 
 struct PointerData
 {
+	PointerFlags flags;
 	PointerButtonChangeType changedButtons;
 };
 
