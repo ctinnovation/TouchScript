@@ -10,8 +10,8 @@
 PointerHandlerSystem* PointerHandlerSystem::msInstance = nullptr;
 
 // ----------------------------------------------------------------------------
-PointerHandlerSystem::PointerHandlerSystem(Display* display, MessageCallback messageCallback)
-    : mDisplay(display)
+PointerHandlerSystem::PointerHandlerSystem(MessageCallback messageCallback)
+    : mDisplay(NULL)
     , mOpcode(0)
     , mMessageCallback(messageCallback)
 {
@@ -26,19 +26,46 @@ PointerHandlerSystem::~PointerHandlerSystem()
 // ----------------------------------------------------------------------------
 Result PointerHandlerSystem::initialize()
 {
-    sendMessage(mMessageCallback, MessageType::MT_INFO, "Initializing system...");
+    sendMessage(mMessageCallback, MT_INFO, "Initializing system...");
 
-    // We would prefer to check xinput here, but as Unity doesn't load the dependencies
-    // properly we do this on the C# side
-    // TODO Fix that...
+    mDisplay = XOpenDisplay(NULL);
+    if (mDisplay == NULL)
+    {
+        sendMessage(mMessageCallback, MT_ERROR, "Failed to open X11 display connection.");
+        return R_ERROR_API;
+    }
 
-    sendMessage(mMessageCallback, MessageType::MT_INFO, "System intialized");
-    return Result::R_OK;
+    int event, error;
+    if (!XQueryExtension(mDisplay, "XInputExtension", &mOpcode, &event, &error))
+    {
+        sendMessage(mMessageCallback, MT_ERROR, "Failed to get the XInput extension.");
+
+        XCloseDisplay(mDisplay);
+        mDisplay = NULL;
+
+        return R_ERROR_API;
+    }
+
+    int major = 2, minor = 3;
+    if (XIQueryVersion(mDisplay, &major, &minor) == BadRequest)
+    {
+        sendMessage(mMessageCallback, MT_ERROR, "Unsupported XInput extension version: expected 2.3+, actual " +
+            std::to_string(major) + "." + std::to_string(minor));
+
+        XCloseDisplay(mDisplay);
+        mDisplay = NULL;
+
+        return R_ERROR_API;
+    }
+
+    sendMessage(mMessageCallback, MT_INFO, "System intialized with XInput version " +
+            std::to_string(major) + "." + std::to_string(minor));
+    return R_OK;
 }
 // ----------------------------------------------------------------------------
 Result PointerHandlerSystem::uninitialize()
 {
-    sendMessage(mMessageCallback, MessageType::MT_INFO, "Uninitializing system...");
+    sendMessage(mMessageCallback, MT_INFO, "Uninitializing system...");
 
     // Cleanup remaining handlers
     PointerHandlerMapIterator it;
@@ -48,17 +75,17 @@ Result PointerHandlerSystem::uninitialize()
     }
     mPointerHandlers.clear();
 
-    sendMessage(mMessageCallback, MessageType::MT_INFO, "System unintialized");
-    return Result::R_OK;
+    sendMessage(mMessageCallback, MT_INFO, "System unintialized");
+    return R_OK;
 }
 // ----------------------------------------------------------------------------
 Result PointerHandlerSystem::createHandler(Window window, PointerCallback pointerCallback, void** handle)
 {
     if (mPointerHandlers.find(window) != mPointerHandlers.end())
     {
-        sendMessage(mMessageCallback, MessageType::MT_ERROR,
+        sendMessage(mMessageCallback, MT_ERROR,
             "A handler has already been created for window " + std::to_string(window));
-        return Result::R_ERROR_DUPLICATE_ITEM;
+        return R_ERROR_DUPLICATE_ITEM;
     }
 
     PointerHandler* handler = new PointerHandler(mDisplay, window, mMessageCallback, pointerCallback);
@@ -88,7 +115,7 @@ Result PointerHandlerSystem::destroyHandler(PointerHandler* handler)
 	}
 
 	delete handler;
-	return Result::R_OK;
+	return R_OK;
 }
 // ----------------------------------------------------------------------------
 Result PointerHandlerSystem::processEventQueue()
@@ -111,7 +138,7 @@ Result PointerHandlerSystem::processEventQueue()
                     if (xEvent.xcookie.extension != mOpcode)
                     {
                         // Received a non xinput event
-                        sendMessage(mMessageCallback, MessageType::MT_INFO,
+                        sendMessage(mMessageCallback, MT_INFO,
                             "Received event of type " + std::to_string(xEvent.type));
                         continue;
                     }
@@ -125,7 +152,7 @@ Result PointerHandlerSystem::processEventQueue()
                     {
                         XFreeEventData(mDisplay, &xEvent.xcookie);
 
-                        sendMessage(mMessageCallback, MessageType::MT_WARNING,
+                        sendMessage(mMessageCallback, MT_WARNING,
                             "Failed to retrieve handler for window " + std::to_string(window));
                         continue;
                     }
@@ -138,14 +165,14 @@ Result PointerHandlerSystem::processEventQueue()
         }
     }
 
-    return Result::R_OK;
+    return R_OK;
 }
 // ----------------------------------------------------------------------------
 Result PointerHandlerSystem::getWindowsOfProcess(unsigned long pid, Window** windows, uint* numWindows)
 {
     if (windows == NULL)
     {
-        return Result::R_ERROR_NULL_POINTER;
+        return R_ERROR_NULL_POINTER;
     }
 
     Window defaultRootWindow = XDefaultRootWindow(mDisplay);
@@ -160,19 +187,19 @@ Result PointerHandlerSystem::getWindowsOfProcess(unsigned long pid, Window** win
     *windows = new Window[result.size()];
     std::copy(result.begin(), result.end(), *windows);
 
-    return Result::R_OK;
+    return R_OK;
 }
 // ----------------------------------------------------------------------------
 Result PointerHandlerSystem::freeWindowsOfProcess(Window* windows)
 {
     if (windows == NULL)
     {
-        return Result::R_ERROR_NULL_POINTER;
+        return R_ERROR_NULL_POINTER;
     }
 
     delete[] windows;
 
-    return Result::R_OK;
+    return R_OK;
 }
 // ----------------------------------------------------------------------------
 void PointerHandlerSystem::getWindowsOfProcess(Window window, unsigned long pid,

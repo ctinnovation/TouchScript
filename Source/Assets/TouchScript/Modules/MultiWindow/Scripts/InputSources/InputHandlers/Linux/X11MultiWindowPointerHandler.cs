@@ -12,10 +12,11 @@ namespace TouchScript.InputSources.InputHandlers
 {
     sealed class X11MultiWindowPointerHandler : MultiWindowPointerHandler
     {
+        private PointerCallback pointerCallback;
         private NativeX11PointerHandler pointerHandler;
         private readonly Dictionary<int, TouchPointer> x11TouchToInternalId = new Dictionary<int, TouchPointer>(10);
         
-        public X11MultiWindowPointerHandler(X11PointerHandlerSystem handlerSystem, IntPtr window, PointerDelegate addPointer, PointerDelegate updatePointer,
+        public X11MultiWindowPointerHandler(IntPtr window, PointerDelegate addPointer, PointerDelegate updatePointer,
             PointerDelegate pressPointer, PointerDelegate releasePointer, PointerDelegate removePointer,
             PointerDelegate cancelPointer)
             : base(addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer)
@@ -23,7 +24,8 @@ namespace TouchScript.InputSources.InputHandlers
             mousePool = new ObjectPool<MousePointer>(4, () => new MousePointer(this), null, resetPointer);
             mousePointer = internalAddMousePointer(Vector3.zero);
 
-            pointerHandler = new NativeX11PointerHandler(window, OnNativePointerEvent);
+            pointerCallback = OnNativePointerEvent;
+            pointerHandler = new NativeX11PointerHandler(window, pointerCallback);
             
             disablePressAndHold();
             setScaling();
@@ -98,58 +100,71 @@ namespace TouchScript.InputSources.InputHandlers
 
         protected override void setScaling()
         {
-            int width, height;
-
-            pointerHandler.GetScreenResolution(out width, out height);
+            pointerHandler.GetScreenResolution(out var x, out var y, out var width, out var height,
+                out var screenWidth, out var screenHeight);
+            
+#if TOUCHSCRIPT_DEBUG
+            Debug.Log($"[TouchScript]: Window({x},{y},{width}x{height}), Screen({screenWidth}x{screenHeight})");
+#endif
+            
             pointerHandler.SetScreenParams(width, height, 0, 0, 1, 1);
         }
 
+        [AOT.MonoPInvokeCallback(typeof(PointerCallback))]
         private void OnNativePointerEvent(int id, PointerEvent evt, PointerType type, Vector2 position, PointerData data)
         {
             switch (type)
             {
                 case PointerType.Mouse:
-                    switch (evt)
                     {
-                        case PointerEvent.Down:
-                            mousePointer.Buttons = updateButtons(mousePointer.Buttons, data.PointerFlags, data.ChangedButtons);
-                            pressPointer(mousePointer);
-                            break;
-                        case PointerEvent.Update:
-                            mousePointer.Position = position;
-                            mousePointer.Buttons = updateButtons(mousePointer.Buttons, data.PointerFlags, data.ChangedButtons);
-                            updatePointer(mousePointer);
-                            break;
-                        case PointerEvent.Up:
-                            mousePointer.Buttons = updateButtons(mousePointer.Buttons, data.PointerFlags, data.ChangedButtons);
-                            releasePointer(mousePointer);
-                            break;
+                        switch (evt)
+                        {
+                            case PointerEvent.Down:
+                                mousePointer.Buttons = updateButtons(mousePointer.Buttons, data.PointerFlags,
+                                    data.ChangedButtons);
+                                pressPointer(mousePointer);
+                                break;
+                            case PointerEvent.Update:
+                                mousePointer.Position = position;
+                                mousePointer.Buttons = updateButtons(mousePointer.Buttons, data.PointerFlags,
+                                    data.ChangedButtons);
+                                updatePointer(mousePointer);
+                                break;
+                            case PointerEvent.Up:
+                                mousePointer.Buttons = updateButtons(mousePointer.Buttons, data.PointerFlags,
+                                    data.ChangedButtons);
+                                releasePointer(mousePointer);
+                                break;
+                        }
                     }
                     break;
                 case PointerType.Touch:
-                    TouchPointer touchPointer;
-                    switch (evt)
                     {
-                        case PointerEvent.Down:
-                            touchPointer = internalAddTouchPointer(position);
-                            touchPointer.Pressure = getTouchPressure(ref data);
-                            touchPointer.Rotation = getTouchRotation(ref data);
-                            x11TouchToInternalId.Add(id, touchPointer);
-                            break;
-                        case PointerEvent.Update:
-                            if (!x11TouchToInternalId.TryGetValue(id, out touchPointer)) return;
-                            touchPointer.Position = position;
-                            touchPointer.Pressure = getTouchPressure(ref data);
-                            touchPointer.Rotation = getTouchRotation(ref data);
-                            updatePointer(touchPointer);
-                            break;
-                        case PointerEvent.Up:
-                            if (x11TouchToInternalId.TryGetValue(id, out touchPointer))
-                            {
-                                x11TouchToInternalId.Remove(id);
-                                internalRemoveTouchPointer(touchPointer);
-                            }
-                            break;
+                        TouchPointer touchPointer;
+                        switch (evt)
+                        {
+                            case PointerEvent.Down:
+                                touchPointer = internalAddTouchPointer(position);
+                                touchPointer.Pressure = getTouchPressure(ref data);
+                                touchPointer.Rotation = getTouchRotation(ref data);
+                                x11TouchToInternalId.Add(id, touchPointer);
+                                break;
+                            case PointerEvent.Update:
+                                if (!x11TouchToInternalId.TryGetValue(id, out touchPointer)) return;
+                                touchPointer.Position = position;
+                                touchPointer.Pressure = getTouchPressure(ref data);
+                                touchPointer.Rotation = getTouchRotation(ref data);
+                                updatePointer(touchPointer);
+                                break;
+                            case PointerEvent.Up:
+                                if (x11TouchToInternalId.TryGetValue(id, out touchPointer))
+                                {
+                                    x11TouchToInternalId.Remove(id);
+                                    internalRemoveTouchPointer(touchPointer);
+                                }
+                        
+                                break;
+                        }
                     }
                     break;
             }

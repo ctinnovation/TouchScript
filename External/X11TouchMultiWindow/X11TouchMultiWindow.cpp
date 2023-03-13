@@ -9,19 +9,18 @@
 
 // .NET available interface
 // ----------------------------------------------------------------------------
-extern "C" EXPORT_API Result PointerHandlerSystem_Create(Display* display,
-    MessageCallback messageCallback, void** handle) throw()
+extern "C" EXPORT_API Result PointerHandlerSystem_Create(MessageCallback messageCallback, void** handle) throw()
 {
     PointerHandlerSystem* system = PointerHandlerSystem::getInstance();
     if (system != nullptr)
     {
         *handle = system;
-        return Result::R_OK;
+        return R_OK;
     }
 
-    system = new PointerHandlerSystem(display, messageCallback);
+    system = new PointerHandlerSystem(messageCallback);
     Result result = system->initialize();
-    if (result == Result::R_OK)
+    if (result == R_OK)
     {
         *handle = system;
     }
@@ -41,14 +40,14 @@ extern "C" EXPORT_API Result PointerHandlerSystem_Destroy(PointerHandlerSystem* 
         system = 0;
     }
 
-    return Result::R_OK;
+    return R_OK;
 }
 // ----------------------------------------------------------------------------
 extern "C" EXPORT_API Result PointerHandlerSystem_ProcessEventQueue(PointerHandlerSystem* system)
 {
     if (system == nullptr)
     {
-        return Result::R_ERROR_NULL_POINTER;
+        return R_ERROR_NULL_POINTER;
     }
 
     return system->processEventQueue();
@@ -59,7 +58,7 @@ extern "C" EXPORT_API Result PointerHandlerSystem_GetWindowsOfProcess(PointerHan
 {
     if (system == nullptr)
     {
-        return Result::R_ERROR_NULL_POINTER;
+        return R_ERROR_NULL_POINTER;
     }
 
     return system->getWindowsOfProcess(processID, windows, numWindows);
@@ -70,7 +69,7 @@ extern "C" EXPORT_API Result PointerHandlerSystem_FreeWindowsOfProcess(PointerHa
 {
     if (system == nullptr)
     {
-        return Result::R_ERROR_NULL_POINTER;
+        return R_ERROR_NULL_POINTER;
     }
     
     return system->freeWindowsOfProcess(windows);
@@ -84,7 +83,7 @@ extern "C" EXPORT_API Result PointerHandler_Create(Window window,
     PointerHandlerSystem* system = PointerHandlerSystem::getInstance();
     if (system == nullptr)
     {
-        return Result::R_ERROR_NULL_POINTER;
+        return R_ERROR_NULL_POINTER;
     }
 
 	return system->createHandler(window, pointerCallback, handle);
@@ -95,16 +94,16 @@ extern "C" EXPORT_API Result PointerHandler_Destroy(PointerHandler* handler) thr
     PointerHandlerSystem* system = PointerHandlerSystem::getInstance();
     if (system == nullptr)
     {
-        return Result::R_ERROR_NULL_POINTER;
+        return R_ERROR_NULL_POINTER;
     }
 
 	return system->destroyHandler(handler);
 }
 // ----------------------------------------------------------------------------
-extern "C" EXPORT_API Result PointerHandler_GetScreenResolution(
-	PointerHandler* handler, int* width, int* height)
+extern "C" EXPORT_API Result PointerHandler_GetScreenParams(
+	PointerHandler* handler, int* x, int* y, int* width, int* height, int* screenWidth, int* screenHeight)
 {
-    return handler->getScreenResolution(width, height);
+    return handler->getScreenParams(x, y, width, height, screenWidth, screenHeight);
 }
 // ----------------------------------------------------------------------------
 extern "C" EXPORT_API Result PointerHandler_SetScreenParams(

@@ -114,7 +114,6 @@ namespace TouchScript.Core
 #if UNITY_STANDALONE_LINUX
             TouchManager.Instance.AddSystem(pointerHandlerSystem);
 #endif
-            
             if (ShouldUpdateInputHandlersOnStart)
             {
                 UpdateInputHandlers();
@@ -216,10 +215,6 @@ namespace TouchScript.Core
 #  endif
         }
 # endif
-#endif
-        
-#if UNITY_STANDALONE_LINUX
-        public X11PointerHandlerSystem GetPointerHandlerSystem() => pointerHandlerSystem;
 #endif
         
         public IntPtr GetWindowHandle(int targetDisplay)

@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 
 namespace TouchScript.InputSources.InputHandlers.Interop
 {
-    enum PointerEvent
+    enum PointerEvent : uint
     {
         None = 0,
         Down = 1,

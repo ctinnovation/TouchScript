@@ -30,18 +30,18 @@ PointerHandler::~PointerHandler()
 // ----------------------------------------------------------------------------
 Result PointerHandler::initialize()
 {
-    sendMessage(mMessageCallback, MessageType::MT_INFO, "Initializing handler...");
+    sendMessage(mMessageCallback, MT_INFO, "Initializing handler...");
 
 	if (mDisplay == NULL)
 	{
-		sendMessage(mMessageCallback, MessageType::MT_ERROR, "'display' is NULL");
-		return Result::R_ERROR_NULL_POINTER;
+		sendMessage(mMessageCallback, MT_ERROR, "'display' is NULL");
+		return R_ERROR_NULL_POINTER;
 	}
 
     if (mWindow == None)
     {
-        sendMessage(mMessageCallback, MessageType::MT_ERROR, "'window' is None");
-        return Result::R_ERROR_NULL_POINTER;
+        sendMessage(mMessageCallback, MT_ERROR, "'window' is None");
+        return R_ERROR_NULL_POINTER;
     }
 
 	// Setup the event mask fore the events we want to listen to
@@ -57,8 +57,11 @@ Result PointerHandler::initialize()
 	XISetMask(mask, XI_TouchUpdate);
 	XISetMask(mask, XI_TouchEnd);
 
+	// TODO XIDeviceInfo *devices = XIQueryDevice(xDisplay, XIAllDevices, &deviceCount);
+	// https://www.x.org/archive/X11R7.5/doc/man/man3/XIQueryDevice.3.html
+
 	XIEventMask eventMask = {
-		.deviceid = XIAllMasterDevices, // TODO Only touch devices? Or XIAllDevices?
+		.deviceid = XIAllDevices,
 		.mask_len = sizeof(mask),
 		.mask = mask
 	};
@@ -66,32 +69,36 @@ Result PointerHandler::initialize()
 	Status status = XISelectEvents(mDisplay, mWindow, &eventMask, 1);
 	if (status != Success)
 	{
-		sendMessage(mMessageCallback, MessageType::MT_ERROR, "Failed to select pointer events on window: " + std::to_string(status));
-		return Result::R_ERROR_UNSUPPORTED;
+		sendMessage(mMessageCallback, MT_ERROR, "Failed to select pointer events on window: " + std::to_string(status));
+		return R_ERROR_UNSUPPORTED;
 	}
 
 	// Propagate request to X server
 	XFlush(mDisplay);
 
-	sendMessage(mMessageCallback, MessageType::MT_INFO, "Handler initialized...");
+	sendMessage(mMessageCallback, MT_INFO, "Handler initialized...");
 
-    return Result::R_OK;
+    return R_OK;
 }
 // ----------------------------------------------------------------------------
-Result PointerHandler::getScreenResolution(int* width, int* height)
+Result PointerHandler::getScreenParams(int*x, int*y, int* width, int* height, int* screenWidth, int* screenHeight)
 {
+	sendMessage(mMessageCallback, MT_INFO, "Requesting screen resolution of window " + std::to_string(mWindow));
+
     // Get the screen for the window
-    XWindowAttributes attributes; 
+    XWindowAttributes attributes;
     if (XGetWindowAttributes(mDisplay, mWindow, &attributes) != 0)
     {
-        *width = XWidthOfScreen(attributes.screen);
-        *height = XHeightOfScreen(attributes.screen);
-        return Result::R_OK;
+		*x = attributes.x;
+		*y = attributes.y;
+        *width = attributes.width;
+        *height = attributes.height;
+        return R_OK;
     }
     else
     {
-        sendMessage(mMessageCallback, MessageType::MT_ERROR, "Failed to retrieve XWindowAttributes");
-        return Result::R_ERROR_API;
+        sendMessage(mMessageCallback, MT_ERROR, "Failed to retrieve XWindowAttributes");
+        return R_ERROR_API;
     }
 }
 // ----------------------------------------------------------------------------
@@ -104,13 +111,13 @@ Result PointerHandler::setScreenParams(int width, int height, float offsetX, flo
 	mScaleX = scaleX;
 	mScaleY = scaleY;
 
-	return Result::R_OK;
+	return R_OK;
 }
 // ----------------------------------------------------------------------------
 void PointerHandler::processEvent(XIDeviceEvent* xiEvent)
 {
 	int pointerId = 0;
-	PointerType pointerType = PointerType::PT_NONE;
+	PointerType pointerType;
 	PointerEvent pointerEvent;
 	PointerData pointerData;
 
@@ -124,8 +131,8 @@ void PointerHandler::processEvent(XIDeviceEvent* xiEvent)
 					return;
 				}
 
-				pointerType = PointerType::PT_MOUSE;
-				pointerEvent = PointerEvent::PE_DOWN;
+				pointerType = PT_MOUSE;
+				pointerEvent = PE_DOWN;
 
 				pointerData.flags = (PointerFlags)(0x10 << (button - 1));
 				pointerData.changedButtons = (PointerButtonChangeType)((button * 2) - 1);
@@ -139,8 +146,8 @@ void PointerHandler::processEvent(XIDeviceEvent* xiEvent)
 					return;
 				}
 
-				pointerType = PointerType::PT_MOUSE;
-				pointerEvent = PointerEvent::PE_UP;
+				pointerType = PT_MOUSE;
+				pointerEvent = PE_UP;
 
 				pointerData.flags = (PointerFlags)(0x10 << (button - 1));
 				pointerData.changedButtons = (PointerButtonChangeType)(button * 2);
@@ -148,37 +155,34 @@ void PointerHandler::processEvent(XIDeviceEvent* xiEvent)
 			break;
 		case XI_Motion:
 			{
-				pointerType = PointerType::PT_MOUSE;
-				pointerEvent = PointerEvent::PE_UPDATE;
-				pointerData.changedButtons = PointerButtonChangeType::PBCT_NONE;
+				pointerType = PT_MOUSE;
+				pointerEvent = PE_UPDATE;
+				pointerData.changedButtons = PBCT_NONE;
 			}
 			break;
 		case XI_TouchBegin:
 			{
 				pointerId = xiEvent->detail;
-				pointerType = PointerType::PT_TOUCH;
-				pointerEvent = PointerEvent::PE_DOWN;
+				pointerType = PT_TOUCH;
+				pointerEvent = PE_DOWN;
 			}
 			break;
 		case XI_TouchUpdate:
 			{
 				pointerId = xiEvent->detail;
-				pointerType = PointerType::PT_TOUCH;
-				pointerEvent = PointerEvent::PE_UPDATE;
+				pointerType = PT_TOUCH;
+				pointerEvent = PE_UPDATE;
 			}
 			break;
 		case XI_TouchEnd:
 			{
 				pointerId = xiEvent->detail;
-				pointerType = PointerType::PT_TOUCH;
-				pointerEvent = PointerEvent::PE_UP;
+				pointerType = PT_TOUCH;
+				pointerEvent = PE_UP;
 			}
 			break;
-	}
-
-	if (pointerType == PointerType::PT_NONE)
-	{
-		return;
+		default:
+			return;
 	}
  
 	Vector2 position = Vector2(

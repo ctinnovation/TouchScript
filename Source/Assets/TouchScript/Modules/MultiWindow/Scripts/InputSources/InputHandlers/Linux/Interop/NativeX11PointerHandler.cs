@@ -13,7 +13,10 @@ namespace TouchScript.InputSources.InputHandlers.Interop
         [DllImport("libX11TouchMultiWindow")]
         private static extern Result PointerHandler_Destroy(IntPtr handle);
         [DllImport("libX11TouchMultiWindow")]
-        private static extern Result PointerHandler_GetScreenResolution(IntPtr handle, out int width, out int height);
+        private static extern Result PointerHandler_SetTargetDisplay(IntPtr handle, int targetDisplay); 
+        [DllImport("libX11TouchMultiWindow")]
+        private static extern Result PointerHandler_GetScreenParams(IntPtr handle, out int x, out int y, out int width, out int height,
+            out int screenWidth, out int screenHeight);
         [DllImport("libX11TouchMultiWindow")]
         private static extern Result PointerHandler_SetScreenParams(IntPtr handle, int width, int height,
             float offsetX, float offsetY, float scaleX, float scaleY);
@@ -61,9 +64,9 @@ namespace TouchScript.InputSources.InputHandlers.Interop
             }
         }
 
-        internal void GetScreenResolution(out int width, out int height)
+        internal void GetScreenResolution(out int x, out int y, out int width, out int height, out int screenWidth, out int screenHeight)
         {
-            var result = PointerHandler_GetScreenResolution(handle, out width, out height);
+            var result = PointerHandler_GetScreenParams(handle, out x, out y, out width, out height, out screenWidth, out screenHeight);
 #if TOUCHSCRIPT_DEBUG
             ResultHelper.CheckResult(result);
 #endif

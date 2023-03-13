@@ -10,21 +10,8 @@ namespace TouchScript.InputSources.InputHandlers
 {
     public class X11PointerHandlerSystem : IInputSourceSystem, IDisposable
     {
-        // This is included so library dependencies are loaded.
-        // TODO Figure out how we can work without this hack...
-        [DllImport("libX11")]
-        private static extern IntPtr XOpenDisplay(string displayName);
-        [DllImport("libX11")]
-        private static extern int XCloseDisplay(IntPtr display);
-        [DllImport("libX11")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool XQueryExtension(IntPtr display, string extension, out int opcode, out int evt,
-            out int err);
-        [DllImport("libXi")]
-        private static extern int XIQueryVersion(IntPtr display, ref int majorVersion, ref int minorVersion);
-        
         [DllImport("libX11TouchMultiWindow")]
-        private static extern Result PointerHandlerSystem_Create(IntPtr display, MessageCallback messageCallback, ref IntPtr handle);
+        private static extern Result PointerHandlerSystem_Create(MessageCallback messageCallback, ref IntPtr handle);
         [DllImport("libX11TouchMultiWindow")]
         private static extern Result PointerHandlerSystem_ProcessEventQueue(IntPtr handle);
         [DllImport("libX11TouchMultiWindow")]
@@ -34,40 +21,16 @@ namespace TouchScript.InputSources.InputHandlers
         [DllImport("libX11TouchMultiWindow")]
         private static extern Result PointerHandlerSystem_Destroy(IntPtr handle);
 
-        private IntPtr display;
+        private MessageCallback messageCallback;
         private IntPtr handle;
 
         public X11PointerHandlerSystem()
         {
-            display = XOpenDisplay(null);
+            messageCallback = OnNativeMessage;
             
-            // The following checks should be on the native side, as that's where the actual implementation is.
-            // But Unity can't load 
-            // Check if the XInput extension is available
-            if (!XQueryExtension(display, "XInputExtension", out var opcode, out var evt, out var err))
-            {
-                Debug.LogError($"[TouchScript]: Failed to get the XInput extension");
-             
-                XCloseDisplay(display);
-                display = IntPtr.Zero;
-                return;
-            }
-            
-            // Check the minimum XInput extension version, which we expect to be 2.3+
-            var majorVersion = 2;
-            var minorVersion = 3;
-            if (XIQueryVersion(display, ref majorVersion, ref minorVersion) != 0)
-            {
-                Debug.LogError($"[TouchScript]: Unsupported XInput extension version: expected 2.3+, actual {majorVersion}.{minorVersion}");
-            
-                XCloseDisplay(display);
-                display = IntPtr.Zero;
-                return;
-            }
-
             // Create native resources
             handle = new IntPtr();
-            var result = PointerHandlerSystem_Create(display, OnNativeMessage, ref handle);
+            var result = PointerHandlerSystem_Create(messageCallback, ref handle);
             if (result != Result.Ok)
             {
                 handle = IntPtr.Zero;
@@ -100,12 +63,6 @@ namespace TouchScript.InputSources.InputHandlers
                 PointerHandlerSystem_Destroy(handle);
                 handle = IntPtr.Zero;
             }
-
-            if (display != IntPtr.Zero)
-            {
-                XCloseDisplay(display);
-                display = IntPtr.Zero;
-            }
         }
 
         public void PrepareInputs()
@@ -130,8 +87,6 @@ namespace TouchScript.InputSources.InputHandlers
             PointerHandlerSystem_FreeWindowsOfProcess(handle, windows);
             
             procWindows.AddRange(w);
-            
-            Debug.Log($"[TouchScript]: Found {procWindows.Count} application windows for process {pid}");
         }
         
         // Attribute used for IL2CPP

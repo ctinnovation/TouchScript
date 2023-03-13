@@ -87,7 +87,7 @@ struct PointerData
 /**	*/
 typedef void(*MessageCallback)(int, char*);
 /** */
-typedef void(*PointerCallback)(int, PointerEvent, PointerType, Vector2, PointerData);
+typedef void(*PointerCallback)(int, int, PointerType, Vector2, PointerData);
 
 #if _UNICODE
 #define CONSOLE_WRITE_LINE(message) { \

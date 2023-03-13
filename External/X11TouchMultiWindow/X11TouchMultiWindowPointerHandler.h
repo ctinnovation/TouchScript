@@ -31,7 +31,7 @@ public:
     Window getWindow() const { return mWindow; }
 
     Result initialize();
-    Result getScreenResolution(int* width, int* height);
+    Result getScreenParams(int* positionX, int* positionY, int* width, int* height, int* screenWidth, int* screenHeight);
     Result setScreenParams(int width, int height, float offsetX, float offsetY, float scaleX, float scaleY);
 
     void processEvent(XIDeviceEvent* xiEvent);

@@ -25,7 +25,7 @@ private:
     PointerHandlerMap mPointerHandlers;
 
 public:
-    PointerHandlerSystem(Display* display, MessageCallback messageCallback);
+    PointerHandlerSystem(MessageCallback messageCallback);
     ~PointerHandlerSystem();
 
     static PointerHandlerSystem* getInstance() { return msInstance; }
