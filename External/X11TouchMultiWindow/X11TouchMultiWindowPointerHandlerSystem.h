@@ -22,6 +22,7 @@ private:
     Display* mDisplay;
     int mOpcode;
     MessageCallback mMessageCallback;
+    std::vector<int> mDeviceIds;
     PointerHandlerMap mPointerHandlers;
 
 public:

@@ -28,7 +28,7 @@ PointerHandler::~PointerHandler()
 
 }
 // ----------------------------------------------------------------------------
-Result PointerHandler::initialize()
+Result PointerHandler::initialize(std::vector<int> deviceIds)
 {
     sendMessage(mMessageCallback, MT_INFO, "Initializing handler...");
 
@@ -57,23 +57,29 @@ Result PointerHandler::initialize()
 	XISetMask(mask, XI_TouchUpdate);
 	XISetMask(mask, XI_TouchEnd);
 
-	// TODO XIDeviceInfo *devices = XIQueryDevice(xDisplay, XIAllDevices, &deviceCount);
-	// https://www.x.org/archive/X11R7.5/doc/man/man3/XIQueryDevice.3.html
+	Status status = Success;
+	for (std::vector<int>::const_iterator it = deviceIds.begin(); it != deviceIds.end(); ++it)
+	{
+		XIEventMask eventMask = {
+			.deviceid = *it,
+			.mask_len = sizeof(mask),
+			.mask = mask
+		};
 
-	XIEventMask eventMask = {
-		.deviceid = XIAllDevices,
-		.mask_len = sizeof(mask),
-		.mask = mask
-	};
+		Status s = XISelectEvents(mDisplay, mWindow, &eventMask, 1);
+		if (s != Success)
+		{
+			sendMessage(mMessageCallback, MT_ERROR, "Failed to select events for on window: " + std::to_string(status));
+			status = s;
+		}
+	}
 
-	Status status = XISelectEvents(mDisplay, mWindow, &eventMask, 1);
 	if (status != Success)
 	{
-		sendMessage(mMessageCallback, MT_ERROR, "Failed to select pointer events on window: " + std::to_string(status));
 		return R_ERROR_UNSUPPORTED;
 	}
 
-	// Propagate request to X server
+	// Propagate requests to X server
 	XFlush(mDisplay);
 
 	sendMessage(mMessageCallback, MT_INFO, "Handler initialized...");

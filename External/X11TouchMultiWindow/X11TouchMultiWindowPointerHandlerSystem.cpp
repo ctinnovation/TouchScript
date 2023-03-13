@@ -58,6 +58,32 @@ Result PointerHandlerSystem::initialize()
         return R_ERROR_API;
     }
 
+    int numDevices;
+    XIDeviceInfo* devices = XIQueryDevice(mDisplay, XIAllDevices, &numDevices);
+    for (int i = 0; i < numDevices; i++)
+	{
+		XIDeviceInfo device = devices[i];
+		if (device.use == XIMasterPointer || device.use == XIFloatingSlave)
+		{
+			for (int j = 0; j < device.num_classes; j++)
+			{
+                XIAnyClassInfo* classInfo = device.classes[j];
+				switch (classInfo->type)
+				{
+					// Touch
+					case XITouchClass:
+					// Mouse, touchpad
+					case XIButtonClass:
+					case XIValuatorClass:
+                        mDeviceIds.push_back(classInfo->sourceid);
+                        break;
+                }
+            }
+        }
+    }
+
+    XIFreeDeviceInfo(devices);
+
     sendMessage(mMessageCallback, MT_INFO, "System intialized with XInput version " +
             std::to_string(major) + "." + std::to_string(minor));
     return R_OK;
@@ -92,7 +118,7 @@ Result PointerHandlerSystem::createHandler(Window window, PointerCallback pointe
 	*handle = handler;
 
 	mPointerHandlers.insert(std::make_pair(window, handler));
-    return handler->initialize();
+    return handler->initialize(mDeviceIds);
 }
 // ----------------------------------------------------------------------------
 PointerHandler* PointerHandlerSystem::getHandler(Window window) const
@@ -138,8 +164,8 @@ Result PointerHandlerSystem::processEventQueue()
                     if (xEvent.xcookie.extension != mOpcode)
                     {
                         // Received a non xinput event
-                        sendMessage(mMessageCallback, MT_INFO,
-                            "Received event of type " + std::to_string(xEvent.type));
+                        // sendMessage(mMessageCallback, MT_INFO,
+                        //     "Received event of type " + std::to_string(xEvent.type));
                         continue;
                     }
 

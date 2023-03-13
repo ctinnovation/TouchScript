@@ -3,6 +3,7 @@
 */
 #pragma once
 
+#include <vector>
 #include <X11/Xlib.h>
 #include <X11/extensions/XInput2.h>
 
@@ -30,7 +31,7 @@ public:
 
     Window getWindow() const { return mWindow; }
 
-    Result initialize();
+    Result initialize(std::vector<int> deviceIds);
     Result getScreenParams(int* positionX, int* positionY, int* width, int* height, int* screenWidth, int* screenHeight);
     Result setScreenParams(int width, int height, float offsetX, float offsetY, float scaleX, float scaleY);
 

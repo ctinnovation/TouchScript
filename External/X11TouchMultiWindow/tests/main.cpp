@@ -5,7 +5,7 @@
 #include <X11/Xutil.h>
 #include <X11/extensions/XInput2.h>
 
-bool processEvent(XIDeviceEvent* xiEvent)
+void processEvent(XIDeviceEvent* xiEvent)
 {
     switch (xiEvent->evtype)
 	{
@@ -19,17 +19,15 @@ bool processEvent(XIDeviceEvent* xiEvent)
             std::cout << "Mouse update: " << xiEvent->event_x << "," << xiEvent->event_y << std::endl;
 			break;
 		case XI_TouchBegin:
-            std::cout << "Processing touch begin..." << std::endl;
+            std::cout << "Touch begin:" << xiEvent->detail << ":" << xiEvent->event_x << "," << xiEvent->event_y << std::endl;
 			break;
 		case XI_TouchUpdate:
-            std::cout << "Processing touch update..." << std::endl;
+            std::cout << "Touch update:" << xiEvent->detail << ":" << xiEvent->event_x << "," << xiEvent->event_y << std::endl;
 			break;
 		case XI_TouchEnd:
-            std::cout << "Processing touch end..." << std::endl;
+            std::cout << "Touch end::" << xiEvent->detail << ":" << xiEvent->event_x << "," << xiEvent->event_y << std::endl;
 			break;
 	}
-    
-    return false;
 }
 
 int main()
@@ -67,7 +65,7 @@ int main()
 
     Window window = XCreateSimpleWindow(display, rootWindow, 20, 20, 640, 480, 2, white, black);
     XSetStandardProperties(display, window, "X11TouchMultiWindow", "", None, NULL, 0, NULL);
-    XSelectInput(display, window, StructureNotifyMask|ExposureMask);
+    XSelectInput(display, window, ExposureMask | StructureNotifyMask);
 
     // Handling close gracefully
     Atom wmDeleteMessage = XInternAtom(display, "WM_DELETE_WINDOW", False);
@@ -106,21 +104,51 @@ int main()
 	XISetMask(mask, XI_TouchUpdate);
 	XISetMask(mask, XI_TouchEnd);
 
-	XIEventMask eventMask = {
-		.deviceid = XIAllMasterDevices, // TODO Only touch devices? Or XIAllDevices?
-		.mask_len = sizeof(mask),
-		.mask = mask
-	};
+	int numDevices, numActualDevices;
+	XIDeviceInfo* devices = XIQueryDevice(display, XIAllDevices, &numDevices);
 
-	Status status = XISelectEvents(display, window, &eventMask, 1);
-    if (status != Success)
+    std::cout << "Found " << numDevices << " input devices" << std::endl;
+
+	for (int i = 0; i < numDevices; i++)
 	{
-        std::cout << "Failed to select pointer events on window: " << window << std::endl;
+		XIDeviceInfo device = devices[i];
+		if (device.use == XIMasterPointer || device.use == XIFloatingSlave)
+		{
+            std::cout << "Found input device " << device.name << " with " << device.num_classes << " classes" << std::endl;
 
-        XDestroyWindow(display, window);
-        XCloseDisplay(display);
-        return -1;
-    }
+			for (int j = 0; j < device.num_classes; j++)
+			{
+				XIAnyClassInfo* classInfo = device.classes[j];
+				switch (classInfo->type)
+				{
+					// Touch
+					case XITouchClass:
+					// Mouse, touchpad
+					case XIButtonClass:
+					case XIValuatorClass:
+						{
+                            XIEventMask eventMask = {
+								.deviceid = classInfo->sourceid,
+								.mask_len = sizeof(mask),
+								.mask = mask
+							};
+
+							Status status = XISelectEvents(display, window, &eventMask, 1);
+							if (status != Success)
+							{
+								std::cerr << "Failed to select events for " << device.name << " on windows " << status << std::endl;
+							}
+						}
+						break;
+				}
+			}
+		}
+	}
+
+	// TODO XIDeviceInfo *devices = XIQueryDevice(xDisplay, XIAllDevices, &deviceCount);
+	// https://www.x.org/archive/X11R7.5/doc/man/man3/XIQueryDevice.3.html
+
+	XIFreeDeviceInfo(devices);
 
     std::cout << "Process event queue" << std::endl;
 
@@ -151,7 +179,7 @@ int main()
                     {
                         if (xEvent.xcookie.extension != opcode)
                         {
-                            std::cout << "Received event of type " << xEvent.type << " for window " << window << std::endl;
+                            //std::cout << "Received event of type " << xEvent.type << " for window " << window << std::endl;
                             continue;
                         }
 
@@ -173,14 +201,14 @@ int main()
                             continue;
                         }
 
-                        shutdownRequested = processEvent(xiEvent);
+                        processEvent(xiEvent);
 
                         XFreeEventData(display, &xEvent.xcookie);
                     }
                     break;
 
                 default:
-                    std::cout << "Received event of type " << xEvent.type << " for window " << window << std::endl;
+                    //std::cout << "Received event of type " << xEvent.type << " for window " << window << std::endl;
                     break;
             }
         }
