@@ -1,37 +1,35 @@
 #if UNITY_STANDALONE_LINUX
 using System;
 using System.Runtime.InteropServices;
-using TouchScript.Utils.Platform.Interop;
 
 namespace TouchScript.InputSources.InputHandlers.Interop
 {
     sealed class NativeX11PointerHandler : IDisposable
     {
         #region Native Methods
-        
+
         [DllImport("libX11TouchMultiWindow")]
-        private static extern Result PointerHandler_Create(MessageCallback messageCallback,
-            IntPtr display, IntPtr window, PointerCallback pointerCallback, ref IntPtr handle);
+        private static extern Result PointerHandler_Create(IntPtr window, PointerCallback pointerCallback, ref IntPtr handle);
         [DllImport("libX11TouchMultiWindow")]
         private static extern Result PointerHandler_Destroy(IntPtr handle);
         [DllImport("libX11TouchMultiWindow")]
-        private static extern Result PointerHandler_GetScreenResolution(IntPtr handle, MessageCallback messageCallback,
-            out int width, out int height);
+        private static extern Result PointerHandler_SetTargetDisplay(IntPtr handle, int targetDisplay); 
         [DllImport("libX11TouchMultiWindow")]
-        private static extern Result PointerHandler_SetScreenParams(IntPtr handle, MessageCallback messageCallback,
-            int width, int height, float offsetX, float offsetY, float scaleX, float scaleY);
+        private static extern Result PointerHandler_GetScreenParams(IntPtr handle, out int x, out int y, out int width, out int height,
+            out int screenWidth, out int screenHeight);
         [DllImport("libX11TouchMultiWindow")]
-        private static extern Result PointerHandler_ProcessEventQueue(IntPtr handle, MessageCallback messageCallback, int frameCount);
+        private static extern Result PointerHandler_SetScreenParams(IntPtr handle, int width, int height,
+            float offsetX, float offsetY, float scaleX, float scaleY);
         
         #endregion
         
         private IntPtr handle;
 
-        internal NativeX11PointerHandler(MessageCallback messageCallback, IntPtr display, IntPtr window, PointerCallback pointerCallback)
+        internal NativeX11PointerHandler(IntPtr window, PointerCallback pointerCallback)
         {
             // Create native resources
             handle = new IntPtr();
-            var result = PointerHandler_Create(messageCallback, display, window, pointerCallback, ref handle);
+            var result = PointerHandler_Create(window, pointerCallback, ref handle);
             if (result != Result.Ok)
             {
                 handle = IntPtr.Zero;
@@ -66,26 +64,21 @@ namespace TouchScript.InputSources.InputHandlers.Interop
             }
         }
 
-        internal void GetScreenResolution(MessageCallback messageCallback, out int width, out int height)
+        internal void GetScreenResolution(out int x, out int y, out int width, out int height, out int screenWidth, out int screenHeight)
         {
-            var result = PointerHandler_GetScreenResolution(handle, messageCallback, out width, out height);
+            var result = PointerHandler_GetScreenParams(handle, out x, out y, out width, out height, out screenWidth, out screenHeight);
 #if TOUCHSCRIPT_DEBUG
             ResultHelper.CheckResult(result);
 #endif
         }
         
-        internal void SetScreenParams(MessageCallback messageCallback, int width, int height,
+        internal void SetScreenParams(int width, int height,
             float offsetX, float offsetY, float scaleX, float scaleY)
         {
-            var result = PointerHandler_SetScreenParams(handle, messageCallback, width, height, offsetX, offsetY, scaleX, scaleY);
+            var result = PointerHandler_SetScreenParams(handle, width, height, offsetX, offsetY, scaleX, scaleY);
 #if TOUCHSCRIPT_DEBUG
             ResultHelper.CheckResult(result);
 #endif
-        }
-
-        internal void ProcessEventQueue(MessageCallback messageCallback, int frameCount)
-        {
-            PointerHandler_ProcessEventQueue(handle, messageCallback, frameCount);
         }
     }
 }

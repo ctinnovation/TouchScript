@@ -1,7 +1,8 @@
-﻿#if UNITY_STANDALONE_WIN
+#if UNITY_STANDALONE_WIN
 using System.Runtime.InteropServices;
+using UnityEngine;
 
-namespace TouchScript.Utils.Platform.Interop
+namespace TouchScript.InputSources.InputHandlers.Interop
 {
     /// <summary>
     /// 
@@ -10,5 +11,9 @@ namespace TouchScript.Utils.Platform.Interop
     /// <param name="message"></param>
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     delegate void MessageCallback(int messageType, string message);
+    
+    [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+    delegate void PointerCallback(int id, PointerEvent evt, PointerType type, Vector2 position,
+        PointerData data);
 }
 #endif

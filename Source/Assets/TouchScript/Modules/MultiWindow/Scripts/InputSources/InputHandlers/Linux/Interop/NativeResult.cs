@@ -1,14 +1,15 @@
 #if UNITY_STANDALONE_LINUX
 using System;
 
-namespace TouchScript.Utils.Platform.Interop
+namespace TouchScript.InputSources.InputHandlers.Interop
 {
     public enum Result
     {
         Ok = 0,
         ErrorNullPointer = -101,
         ErrorAPI = -102,
-        ErrorUnsupported = -103
+        ErrorUnsupported = -103,
+        DuplicateItem = -104
     }
 
     public static class ResultHelper
@@ -24,6 +25,7 @@ namespace TouchScript.Utils.Platform.Interop
             switch (result)
             {
                 case Result.ErrorNullPointer:
+                case Result.DuplicateItem:
                     throw new InvalidOperationException(errorMessage);
                 case Result.ErrorAPI:
                 case Result.ErrorUnsupported:

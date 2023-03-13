@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using TouchScript.InputSources.InputHandlers.Interop;
 using TouchScript.Pointers;
 using TouchScript.Utils.Platform;
-using TouchScript.Utils.Platform.Interop;
 using UnityEngine;
 using PointerType = TouchScript.InputSources.InputHandlers.Interop.PointerType;
 
@@ -33,7 +32,7 @@ namespace TouchScript.InputSources.InputHandlers
         {
             this.hWindow = hWindow;
             
-            messageCallback = WindowsUtilsEx.OnNativeMessage;
+            messageCallback = onNativeMessage;
             pointerCallback = onNativePointer;
 
             pointerHandler = new NativePointerHandler();
@@ -112,6 +111,24 @@ namespace TouchScript.InputSources.InputHandlers
             {
                 WindowsUtils.RemoveProp(hWindow, PRESS_AND_HOLD_ATOM);
                 WindowsUtils.GlobalDeleteAtom(pressAndHoldAtomID);
+            }
+        }
+        
+        // Attribute used for IL2CPP
+        [AOT.MonoPInvokeCallback(typeof(MessageCallback))]
+        private void onNativeMessage(int messageType, string message)
+        {
+            switch (messageType)
+            {
+                case 2:
+                    Debug.LogWarning("[WindowsTouchMultiWindow.dll]: " + message);
+                    break;
+                case 3:
+                    Debug.LogError("[WindowsTouchMultiWindow.dll]: " + message);
+                    break;
+                default:
+                    Debug.Log("[WindowsTouchMultiWindow.dll]: " + message);
+                    break;
             }
         }
 

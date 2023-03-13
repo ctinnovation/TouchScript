@@ -63,7 +63,7 @@ namespace TouchScript.Debugging
             }
 
             var line =
-                $"(Display {targetDisplay}): {pointer.Type}({pointer.Id}):({pointer.Position.x},{pointer.Flags}) {pointer.Position.y}) | ({pointer.PreviousPosition.x}, {pointer.PreviousPosition.y}) - ({path ?? ""})";
+                $"Display {targetDisplay}: {pointer.Type} ({pointer.Id} | {pointer.Flags}): {pointer.Position.x},{pointer.Position.y} ({pointer.PreviousPosition.x},{pointer.PreviousPosition.y}) - ({path ?? "<None>"})";
 
             lines.Add(line);
             if (lines.Count > numLines)

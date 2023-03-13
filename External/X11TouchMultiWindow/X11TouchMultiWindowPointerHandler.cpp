@@ -1,20 +1,18 @@
 /*
 @author Jorrit de Vries (jorrit@ijsfontein.nl)
 */
-
 #include <cstring>
-#include <X11/extensions/XInput2.h>
 
 #include "X11TouchMultiWindowPointerHandler.h"
-#include "X11TouchMultiWindowPointerHandlerManager.h"
 #include "X11TouchMultiWindowUtils.h"
 
 // ----------------------------------------------------------------------------
-PointerHandler::PointerHandler(Display* display, Window window, PointerCallback pointerCallback)
+PointerHandler::PointerHandler(Display* display, Window window,
+	MessageCallback messageCallback, PointerCallback pointerCallback)
     : mDisplay(display)
 	, mWindow(window)
+	, mMessageCallback(messageCallback)
 	, mPointerCallback(pointerCallback)
-	, mXInputOpcode(0)
     , mWidth(0)
 	, mHeight(0)
 	, mOffsetX(0.0f)
@@ -30,76 +28,87 @@ PointerHandler::~PointerHandler()
 
 }
 // ----------------------------------------------------------------------------
-Result PointerHandler::initialize(MessageCallback messageCallback)
+Result PointerHandler::initialize(std::vector<int> deviceIds)
 {
-    sendMessage(messageCallback, MessageType::INFO, "Initializing handler...");
+    sendMessage(mMessageCallback, MT_INFO, "Initializing handler...");
 
 	if (mDisplay == NULL)
 	{
-		sendMessage(messageCallback, MessageType::ERROR, "'display' is NULL");
-		return Result::ERROR_NULL_POINTER;
+		sendMessage(mMessageCallback, MT_ERROR, "'display' is NULL");
+		return R_ERROR_NULL_POINTER;
 	}
 
     if (mWindow == None)
     {
-        sendMessage(messageCallback, MessageType::ERROR, "'window' is None");
-        return Result::ERROR_NULL_POINTER;
+        sendMessage(mMessageCallback, MT_ERROR, "'window' is None");
+        return R_ERROR_NULL_POINTER;
     }
-
-	// Request the opcode for XInput2
-	int evt, err;
-	if (!XQueryExtension(mDisplay, "XInputExtension", &mXInputOpcode, &evt, &err))
-	{
-		sendMessage(messageCallback, MessageType::ERROR, "'XInput extension is not available");
-		return Result::ERROR_UNSUPPORTED;
-	}
 
 	// Setup the event mask fore the events we want to listen to
 	unsigned char mask[XIMaskLen(XI_LASTEVENT)];
 	memset(mask, 0, sizeof(mask));
+	// Mouse buttons
 	XISetMask(mask, XI_ButtonPress);
 	XISetMask(mask, XI_ButtonRelease);
+	// Mouse motion
+	XISetMask(mask, XI_Motion);
+	// Touch
 	XISetMask(mask, XI_TouchBegin);
 	XISetMask(mask, XI_TouchUpdate);
 	XISetMask(mask, XI_TouchEnd);
 
-	XIEventMask eventMask = {
-		.deviceid = XIAllDevices, // TODO Only touch devices? Or XIAllMasterDevices?
-		.mask_len = sizeof(mask),
-		.mask = mask
-	};
-
-	Status status = XISelectEvents(mDisplay, mWindow, &eventMask, 1);
-	free(eventMask.mask);
-	
-	if (status != Success)
+	Status status = Success;
+	for (std::vector<int>::const_iterator it = deviceIds.begin(); it != deviceIds.end(); ++it)
 	{
-		sendMessage(messageCallback, MessageType::ERROR, "Failed to select pointer events on window: " + std::to_string(status));
-		return Result::ERROR_UNSUPPORTED;
+		XIEventMask eventMask = {
+			.deviceid = *it,
+			.mask_len = sizeof(mask),
+			.mask = mask
+		};
+
+		Status s = XISelectEvents(mDisplay, mWindow, &eventMask, 1);
+		if (s != Success)
+		{
+			sendMessage(mMessageCallback, MT_ERROR, "Failed to select events for on window: " + std::to_string(status));
+			status = s;
+		}
 	}
 
-    return Result::OK;
+	if (status != Success)
+	{
+		return R_ERROR_UNSUPPORTED;
+	}
+
+	// Propagate requests to X server
+	XFlush(mDisplay);
+
+	sendMessage(mMessageCallback, MT_INFO, "Handler initialized...");
+
+    return R_OK;
 }
 // ----------------------------------------------------------------------------
-Result PointerHandler::getScreenResolution(MessageCallback messageCallback, int* width, int* height)
+Result PointerHandler::getScreenParams(int*x, int*y, int* width, int* height, int* screenWidth, int* screenHeight)
 {
+	sendMessage(mMessageCallback, MT_INFO, "Requesting screen resolution of window " + std::to_string(mWindow));
+
     // Get the screen for the window
-    XWindowAttributes attributes; 
+    XWindowAttributes attributes;
     if (XGetWindowAttributes(mDisplay, mWindow, &attributes) != 0)
     {
-        *width = XWidthOfScreen(attributes.screen);
-        *height = XHeightOfScreen(attributes.screen);
-        return Result::OK;
+		*x = attributes.x;
+		*y = attributes.y;
+        *width = attributes.width;
+        *height = attributes.height;
+        return R_OK;
     }
     else
     {
-        sendMessage(messageCallback, MessageType::ERROR, "Failed to retrieve XWindowAttributes");
-        return Result::ERROR_API;
+        sendMessage(mMessageCallback, MT_ERROR, "Failed to retrieve XWindowAttributes");
+        return R_ERROR_API;
     }
 }
 // ----------------------------------------------------------------------------
-Result PointerHandler::setScreenParams(MessageCallback messageCallback,
-	int width, int height, float offsetX, float offsetY, float scaleX, float scaleY)
+Result PointerHandler::setScreenParams(int width, int height, float offsetX, float offsetY, float scaleX, float scaleY)
 {
 	mWidth = width;
 	mHeight = height;
@@ -108,63 +117,83 @@ Result PointerHandler::setScreenParams(MessageCallback messageCallback,
 	mScaleX = scaleX;
 	mScaleY = scaleY;
 
-	return Result::OK;
+	return R_OK;
 }
 // ----------------------------------------------------------------------------
-Result PointerHandler::processEvents(MessageCallback messageCallback, int frameCount)
+void PointerHandler::processEvent(XIDeviceEvent* xiEvent)
 {
-	// We use the same architecture for pointer handlers and input. And as we
-	// can't hook into the window procedures as we can on on Windows, for now
-	// we do a process only once every frame.
+	int pointerId = 0;
+	PointerType pointerType;
+	PointerEvent pointerEvent;
+	PointerData pointerData;
 
-	// An actual refactor of the C# side is required (creating a single MultiWindowStandardInput with multiple pointer handlers)
-	// but that's for later.
-
-	PointerHandlerManager::processEvents(mDisplay, mXInputOpcode, frameCount);
-	return Result::OK;
-}
-
-// .NET available interface
-// ----------------------------------------------------------------------------
-extern "C" EXPORT_API Result PointerHandler_Create(MessageCallback messageCallback,
-	Display* display, Window window, PointerCallback pointerCallback, void** handle) throw()
-{
-	PointerHandler* handler = new PointerHandler(display, window, pointerCallback);
-	*handle = handler;
-
-	PointerHandlerManager::pointerHandlers.insert(std::make_pair(window, handler));
-
-	return handler->initialize(messageCallback);
-}
-// ----------------------------------------------------------------------------
-extern "C" EXPORT_API Result PointerHandler_Destroy(PointerHandler* handler) throw()
-{
-	PointerHandlerMapIterator it = PointerHandlerManager::pointerHandlers.find(handler->getWindow());
-	if (it != PointerHandlerManager::pointerHandlers.end())
+	switch (xiEvent->evtype)
 	{
-		PointerHandlerManager::pointerHandlers.erase(it);
-	}
+		case XI_ButtonPress:
+			{
+				int button = xiEvent->detail;
+				if (button < 1 || button > 5)
+				{
+					return;
+				}
 
-	delete handler;
-	return Result::OK;
-}
-// ----------------------------------------------------------------------------
-extern "C" EXPORT_API Result PointerHandler_GetScreenResolution(
-	PointerHandler* handler, MessageCallback messageCallback,
-	int* width, int* height)
-{
-    return handler->getScreenResolution(messageCallback, width, height);
-}
-// ----------------------------------------------------------------------------
-extern "C" EXPORT_API Result PointerHandler_SetScreenParams(
-	PointerHandler* handler, MessageCallback messageCallback,
-	int width, int height, float offsetX, float offsetY, float scaleX, float scaleY)
-{
-	return handler->setScreenParams(messageCallback, width, height, offsetX, offsetY, scaleX, scaleY);
-}
-// ----------------------------------------------------------------------------
-extern "C" EXPORT_API Result PointerHandler_ProcessEventQueue(
-	PointerHandler* handler, MessageCallback messageCallback, int frameCount)
-{
-	return handler->processEvents(messageCallback, frameCount);
+				pointerType = PT_MOUSE;
+				pointerEvent = PE_DOWN;
+
+				pointerData.flags = (PointerFlags)(0x10 << (button - 1));
+				pointerData.changedButtons = (PointerButtonChangeType)((button * 2) - 1);
+			}
+			break;
+		case XI_ButtonRelease:
+			{
+				int button = xiEvent->detail;
+				if (button < 1 || button > 5)
+				{
+					return;
+				}
+
+				pointerType = PT_MOUSE;
+				pointerEvent = PE_UP;
+
+				pointerData.flags = (PointerFlags)(0x10 << (button - 1));
+				pointerData.changedButtons = (PointerButtonChangeType)(button * 2);
+			}
+			break;
+		case XI_Motion:
+			{
+				pointerType = PT_MOUSE;
+				pointerEvent = PE_UPDATE;
+				pointerData.changedButtons = PBCT_NONE;
+			}
+			break;
+		case XI_TouchBegin:
+			{
+				pointerId = xiEvent->detail;
+				pointerType = PT_TOUCH;
+				pointerEvent = PE_DOWN;
+			}
+			break;
+		case XI_TouchUpdate:
+			{
+				pointerId = xiEvent->detail;
+				pointerType = PT_TOUCH;
+				pointerEvent = PE_UPDATE;
+			}
+			break;
+		case XI_TouchEnd:
+			{
+				pointerId = xiEvent->detail;
+				pointerType = PT_TOUCH;
+				pointerEvent = PE_UP;
+			}
+			break;
+		default:
+			return;
+	}
+ 
+	Vector2 position = Vector2(
+		((float)xiEvent->event_x - mOffsetX) * mScaleX,
+		mHeight - ((float)xiEvent->event_y - mOffsetY) * mScaleY);
+
+	mPointerCallback(pointerId, pointerEvent, pointerType, position, pointerData);
 }
