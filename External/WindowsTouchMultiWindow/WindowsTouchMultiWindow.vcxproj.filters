@@ -15,18 +15,18 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MultiWindowsTouchPointerHandler.cpp">
+    <ClCompile Include="WindowsTouchMultiWindowPointerHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MultiWindowsTouch.h">
+    <ClInclude Include="WindowsTouchMultiWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MultiWindowsTouchPointerHandler.h">
+    <ClInclude Include="WindowsTouchMultiWindowPointerHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MultiWindowsTouchCommon.h">
+    <ClInclude Include="WindowsTouchMultiWindowCommon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -37,10 +37,10 @@ public:
 	~PointerHandler();
 
 	/**	*/
-	Result initialize(MessageCallback messageCallback, TOUCH_API api, HWND hWnd, PointerCallback pointerCallback);
+	Result initialize(MessageCallback messageCallback, int targetDisplay, TOUCH_API api, HWND hWnd, PointerCallback pointerCallback);
 	
 	int getTargetDisplay() const { return mTargetDisplay; }
-    	Result setTargetDisplay(int value) { mTargetDisplay = value; return R_OK; }
+    Result setTargetDisplay(int value) { mTargetDisplay = value; return R_OK; }
 	/**	*/
 	Result setScreenParams(MessageCallback messageCallback, int width, int height, float offsetX, float offsetY, float scaleX, float scaleY);
 private:

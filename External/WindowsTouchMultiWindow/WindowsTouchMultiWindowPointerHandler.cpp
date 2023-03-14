@@ -55,7 +55,7 @@ PointerHandler::~PointerHandler()
 }
 
 // ----------------------------------------------------------------------------
-Result PointerHandler::initialize(int targetDisplay, MessageCallback messageCallback,
+Result PointerHandler::initialize(MessageCallback messageCallback, int targetDisplay,
 	TOUCH_API api, HWND hWnd, PointerCallback pointerCallback)
 {
 	sendMessage(messageCallback, MT_INFO, "Initializing handler...");
@@ -285,20 +285,20 @@ extern "C" EXPORT_API Result PointerHandler_Destroy(PointerHandler* handler) thr
 }
 // ----------------------------------------------------------------------------
 extern "C" EXPORT_API Result PointerHandler_Initialize(
-	PointerHandler * handler, MessageCallback messageCallback,
+	PointerHandler* handler, MessageCallback messageCallback, int targetDisplay,
 	TOUCH_API api, HWND hWnd, PointerCallback pointerCallback)
 {
-	return handler->initialize(messageCallback, api, hWnd, pointerCallback);
+	return handler->initialize(messageCallback, targetDisplay, api, hWnd, pointerCallback);
 }
 // ----------------------------------------------------------------------------
-extern "C" EXPORT_API Result PointerHandler_SetTargetDisplay(PointerHandler * handler,
+extern "C" EXPORT_API Result PointerHandler_SetTargetDisplay(PointerHandler* handler,
 	int targetDisplay)
 {
 	return handler->setTargetDisplay(targetDisplay);
 }	
 // ----------------------------------------------------------------------------
 extern "C" EXPORT_API Result PointerHandler_SetScreenParams(
-	PointerHandler * handler, MessageCallback messageCallback,
+	PointerHandler* handler, MessageCallback messageCallback,
 	int width, int height, float offsetX, float offsetY, float scaleX, float scaleY)
 {
 	return handler->setScreenParams(messageCallback, width, height, offsetX, offsetY, scaleX, scaleY);
