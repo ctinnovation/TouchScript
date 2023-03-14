@@ -1,22 +1,26 @@
 ﻿#if TOUCHSCRIPT_DEBUG
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using TMPro;
 using TouchScript.Debugging.Filters;
 using TouchScript.Debugging.Loggers;
 using TouchScript.InputSources.InputHandlers;
 using TouchScript.Pointers;
 using TouchScript.Utils;
-using UnityEngine;
 
 #endif
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+using TMPro;
+using UnityEngine;
 
 namespace TouchScript.Debugging
 {
     [DefaultExecutionOrder(-50)]
-    public class DebugLogger : MonoBehaviour, IPointerLogger
+    public class DebugLogger : MonoBehaviour
+#if TOUCHSCRIPT_DEBUG
+        , IPointerLogger
+#endif
     {
         [SerializeField] private TextMeshProUGUI text;
         [SerializeField] private int numLines = 10;
@@ -49,9 +53,9 @@ namespace TouchScript.Debugging
         }
 #endif
         
+#if TOUCHSCRIPT_DEBUG
         public void Log(Pointer pointer, PointerEvent evt)
         {
-#if TOUCHSCRIPT_DEBUG
             var path = TransformUtils.GetHierarchyPath(pointer.GetPressData().Target);
 
             var inputSource = pointer.InputSource;
@@ -70,7 +74,6 @@ namespace TouchScript.Debugging
             {
                 lines.RemoveAt(0);
             }
-#endif
         }
 
         public List<PointerData> GetFilteredPointerData(IPointerDataFilter filter = null)
@@ -84,5 +87,6 @@ namespace TouchScript.Debugging
         }
 
         public void Dispose() { }
+#endif
     }
 }
