@@ -4,11 +4,12 @@
 [Tt]humbs.db
  
 /Temp/
-/Obj/
+/[Oo]bj/
 /UnityGenerated/
 /Library/
-/Build*/
+/[Bb]uild*/
 /UserSettings/
+/Logs/
  
 ExportedObj/
 *.svd
@@ -33,4 +34,4 @@ _ReSharper*
 *.mdb*
 pdb2mdb.bat*
 
-/Assets/Tests*
+boot.config

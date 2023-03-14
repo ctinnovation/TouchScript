@@ -4,10 +4,12 @@ using System.Collections.Generic;
 using TouchScript.InputSources.InputHandlers;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
+#if !UNITY_EDITOR
 using System.Diagnostics;
 using System.Text;
+# if UNITY_STANDALONE_WIN
 using TouchScript.Utils.Platform;
+# endif
 #endif
 using Debug = UnityEngine.Debug;
 
@@ -18,8 +20,6 @@ namespace TouchScript.Core
     /// </summary>
     public class MultiWindowManagerInstance : DebuggableMonoBehaviour, IMultiWindowManager
     {
-        private const string unityWindowClassName = "UnityWndClass";
-        
         /// <summary>
         /// Gets the instance of MultiWindowManager singleton.
         /// </summary>
@@ -27,8 +27,7 @@ namespace TouchScript.Core
         {
             get
             {
-                if (shuttingDown) return null;
-                if (instance == null)
+                if (instance == null && !shuttingDown)
                 {
                     if (!Application.isPlaying) return null;
                     var objects = FindObjectsOfType<MultiWindowManagerInstance>();
@@ -64,9 +63,11 @@ namespace TouchScript.Core
         private bool shouldActivateDisplays = true;
         private bool shouldUpdateInputHandlers = true;
         
-        private Dictionary<int, IntPtr> targetDisplayWindows = new Dictionary<int, IntPtr>();
-#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
-        private List<IntPtr> unityWindows = new List<IntPtr>();
+        private Dictionary<int, IntPtr> targetDisplayWindowHandles = new Dictionary<int, IntPtr>();
+        private List<IntPtr> unityWindowHandles = new List<IntPtr>();
+
+#if UNITY_STANDALONE_LINUX
+        private X11PointerHandlerSystem pointerHandlerSystem;
 #endif
 
         private void Awake()
@@ -85,6 +86,11 @@ namespace TouchScript.Core
             DontDestroyOnLoad(gameObject);
             
             Input.simulateMouseWithTouches = false;
+
+#if UNITY_STANDALONE_LINUX
+            // We have to create this after awake
+            pointerHandlerSystem = new X11PointerHandlerSystem();
+#endif
             
             // First display is always activated
             OnDisplayActivated(0);
@@ -105,6 +111,9 @@ namespace TouchScript.Core
             // Frame 1: Displays are activated, we can retrieve handles and update the input handlers
             yield return null;
             
+#if UNITY_STANDALONE_LINUX
+            TouchManager.Instance.AddSystem(pointerHandlerSystem);
+#endif
             if (ShouldUpdateInputHandlersOnStart)
             {
                 UpdateInputHandlers();
@@ -113,29 +122,45 @@ namespace TouchScript.Core
         
         private void OnApplicationQuit()
         {
+#if UNITY_STANDALONE_LINUX
+            TouchManager.Instance.RemoveSystem(pointerHandlerSystem);
+#endif
             shuttingDown = true;
+        }
+
+        private void OnDestroy()
+        {
+#if UNITY_STANDALONE_LINUX
+            pointerHandlerSystem?.Dispose();
+            pointerHandlerSystem = null;
+#endif
+
+            if (instance == this)
+            {
+                instance = null;
+            }
         }
 
         public IntPtr OnDisplayActivated(int targetDisplay)
         {
-            if (targetDisplayWindows.TryGetValue(targetDisplay, out var windowHandle))
+            if (targetDisplayWindowHandles.TryGetValue(targetDisplay, out var window))
             {
-                return windowHandle;
+                return window;
             }
             
-#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
+#if !UNITY_EDITOR
             RefreshWindowHandles();
 
             // Now we check for every pointer, if it is present in the dictionary
-            foreach (var window in unityWindows)
+            foreach (var windowHandle in unityWindowHandles)
             {
-                if (!targetDisplayWindows.ContainsValue(window))
+                if (!targetDisplayWindowHandles.ContainsValue(windowHandle))
                 {
-                    targetDisplayWindows.Add(targetDisplay, window);
+                    targetDisplayWindowHandles.Add(targetDisplay, windowHandle);
 
-                    Debug.Log($"[TouchScript]: Registered window handle for display {targetDisplay}.");
+                    Debug.Log($"[TouchScript]: Registered window handle for display {targetDisplay + 1}.");
                     
-                    return window;
+                    return windowHandle;
                 }
             }
 #endif
@@ -143,12 +168,16 @@ namespace TouchScript.Core
             return IntPtr.Zero;
         }
         
+#if !UNITY_EDITOR
+
+# if UNITY_STANDALONE_WIN
         private void RefreshWindowHandles()
         {
-#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
-            unityWindows.Clear();
+            const string unityWindowClassName = "UnityWndClass";
 
-            // For every window of the current process, we check if it is of the unity window class, if so
+            unityWindowHandles.Clear();
+            // For every window of the current process, we check if it is of the unity window class, and if so
+            // add it to list of unity windows
             var classNameBuilder = new StringBuilder(33);
             var windows = WindowsUtilsEx.GetRootWindowsOfProcess(Process.GetCurrentProcess().Id);
             
@@ -163,17 +192,34 @@ namespace TouchScript.Core
                     continue;
                 }
 
-                unityWindows.Add(window);
+                unityWindowHandles.Add(window);
             }
-# if TOUCHSCRIPT_DEBUG
-            Debug.Log($"[TouchScript]: Found {unityWindows.Count} windows.");
+
+#  if TOUCHSCRIPT_DEBUG
+            Debug.Log($"[TouchScript]: Found {unityWindowHandles.Count} windows.");
+#  endif
+        }
+
+# elif UNITY_STANDALONE_LINUX
+        private void RefreshWindowHandles()
+        {
+#  if TOUCHSCRIPT_DEBUG
+            Debug.Log($"[TouchScript]: RefreshWindowHandles.");
+#  endif
+
+            unityWindowHandles.Clear();
+            pointerHandlerSystem.GetWindowsOfProcess(Process.GetCurrentProcess().Id, unityWindowHandles);
+
+#  if TOUCHSCRIPT_DEBUG
+            Debug.Log($"[TouchScript]: Found {unityWindowHandles.Count} windows.");
+#  endif
+        }
 # endif
 #endif
-        }
         
         public IntPtr GetWindowHandle(int targetDisplay)
         {
-            return targetDisplayWindows.TryGetValue(targetDisplay, out var windowHandle) ? windowHandle : IntPtr.Zero;
+            return targetDisplayWindowHandles.TryGetValue(targetDisplay, out var windowHandle) ? windowHandle : IntPtr.Zero;
         }
 
         public void UpdateInputHandlers()

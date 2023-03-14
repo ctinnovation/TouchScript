@@ -1,4 +1,4 @@
-﻿#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
+﻿#if UNITY_STANDALONE_WIN
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -24,7 +24,7 @@ namespace TouchScript.Utils.Platform
         
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
         public static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -44,40 +44,6 @@ namespace TouchScript.Utils.Platform
                 }
             }
             return dsProcRootWindows;
-        }
-        
-        public static List<IntPtr> GetWindows()
-        {
-            List<IntPtr> result = new List<IntPtr>();
-            GCHandle listHandle = GCHandle.Alloc(result);
-            try
-            {
-                EnumWindows(EnumWindow, GCHandle.ToIntPtr(listHandle));
-            }
-            finally
-            {
-                if (listHandle.IsAllocated)
-                {
-                    listHandle.Free();
-                }
-            }
-            return result;
-        }
-        
-        public static List<IntPtr> GetChildWindows(IntPtr parent)
-        {
-            List<IntPtr> result = new List<IntPtr>();
-            GCHandle listHandle = GCHandle.Alloc(result);
-            try
-            {
-                EnumChildWindows(parent, EnumWindow, GCHandle.ToIntPtr(listHandle));
-            }
-            finally
-            {
-                if (listHandle.IsAllocated)
-                    listHandle.Free();
-            }
-            return result;
         }
         
         /// <summary>
@@ -115,6 +81,22 @@ namespace TouchScript.Utils.Platform
             list.Add(handle);
             //  You can modify this to check to see if you want to cancel the operation, then return a null here
             return true;
+        }
+        
+        private static List<IntPtr> GetChildWindows(IntPtr parent)
+        {
+            List<IntPtr> result = new List<IntPtr>();
+            GCHandle listHandle = GCHandle.Alloc(result);
+            try
+            {
+                EnumChildWindows(parent, EnumWindow, GCHandle.ToIntPtr(listHandle));
+            }
+            finally
+            {
+                if (listHandle.IsAllocated)
+                    listHandle.Free();
+            }
+            return result;
         }
     }
 }

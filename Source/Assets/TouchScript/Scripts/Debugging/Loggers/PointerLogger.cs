@@ -65,7 +65,7 @@ namespace TouchScript.Debugging.Loggers
                     PreviousPosition = pointer.PreviousPosition,
                     Flags = pointer.Flags,
                     Target = pointer.GetPressData().Target,
-                    TargetPath = TransformUtils.GetHeirarchyPath(pointer.GetPressData().Target),
+                    TargetPath = TransformUtils.GetHierarchyPath(pointer.GetPressData().Target),
                 }
             };
             list.Add(log);

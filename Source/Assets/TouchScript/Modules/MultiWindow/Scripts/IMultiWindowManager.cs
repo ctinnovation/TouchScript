@@ -1,4 +1,5 @@
 using System;
+using TouchScript.InputSources.InputHandlers;
 
 namespace TouchScript
 {
@@ -19,7 +20,6 @@ namespace TouchScript
         /// </summary>
         /// <param name="targetDisplay"></param>
         IntPtr OnDisplayActivated(int targetDisplay);
-        
         /// <summary>
         /// 
         /// </summary>

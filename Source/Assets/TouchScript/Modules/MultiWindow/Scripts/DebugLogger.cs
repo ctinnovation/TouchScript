@@ -1,22 +1,28 @@
 ﻿#if TOUCHSCRIPT_DEBUG
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using TouchScript.Debugging.Filters;
 using TouchScript.Debugging.Loggers;
 using TouchScript.InputSources.InputHandlers;
 using TouchScript.Pointers;
 using TouchScript.Utils;
+
+#endif
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace TouchScript.Debugging
 {
     [DefaultExecutionOrder(-50)]
-    public class DebugLogger : MonoBehaviour, IPointerLogger
+    public class DebugLogger : MonoBehaviour
+#if TOUCHSCRIPT_DEBUG
+        , IPointerLogger
+#endif
     {
-        [SerializeField] private Text text;
+        [SerializeField] private TextMeshProUGUI text;
         [SerializeField] private int numLines = 10;
         
         /// <inheritdoc />
@@ -28,6 +34,7 @@ namespace TouchScript.Debugging
         private List<string> lines = new List<string>();
         private StringBuilder linesBuilder = new StringBuilder();
 
+#if TOUCHSCRIPT_DEBUG
         private void Awake()
         {
             TouchScriptDebugger.Instance.PointerLogger = this;
@@ -44,10 +51,12 @@ namespace TouchScript.Debugging
 
             text.text = linesBuilder.ToString();
         }
+#endif
         
+#if TOUCHSCRIPT_DEBUG
         public void Log(Pointer pointer, PointerEvent evt)
         {
-            var path = TransformUtils.GetHeirarchyPath(pointer.GetPressData().Target);
+            var path = TransformUtils.GetHierarchyPath(pointer.GetPressData().Target);
 
             var inputSource = pointer.InputSource;
             var targetDisplay = "1";
@@ -58,7 +67,7 @@ namespace TouchScript.Debugging
             }
 
             var line =
-                $"(Display {targetDisplay}): {pointer.Type}({pointer.Id}):({pointer.Position.x},{pointer.Flags}) {pointer.Position.y}) | ({pointer.PreviousPosition.x}, {pointer.PreviousPosition.y}) - ({path ?? ""})";
+                $"Display {targetDisplay}: {pointer.Type} ({pointer.Id} | {pointer.Flags}): {pointer.Position.x},{pointer.Position.y} ({pointer.PreviousPosition.x},{pointer.PreviousPosition.y}) - ({path ?? "<None>"})";
 
             lines.Add(line);
             if (lines.Count > numLines)
@@ -78,7 +87,6 @@ namespace TouchScript.Debugging
         }
 
         public void Dispose() { }
+#endif
     }
 }
-
-#endif

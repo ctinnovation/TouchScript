@@ -1,8 +1,30 @@
 * text eol=lf
+
+# Git Files
+.gitattributes text eol=lf
+.gitignore text eol=lf
+
+# Source code files
+*.cs text diff=csharp
+
+# Unity files
+*.asmdef text
+
 *.png binary
 *.jpg binary
 *.dll binary
+*.so binary
 *.swf binary
 *.ttf binary
 *.psd binary
+*.pdf binary
 
+# Documentation
+*.[mM][dD] text eol=lf
+
+# Collapse Unity-generated files on GitHub
+*.asset             linguist-generated
+*.mat               linguist-generated
+*.meta              linguist-generated
+*.prefab            linguist-generated
+*.unity             linguist-generated

@@ -103,8 +103,7 @@ namespace TouchScript.Core
         {
             get
             {
-                if (shuttingDown) return null;
-                if (instance == null)
+                if (instance == null && !shuttingDown)
                 {
                     if (!Application.isPlaying) return null;
                     var objects = FindObjectsOfType<TouchManagerInstance>();
@@ -222,6 +221,9 @@ namespace TouchScript.Core
 
         private ILayerManager layerManager;
 
+        private List<IInputSourceSystem> systems = new List<IInputSourceSystem>();
+        private int systemCount = 0;
+
         private List<IInputSource> inputs = new List<IInputSource>(3);
         private int inputCount = 0;
 
@@ -271,6 +273,23 @@ namespace TouchScript.Core
         #endregion
 
         #region Public methods
+
+        public bool AddSystem(IInputSourceSystem system)
+        {
+            if (system == null) return false;
+            if (systems.Contains(system)) return true;
+            systems.Add(system);
+            systemCount++;
+            return true;
+        }
+
+        public bool RemoveSystem(IInputSourceSystem system)
+        {
+            if (system == null) return false;
+            var result = systems.Remove(system);
+            if (result) systemCount--;
+            return result;
+        }
 
         /// <inheritdoc />
         public bool AddInput(IInputSource input)
@@ -587,6 +606,14 @@ namespace TouchScript.Core
             shuttingDown = true;
         }
 
+        private void OnDestroy()
+        {
+            if (instance == this)
+            {
+                instance = null;
+            }
+        }
+
         #endregion
 
         #region Private functions
@@ -632,6 +659,7 @@ namespace TouchScript.Core
 #if UNITY_5_6_OR_NEWER
             samplerUpdateInputs.Begin();
 #endif
+            for (var i = 0; i < systemCount; i++) systems[i].PrepareInputs();
             for (var i = 0; i < inputCount; i++) inputs[i].UpdateInput();
 #if UNITY_5_6_OR_NEWER
             samplerUpdateInputs.End();
