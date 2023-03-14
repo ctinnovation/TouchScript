@@ -92,7 +92,7 @@ namespace TouchScript.InputSources.InputHandlers
 
         protected void initialize(TOUCH_API api)
         {
-            pointerHandler.Initialize(targetDisplay, messageCallback, api, hWindow, pointerCallback);
+            pointerHandler.Initialize(messageCallback, targetDisplay, api, hWindow, pointerCallback);
             disablePressAndHold();
             setScaling();
         }

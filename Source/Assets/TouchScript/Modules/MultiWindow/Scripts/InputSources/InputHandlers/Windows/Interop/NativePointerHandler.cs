@@ -13,7 +13,7 @@ namespace TouchScript.InputSources.InputHandlers.Interop
         [DllImport("WindowsTouchMultiWindow")]
         private static extern Result PointerHandler_Destroy(IntPtr handle);
         [DllImport("WindowsTouchMultiWindow")]
-        private static extern Result PointerHandler_Initialize(IntPtr handle, int targetDisplay, MessageCallback messageCallback,
+        private static extern Result PointerHandler_Initialize(IntPtr handle, MessageCallback messageCallback, int targetDisplay,
             TOUCH_API api, IntPtr windowHandle, PointerCallback pointerCallback);
         [DllImport("WindowsTouchMultiWindow")]
         private static extern Result PointerHandler_SetTargetDisplay(IntPtr handle, int targetDisplay);
@@ -64,9 +64,9 @@ namespace TouchScript.InputSources.InputHandlers.Interop
             }
         }
 
-        internal void Initialize(int targetDisplay, MessageCallback messageCallback, TOUCH_API api, IntPtr hWindow, PointerCallback pointerCallback)
+        internal void Initialize(MessageCallback messageCallback, int targetDisplay, TOUCH_API api, IntPtr hWindow, PointerCallback pointerCallback)
         {
-            var result = PointerHandler_Initialize(handle, targetDisplay, messageCallback, api, hWindow, pointerCallback);
+            var result = PointerHandler_Initialize(handle, messageCallback, targetDisplay, api, hWindow, pointerCallback);
 #if TOUCHSCRIPT_DEBUG
             ResultHelper.CheckResult(result);
 #endif
