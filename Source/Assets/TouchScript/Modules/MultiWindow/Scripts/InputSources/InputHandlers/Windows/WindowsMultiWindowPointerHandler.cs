@@ -16,6 +16,19 @@ namespace TouchScript.InputSources.InputHandlers
     class WindowsMultiWindowPointerHandler : MultiWindowPointerHandler, IDisposable
     {
         const string PRESS_AND_HOLD_ATOM = "MicrosoftTabletPenServiceProperty";
+        
+        public override int TargetDisplay
+        {
+            get => targetDisplay;
+            set
+            {
+                if (targetDisplay != value)
+                {
+                    targetDisplay = value;
+                    pointerHandler.SetTargetDisplay(value);
+                }
+            }
+        }
 
         private readonly IntPtr hWindow;
         private ushort pressAndHoldAtomID;
@@ -25,10 +38,10 @@ namespace TouchScript.InputSources.InputHandlers
         private readonly MessageCallback messageCallback;
         private readonly PointerCallback pointerCallback;
         
-        protected WindowsMultiWindowPointerHandler(IntPtr hWindow, PointerDelegate addPointer, PointerDelegate updatePointer,
-            PointerDelegate pressPointer, PointerDelegate releasePointer, PointerDelegate removePointer,
-            PointerDelegate cancelPointer)
-            : base(addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer)
+        protected WindowsMultiWindowPointerHandler(int targetDisplay, IntPtr hWindow, PointerDelegate addPointer,
+            PointerDelegate updatePointer, PointerDelegate pressPointer, PointerDelegate releasePointer,
+            PointerDelegate removePointer, PointerDelegate cancelPointer)
+            : base(targetDisplay, addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer)
         {
             this.hWindow = hWindow;
             
@@ -79,7 +92,7 @@ namespace TouchScript.InputSources.InputHandlers
 
         protected void initialize(TOUCH_API api)
         {
-            pointerHandler.Initialize(messageCallback, api, hWindow, pointerCallback);
+            pointerHandler.Initialize(targetDisplay, messageCallback, api, hWindow, pointerCallback);
             disablePressAndHold();
             setScaling();
         }

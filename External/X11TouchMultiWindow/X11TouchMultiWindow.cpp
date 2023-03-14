@@ -77,7 +77,7 @@ extern "C" EXPORT_API Result PointerHandlerSystem_FreeWindowsOfProcess(PointerHa
 
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
-extern "C" EXPORT_API Result PointerHandler_Create(Window window,
+extern "C" EXPORT_API Result PointerHandler_Create(int targetDisplay, Window window,
     PointerCallback pointerCallback, void** handle) throw()
 {
     PointerHandlerSystem* system = PointerHandlerSystem::getInstance();
@@ -86,7 +86,7 @@ extern "C" EXPORT_API Result PointerHandler_Create(Window window,
         return R_ERROR_NULL_POINTER;
     }
 
-	return system->createHandler(window, pointerCallback, handle);
+	return system->createHandler(targetDisplay, window, pointerCallback, handle);
 }
 // ----------------------------------------------------------------------------
 extern "C" EXPORT_API Result PointerHandler_Destroy(PointerHandler* handler) throw()
@@ -98,6 +98,12 @@ extern "C" EXPORT_API Result PointerHandler_Destroy(PointerHandler* handler) thr
     }
 
 	return system->destroyHandler(handler);
+}
+// ----------------------------------------------------------------------------
+extern "C" EXPORT_API Result PointerHandler_SetTargetDisplay(PointerHandler* handler,
+    int targetDisplay)
+{
+    return handler->setTargetDisplay(targetDisplay);
 }
 // ----------------------------------------------------------------------------
 extern "C" EXPORT_API Result PointerHandler_GetScreenParams(

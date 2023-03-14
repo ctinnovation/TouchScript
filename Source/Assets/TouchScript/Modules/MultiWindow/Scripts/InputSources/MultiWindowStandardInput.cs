@@ -219,10 +219,9 @@ namespace TouchScript.InputSources.InputHandlers
                 return;
             }
 
-            var windows8PointerHandler = new Windows8MultiWindowPointerHandler(window, addPointer, updatePointer, pressPointer,
-                    releasePointer, removePointer, cancelPointer);
+            var windows8PointerHandler = new Windows8MultiWindowPointerHandler(TargetDisplay, window, addPointer,
+                updatePointer, pressPointer, releasePointer, removePointer, cancelPointer);
             windows8PointerHandler.MouseInPointer = true;
-            windows8PointerHandler.TargetDisplay = TargetDisplay;
             pointerHandler = windows8PointerHandler;
 
             Debug.Log($"[TouchScript] Initialized Windows 8 pointer input for display {TargetDisplay + 1}.");
@@ -238,9 +237,8 @@ namespace TouchScript.InputSources.InputHandlers
                 return;
             }
 
-            var x11PointerHandler = new X11MultiWindowPointerHandler(window, addPointer, updatePointer, pressPointer,
-                releasePointer, removePointer, cancelPointer);
-            x11PointerHandler.TargetDisplay = TargetDisplay;
+            var x11PointerHandler = new X11MultiWindowPointerHandler(TargetDisplay, window, addPointer, updatePointer,
+                pressPointer, releasePointer, removePointer, cancelPointer);
             pointerHandler = x11PointerHandler;
 
             Debug.Log($"[TouchScript] Initialized X11 pointer input for display {TargetDisplay + 1}.");

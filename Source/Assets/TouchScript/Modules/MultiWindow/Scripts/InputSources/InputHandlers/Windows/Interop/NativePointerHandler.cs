@@ -13,8 +13,10 @@ namespace TouchScript.InputSources.InputHandlers.Interop
         [DllImport("WindowsTouchMultiWindow")]
         private static extern Result PointerHandler_Destroy(IntPtr handle);
         [DllImport("WindowsTouchMultiWindow")]
-        private static extern Result PointerHandler_Initialize(IntPtr handle, MessageCallback messageCallback,
+        private static extern Result PointerHandler_Initialize(IntPtr handle, int targetDisplay, MessageCallback messageCallback,
             TOUCH_API api, IntPtr windowHandle, PointerCallback pointerCallback);
+        [DllImport("WindowsTouchMultiWindow")]
+        private static extern Result PointerHandler_SetTargetDisplay(IntPtr handle, int targetDisplay);
         [DllImport("WindowsTouchMultiWindow")]
         private static extern Result PointerHandler_SetScreenParams(IntPtr handle, MessageCallback messageCallback,
             int width, int height, float offsetX, float offsetY, float scaleX, float scaleY);
@@ -62,9 +64,17 @@ namespace TouchScript.InputSources.InputHandlers.Interop
             }
         }
 
-        internal void Initialize(MessageCallback messageCallback, TOUCH_API api, IntPtr hWindow, PointerCallback pointerCallback)
+        internal void Initialize(int targetDisplay, MessageCallback messageCallback, TOUCH_API api, IntPtr hWindow, PointerCallback pointerCallback)
         {
-            var result = PointerHandler_Initialize(handle, messageCallback, api, hWindow, pointerCallback);
+            var result = PointerHandler_Initialize(handle, targetDisplay, messageCallback, api, hWindow, pointerCallback);
+#if TOUCHSCRIPT_DEBUG
+            ResultHelper.CheckResult(result);
+#endif
+        }
+
+        internal void SetTargetDisplay(int value)
+        {
+            var result = PointerHandler_SetTargetDisplay(handle, value);
 #if TOUCHSCRIPT_DEBUG
             ResultHelper.CheckResult(result);
 #endif

@@ -95,14 +95,19 @@ namespace TouchScript.InputSources.InputHandlers
         {
             switch (messageType)
             {
+#if TOUCHSCRIPT_DEBUG
+                case 0:
+                    Debug.Log("[libX11TouchMultiWindow.so]: " + message);
+                    break;
+#endif
+                case 1:
+                    Debug.Log("[libX11TouchMultiWindow.so]: " + message);
+                    break;
                 case 2:
                     Debug.LogWarning("[libX11TouchMultiWindow.so]: " + message);
                     break;
                 case 3:
                     Debug.LogError("[libX11TouchMultiWindow.so]: " + message);
-                    break;
-                default:
-                    Debug.Log("[libX11TouchMultiWindow.so]: " + message);
                     break;
             }
         }

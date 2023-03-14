@@ -7,7 +7,11 @@ namespace TouchScript.InputSources.InputHandlers
 {
     public abstract class MultiWindowPointerHandler : IMultiWindowInputHandler, IDisposable
     {
-        public int TargetDisplay { get; set; }
+        public virtual int TargetDisplay
+        {
+            get => targetDisplay;
+            set => targetDisplay = value;
+        }
         
         /// <inheritdoc />
         public ICoordinatesRemapper CoordinatesRemapper { get; set; }
@@ -25,10 +29,14 @@ namespace TouchScript.InputSources.InputHandlers
         protected MousePointer mousePointer;
         protected PenPointer penPointer;
 
-        public MultiWindowPointerHandler(PointerDelegate addPointer, PointerDelegate updatePointer,
+        protected int targetDisplay;
+
+        public MultiWindowPointerHandler(int targetDisplay, PointerDelegate addPointer, PointerDelegate updatePointer,
             PointerDelegate pressPointer, PointerDelegate releasePointer, PointerDelegate removePointer,
             PointerDelegate cancelPointer)
         {
+            this.targetDisplay = targetDisplay;
+            
             this.addPointer = addPointer;
             this.updatePointer = updatePointer;
             this.pressPointer = pressPointer;

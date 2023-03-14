@@ -34,7 +34,7 @@ public:
     Result initialize();
     Result uninitialize();
 
-    Result createHandler(Window window, PointerCallback pointerCallback, void** handle);
+    Result createHandler(int targetDisplay, Window window, PointerCallback pointerCallback, void** handle);
     PointerHandler* getHandler(Window window) const;
     const int getNumHandlers() const { return mPointerHandlers.size(); }
     Result destroyHandler(PointerHandler* handler);

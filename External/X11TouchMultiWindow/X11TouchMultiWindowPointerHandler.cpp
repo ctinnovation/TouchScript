@@ -7,9 +7,10 @@
 #include "X11TouchMultiWindowUtils.h"
 
 // ----------------------------------------------------------------------------
-PointerHandler::PointerHandler(Display* display, Window window,
+PointerHandler::PointerHandler(Display* display, int targetDisplay, Window window,
 	MessageCallback messageCallback, PointerCallback pointerCallback)
     : mDisplay(display)
+	, mTargetDisplay(targetDisplay)
 	, mWindow(window)
 	, mMessageCallback(messageCallback)
 	, mPointerCallback(pointerCallback)
@@ -30,7 +31,8 @@ PointerHandler::~PointerHandler()
 // ----------------------------------------------------------------------------
 Result PointerHandler::initialize(std::vector<int> deviceIds)
 {
-    sendMessage(mMessageCallback, MT_INFO, "Initializing handler...");
+    sendMessage(mMessageCallback, MT_INFO, "Initializing handler for display " + 
+		std::to_string(mTargetDisplay) + " with window " + std::to_string(mWindow) + "...");
 
 	if (mDisplay == NULL)
 	{
@@ -69,27 +71,32 @@ Result PointerHandler::initialize(std::vector<int> deviceIds)
 		Status s = XISelectEvents(mDisplay, mWindow, &eventMask, 1);
 		if (s != Success)
 		{
-			sendMessage(mMessageCallback, MT_ERROR, "Failed to select events for on window: " + std::to_string(status));
+			sendMessage(mMessageCallback, MT_ERROR, "Failed to select events for display " +
+				std::to_string(mTargetDisplay) + ": " + std::to_string(status));
 			status = s;
 		}
 	}
 
 	if (status != Success)
 	{
+		sendMessage(mMessageCallback, MT_ERROR, "Failed to select events for display " +
+			std::to_string(mTargetDisplay) + ": " + std::to_string(status));
 		return R_ERROR_UNSUPPORTED;
 	}
 
 	// Propagate requests to X server
 	XFlush(mDisplay);
 
-	sendMessage(mMessageCallback, MT_INFO, "Handler initialized...");
+	sendMessage(mMessageCallback, MT_INFO, "Handler for display " + std::to_string(mTargetDisplay) + " initialized");
 
     return R_OK;
 }
 // ----------------------------------------------------------------------------
-Result PointerHandler::getScreenParams(int*x, int*y, int* width, int* height, int* screenWidth, int* screenHeight)
+Result PointerHandler::getScreenParams(int*x, int*y, int* width, int* height,
+	int* screenWidth, int* screenHeight)
 {
-	sendMessage(mMessageCallback, MT_INFO, "Requesting screen resolution of window " + std::to_string(mWindow));
+	sendMessage(mMessageCallback, MT_INFO, "Requesting screen resolution of window " +
+		std::to_string(mWindow));
 
     // Get the screen for the window
     XWindowAttributes attributes;
@@ -108,7 +115,8 @@ Result PointerHandler::getScreenParams(int*x, int*y, int* width, int* height, in
     }
 }
 // ----------------------------------------------------------------------------
-Result PointerHandler::setScreenParams(int width, int height, float offsetX, float offsetY, float scaleX, float scaleY)
+Result PointerHandler::setScreenParams(int width, int height, float offsetX, float offsetY,
+	float scaleX, float scaleY)
 {
 	mWidth = width;
 	mHeight = height;
@@ -126,6 +134,8 @@ void PointerHandler::processEvent(XIDeviceEvent* xiEvent)
 	PointerType pointerType;
 	PointerEvent pointerEvent;
 	PointerData pointerData;
+
+	sendMessage(mMessageCallback, MT_DEBUG, "Processing input for display " + std::to_string(mTargetDisplay));
 
 	switch (xiEvent->evtype)
 	{

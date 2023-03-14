@@ -9,14 +9,15 @@ namespace TouchScript.InputSources.InputHandlers.Interop
         #region Native Methods
 
         [DllImport("libX11TouchMultiWindow")]
-        private static extern Result PointerHandler_Create(IntPtr window, PointerCallback pointerCallback, ref IntPtr handle);
+        private static extern Result PointerHandler_Create(int targetDisplay, IntPtr window,
+            PointerCallback pointerCallback, ref IntPtr handle);
         [DllImport("libX11TouchMultiWindow")]
         private static extern Result PointerHandler_Destroy(IntPtr handle);
         [DllImport("libX11TouchMultiWindow")]
-        private static extern Result PointerHandler_SetTargetDisplay(IntPtr handle, int targetDisplay); 
+        private static extern Result PointerHandler_SetTargetDisplay(IntPtr handle, int targetDisplay);
         [DllImport("libX11TouchMultiWindow")]
-        private static extern Result PointerHandler_GetScreenParams(IntPtr handle, out int x, out int y, out int width, out int height,
-            out int screenWidth, out int screenHeight);
+        private static extern Result PointerHandler_GetScreenParams(IntPtr handle, out int x, out int y, out int width,
+            out int height, out int screenWidth, out int screenHeight);
         [DllImport("libX11TouchMultiWindow")]
         private static extern Result PointerHandler_SetScreenParams(IntPtr handle, int width, int height,
             float offsetX, float offsetY, float scaleX, float scaleY);
@@ -25,11 +26,11 @@ namespace TouchScript.InputSources.InputHandlers.Interop
         
         private IntPtr handle;
 
-        internal NativeX11PointerHandler(IntPtr window, PointerCallback pointerCallback)
+        internal NativeX11PointerHandler(int targetDisplay, IntPtr window, PointerCallback pointerCallback)
         {
             // Create native resources
             handle = new IntPtr();
-            var result = PointerHandler_Create(window, pointerCallback, ref handle);
+            var result = PointerHandler_Create(targetDisplay, window, pointerCallback, ref handle);
             if (result != Result.Ok)
             {
                 handle = IntPtr.Zero;
@@ -62,6 +63,14 @@ namespace TouchScript.InputSources.InputHandlers.Interop
                 PointerHandler_Destroy(handle);
                 handle = IntPtr.Zero;
             }
+        }
+
+        internal void SetTargetDisplay(int value)
+        {
+            var result = PointerHandler_SetTargetDisplay(handle, value);
+#if TOUCHSCRIPT_DEBUG
+            ResultHelper.CheckResult(result);
+#endif
         }
 
         internal void GetScreenResolution(out int x, out int y, out int width, out int height, out int screenWidth, out int screenHeight)

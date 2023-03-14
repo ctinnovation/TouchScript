@@ -1,6 +1,7 @@
 /*
 @author Jorrit de Vries (jorrit@ijsfontein.nl)
 */
+#include <cstring>
 #include <X11/extensions/XInput2.h>
 
 #include "X11TouchMultiWindowPointerHandler.h"
@@ -58,12 +59,13 @@ Result PointerHandlerSystem::initialize()
         return R_ERROR_API;
     }
 
+    Status status = Success;
     int numDevices;
     XIDeviceInfo* devices = XIQueryDevice(mDisplay, XIAllDevices, &numDevices);
     for (int i = 0; i < numDevices; i++)
 	{
 		XIDeviceInfo device = devices[i];
-		if (device.use == XIMasterPointer || device.use == XIFloatingSlave)
+		if (device.use == XIMasterPointer || device.use == XISlavePointer || device.use == XIFloatingSlave)
 		{
 			for (int j = 0; j < device.num_classes; j++)
 			{
@@ -83,6 +85,14 @@ Result PointerHandlerSystem::initialize()
     }
 
     XIFreeDeviceInfo(devices);
+
+    if (status != Success)
+	{
+		return R_ERROR_UNSUPPORTED;
+	}
+
+    // Propagate requests to X server
+	XFlush(mDisplay);
 
     sendMessage(mMessageCallback, MT_INFO, "System intialized with XInput version " +
             std::to_string(major) + "." + std::to_string(minor));
@@ -105,7 +115,8 @@ Result PointerHandlerSystem::uninitialize()
     return R_OK;
 }
 // ----------------------------------------------------------------------------
-Result PointerHandlerSystem::createHandler(Window window, PointerCallback pointerCallback, void** handle)
+Result PointerHandlerSystem::createHandler(int targetDisplay, Window window,
+    PointerCallback pointerCallback, void** handle)
 {
     if (mPointerHandlers.find(window) != mPointerHandlers.end())
     {
@@ -114,7 +125,8 @@ Result PointerHandlerSystem::createHandler(Window window, PointerCallback pointe
         return R_ERROR_DUPLICATE_ITEM;
     }
 
-    PointerHandler* handler = new PointerHandler(mDisplay, window, mMessageCallback, pointerCallback);
+    PointerHandler* handler = new PointerHandler(mDisplay, targetDisplay,
+        window, mMessageCallback, pointerCallback);
 	*handle = handler;
 
 	mPointerHandlers.insert(std::make_pair(window, handler));

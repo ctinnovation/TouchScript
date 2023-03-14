@@ -13,6 +13,7 @@ class EXPORT_API PointerHandler
 {
 private:
     Display* mDisplay;
+    int mTargetDisplay;
     Window mWindow;
     MessageCallback mMessageCallback;
     PointerCallback mPointerCallback;
@@ -26,14 +27,20 @@ private:
 	float mScaleX;
 	float mScaleY;
 public:
-    PointerHandler(Display* display, Window window, MessageCallback messageCallback, PointerCallback pointerCallback);
+    PointerHandler(Display* display, int targetDisplay, Window window,
+        MessageCallback messageCallback, PointerCallback pointerCallback);
     ~PointerHandler();
 
-    Window getWindow() const { return mWindow; }
-
     Result initialize(std::vector<int> deviceIds);
-    Result getScreenParams(int* positionX, int* positionY, int* width, int* height, int* screenWidth, int* screenHeight);
-    Result setScreenParams(int width, int height, float offsetX, float offsetY, float scaleX, float scaleY);
+
+    Window getWindow() const { return mWindow; }
+    int getTargetDisplay() const { return mTargetDisplay; }
+    Result setTargetDisplay(int value) { mTargetDisplay = value; return R_OK; }
+
+    Result getScreenParams(int* positionX, int* positionY, int* width, int* height,
+        int* screenWidth, int* screenHeight);
+    Result setScreenParams(int width, int height, float offsetX, float offsetY,
+        float scaleX, float scaleY);
 
     void processEvent(XIDeviceEvent* xiEvent);
 };

@@ -9,7 +9,8 @@ const wchar_t* instancePropName = L"__PointerHandler_Prop_Instance__";
 
 // ----------------------------------------------------------------------------
 PointerHandler::PointerHandler()
-	: mApi(WIN8)
+	: mTargetDisplay(-1)
+	, mApi(WIN8)
 	, mHWnd(NULL)
 	, mHInstance(NULL)
 	, mPreviousWndProc(NULL)
@@ -54,7 +55,7 @@ PointerHandler::~PointerHandler()
 }
 
 // ----------------------------------------------------------------------------
-Result PointerHandler::initialize(MessageCallback messageCallback,
+Result PointerHandler::initialize(int targetDisplay, MessageCallback messageCallback,
 	TOUCH_API api, HWND hWnd, PointerCallback pointerCallback)
 {
 	sendMessage(messageCallback, MT_INFO, "Initializing handler...");
@@ -71,6 +72,7 @@ Result PointerHandler::initialize(MessageCallback messageCallback,
 		return R_ERROR_NULL_POINTER;
 	}
 
+	mTargetDisplay = targetDisplay;
 	mApi = api;
 	mHWnd = hWnd;
 	mPointerCallback = pointerCallback;
@@ -288,6 +290,12 @@ extern "C" EXPORT_API Result PointerHandler_Initialize(
 {
 	return handler->initialize(messageCallback, api, hWnd, pointerCallback);
 }
+// ----------------------------------------------------------------------------
+extern "C" EXPORT_API Result PointerHandler_SetTargetDisplay(PointerHandler * handler,
+	int targetDisplay)
+{
+	return handler->setTargetDisplay(targetDisplay);
+}	
 // ----------------------------------------------------------------------------
 extern "C" EXPORT_API Result PointerHandler_SetScreenParams(
 	PointerHandler * handler, MessageCallback messageCallback,

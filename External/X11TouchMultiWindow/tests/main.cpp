@@ -59,13 +59,13 @@ int main()
     std::cout << "Create window" << std::endl;
 
     int screen = DefaultScreen(display);
-    Window rootWindow = XDefaultRootWindow(display);
+    Window rootWindow = XRootWindow(display, screen);
     long black = BlackPixel(display, screen);
     long white = WhitePixel(display, screen);
 
-    Window window = XCreateSimpleWindow(display, rootWindow, 20, 20, 640, 480, 2, white, black);
+    Window window = XCreateSimpleWindow(display, rootWindow, 20, 20, 1920, 720, 2, white, black);
     XSetStandardProperties(display, window, "X11TouchMultiWindow", "", None, NULL, 0, NULL);
-    XSelectInput(display, window, ExposureMask | StructureNotifyMask);
+    XSelectInput(display, window, ExposureMask | StructureNotifyMask | XI_TouchOwnershipChangedMask);
 
     // Handling close gracefully
     Atom wmDeleteMessage = XInternAtom(display, "WM_DELETE_WINDOW", False);
@@ -104,6 +104,14 @@ int main()
 	XISetMask(mask, XI_TouchUpdate);
 	XISetMask(mask, XI_TouchEnd);
 
+    // XIEventMask eventMask = {
+	// 							.deviceid = XIAllMasterDevices,
+	// 							.mask_len = sizeof(mask),
+	// 							.mask = mask
+	// 						};
+
+	// 						Status status = XISelectEvents(display, window, &eventMask, 1);
+
 	int numDevices, numActualDevices;
 	XIDeviceInfo* devices = XIQueryDevice(display, XIAllDevices, &numDevices);
 
@@ -112,7 +120,7 @@ int main()
 	for (int i = 0; i < numDevices; i++)
 	{
 		XIDeviceInfo device = devices[i];
-		if (device.use == XIMasterPointer || device.use == XIFloatingSlave)
+		if (device.use == XIMasterPointer || device.use == XISlavePointer || device.use == XIFloatingSlave)
 		{
             std::cout << "Found input device " << device.name << " with " << device.num_classes << " classes" << std::endl;
 
@@ -149,6 +157,8 @@ int main()
 	// https://www.x.org/archive/X11R7.5/doc/man/man3/XIQueryDevice.3.html
 
 	XIFreeDeviceInfo(devices);
+
+    XFlush(display);
 
     std::cout << "Process event queue" << std::endl;
 

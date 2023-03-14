@@ -12,20 +12,33 @@ namespace TouchScript.InputSources.InputHandlers
 {
     sealed class X11MultiWindowPointerHandler : MultiWindowPointerHandler
     {
+        public override int TargetDisplay
+        {
+            get => targetDisplay;
+            set
+            {
+                if (targetDisplay != value)
+                {
+                    targetDisplay = value;
+                    pointerHandler.SetTargetDisplay(value);
+                }
+            }
+        }
+        
         private PointerCallback pointerCallback;
         private NativeX11PointerHandler pointerHandler;
         private readonly Dictionary<int, TouchPointer> x11TouchToInternalId = new Dictionary<int, TouchPointer>(10);
         
-        public X11MultiWindowPointerHandler(IntPtr window, PointerDelegate addPointer, PointerDelegate updatePointer,
-            PointerDelegate pressPointer, PointerDelegate releasePointer, PointerDelegate removePointer,
-            PointerDelegate cancelPointer)
-            : base(addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer)
+        public X11MultiWindowPointerHandler(int targetDisplay, IntPtr window, PointerDelegate addPointer,
+            PointerDelegate updatePointer, PointerDelegate pressPointer, PointerDelegate releasePointer,
+            PointerDelegate removePointer, PointerDelegate cancelPointer)
+            : base(targetDisplay, addPointer, updatePointer, pressPointer, releasePointer, removePointer, cancelPointer)
         {
             mousePool = new ObjectPool<MousePointer>(4, () => new MousePointer(this), null, resetPointer);
             mousePointer = internalAddMousePointer(Vector3.zero);
 
             pointerCallback = OnNativePointerEvent;
-            pointerHandler = new NativeX11PointerHandler(window, pointerCallback);
+            pointerHandler = new NativeX11PointerHandler(targetDisplay, window, pointerCallback);
             
             disablePressAndHold();
             setScaling();
