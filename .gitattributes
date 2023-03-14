@@ -13,6 +13,7 @@
 *.png binary
 *.jpg binary
 *.dll binary
+*.so binary
 *.swf binary
 *.ttf binary
 *.psd binary
