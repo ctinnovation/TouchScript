@@ -626,8 +626,19 @@ namespace TouchScript.Gestures
         public virtual HitData GetScreenPositionHitData()
         {
             HitData hit;
-            fakePointer.Position = ScreenPosition;
-            LayerManager.Instance.GetHitTarget(fakePointer, out hit);
+            
+            IPointer pointer;
+            if (NumPointers == 0)
+            {
+                pointer = fakePointer;
+                fakePointer.Position = ScreenPosition;
+            }
+            else
+            {
+                pointer = activePointers[0];
+            }
+            
+            LayerManager.Instance.GetHitTarget(pointer, out hit);
             return hit;
         }
 
