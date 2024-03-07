@@ -157,10 +157,20 @@ namespace TouchScript.InputSources.InputHandlers
                         switch (evt)
                         {
                             case PointerEvent.Down:
-                                touchPointer = internalAddTouchPointer(position);
-                                touchPointer.Pressure = getTouchPressure(ref data);
-                                touchPointer.Rotation = getTouchRotation(ref data);
-                                x11TouchToInternalId.Add(id, touchPointer);
+                                if (!x11TouchToInternalId.ContainsKey(id))
+                                {
+                                    // Only add touch pointer when there is none for the given native touch pointer id
+                                    // It seems in some cases the system reports multiple events of this type with the
+                                    // same id
+                                    touchPointer = internalAddTouchPointer(position);
+                                    touchPointer.Pressure = getTouchPressure(ref data);
+                                    touchPointer.Rotation = getTouchRotation(ref data);
+                                    x11TouchToInternalId.Add(id, touchPointer);
+                                }
+                                else
+                                {
+                                    Debug.LogError($"[TouchScript]: Duplicate PointerEvent.Down event for id {id}");
+                                }
                                 break;
                             case PointerEvent.Update:
                                 if (!x11TouchToInternalId.TryGetValue(id, out touchPointer)) return;
@@ -174,6 +184,10 @@ namespace TouchScript.InputSources.InputHandlers
                                 {
                                     x11TouchToInternalId.Remove(id);
                                     internalRemoveTouchPointer(touchPointer);
+                                }
+                                else
+                                {
+                                    Debug.LogError($"[TouchScript]: Duplicate PointerEvent.Up event for id {id}");
                                 }
                         
                                 break;
