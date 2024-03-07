@@ -12,7 +12,7 @@
 // ----------------------------------------------------------------------------
 void sendMessage(MessageCallback messageCallback, MessageType messageType, const std::string& message)
 {
-    if (messageCallback)
+	if (messageCallback)
 	{
 		// Allocate char array
 		char* cstr = new char[message.length() + 1];

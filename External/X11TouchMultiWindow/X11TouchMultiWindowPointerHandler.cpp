@@ -9,12 +9,12 @@
 // ----------------------------------------------------------------------------
 PointerHandler::PointerHandler(Display* display, int targetDisplay, Window window,
 	MessageCallback messageCallback, PointerCallback pointerCallback)
-    : mDisplay(display)
+	: mDisplay(display)
 	, mTargetDisplay(targetDisplay)
 	, mWindow(window)
 	, mMessageCallback(messageCallback)
 	, mPointerCallback(pointerCallback)
-    , mWidth(0)
+	, mWidth(0)
 	, mHeight(0)
 	, mOffsetX(0.0f)
 	, mOffsetY(0.0f)
@@ -31,7 +31,7 @@ PointerHandler::~PointerHandler()
 // ----------------------------------------------------------------------------
 Result PointerHandler::initialize(std::vector<int> deviceIds)
 {
-    sendMessage(mMessageCallback, MT_INFO, "Initializing handler for display " + 
+	sendMessage(mMessageCallback, MT_INFO, "Initializing handler for display " + 
 		std::to_string(mTargetDisplay) + " with window " + std::to_string(mWindow) + "...");
 
 	if (mDisplay == NULL)
@@ -40,11 +40,11 @@ Result PointerHandler::initialize(std::vector<int> deviceIds)
 		return R_ERROR_NULL_POINTER;
 	}
 
-    if (mWindow == None)
-    {
-        sendMessage(mMessageCallback, MT_ERROR, "'window' is None");
-        return R_ERROR_NULL_POINTER;
-    }
+	if (mWindow == None)
+	{
+		sendMessage(mMessageCallback, MT_ERROR, "'window' is None");
+		return R_ERROR_NULL_POINTER;
+	}
 
 	// Setup the event mask fore the events we want to listen to
 	unsigned char mask[XIMaskLen(XI_LASTEVENT)];
@@ -89,7 +89,7 @@ Result PointerHandler::initialize(std::vector<int> deviceIds)
 
 	sendMessage(mMessageCallback, MT_INFO, "Handler for display " + std::to_string(mTargetDisplay) + " initialized");
 
-    return R_OK;
+	return R_OK;
 }
 // ----------------------------------------------------------------------------
 Result PointerHandler::getScreenParams(int*x, int*y, int* width, int* height,
@@ -98,21 +98,21 @@ Result PointerHandler::getScreenParams(int*x, int*y, int* width, int* height,
 	sendMessage(mMessageCallback, MT_INFO, "Requesting screen resolution of window " +
 		std::to_string(mWindow));
 
-    // Get the screen for the window
-    XWindowAttributes attributes;
-    if (XGetWindowAttributes(mDisplay, mWindow, &attributes) != 0)
-    {
+	// Get the screen for the window
+	XWindowAttributes attributes;
+	if (XGetWindowAttributes(mDisplay, mWindow, &attributes) != 0)
+	{
 		*x = attributes.x;
 		*y = attributes.y;
-        *width = attributes.width;
-        *height = attributes.height;
-        return R_OK;
-    }
-    else
-    {
-        sendMessage(mMessageCallback, MT_ERROR, "Failed to retrieve XWindowAttributes");
-        return R_ERROR_API;
-    }
+		*width = attributes.width;
+		*height = attributes.height;
+		return R_OK;
+	}
+	else
+	{
+		sendMessage(mMessageCallback, MT_ERROR, "Failed to retrieve XWindowAttributes");
+		return R_ERROR_API;
+	}
 }
 // ----------------------------------------------------------------------------
 Result PointerHandler::setScreenParams(int width, int height, float offsetX, float offsetY,
