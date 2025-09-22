@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using TouchScript.Debugging;
 using TouchScript.Debugging.Filters;
 using TouchScript.Debugging.GL;

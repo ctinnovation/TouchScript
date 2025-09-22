@@ -97,12 +97,7 @@ namespace TouchScript.Editor
 
         public override void OnInspectorGUI()
         {
-#if UNITY_5_6_OR_NEWER
             serializedObject.UpdateIfRequiredOrScript();
-#else
-            serializedObject.UpdateIfDirtyOrScript();
-#endif
-
             GUILayout.Space(5);
 
             if (basicEditor.boolValue)
