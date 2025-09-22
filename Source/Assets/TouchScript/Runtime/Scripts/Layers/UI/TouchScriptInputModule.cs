@@ -20,8 +20,6 @@ namespace TouchScript.Layers.UI
     /// </summary>
     public class TouchScriptInputModule : BaseInputModule//TODO: bring back to internal sealed?
     {
-        #region Public properties
-
         /// <summary>
         /// TouchScriptInputModule singleton instance.
         /// </summary>
@@ -30,13 +28,13 @@ namespace TouchScript.Layers.UI
             get
             {
                 if (shuttingDown) return null;
-                if (instance == null)
+                if (!instance)
                 {
                     var es = EventSystem.current;
-                    if (es == null)
+                    if (!es)
                     {
                         es = FindFirstObjectByType<EventSystem>();
-                        if (es == null)
+                        if (!es)
                         {
                             var go = new GameObject("EventSystem");
                             es = go.AddComponent<EventSystem>();
@@ -44,7 +42,7 @@ namespace TouchScript.Layers.UI
                     }
 
                     instance = es.GetComponent<TouchScriptInputModule>();
-                    if (instance == null) instance = es.gameObject.AddComponent<TouchScriptInputModule>();
+                    if (!instance) instance = es.gameObject.AddComponent<TouchScriptInputModule>();
                 }
 
                 return instance;
@@ -57,10 +55,7 @@ namespace TouchScript.Layers.UI
         public string CancelButton = "Cancel";
         public float InputActionsPerSecond = 10;
         public float RepeatDelay = 0.5f;
-
-        #endregion
-
-        #region Private variables
+        public UIStandardInputModule ui;
 
         private static bool shuttingDown;
         private static TouchScriptInputModule instance;
@@ -69,11 +64,7 @@ namespace TouchScript.Layers.UI
         private static Dictionary<int, Canvas> raycasterCanvasCache = new(10);
 
         private int refCount;
-        private UIStandardInputModule ui;
-
-        #endregion
-
-        #region Constructor
+        
 
         private TouchScriptInputModule()
         {
@@ -83,10 +74,6 @@ namespace TouchScript.Layers.UI
                 canvasProp = typeof(GraphicRaycaster).GetProperty("canvas", BindingFlags.NonPublic | BindingFlags.Instance);
             }
         }
-
-        #endregion
-
-        #region Unity methods
 
         protected override void OnEnable()
         {
@@ -111,10 +98,6 @@ namespace TouchScript.Layers.UI
         {
             shuttingDown = true;
         }
-
-        #endregion
-
-        #region Public methods
 
         /// <summary>
         /// Returns all UI raycasters in the scene.
@@ -169,10 +152,6 @@ namespace TouchScript.Layers.UI
 
         public override void UpdateModule() {}
 
-        #endregion
-
-        #region Internal methods
-
         /// <summary>
         /// Marks that this object is used by some other object.
         /// </summary>
@@ -191,10 +170,6 @@ namespace TouchScript.Layers.UI
             if (--refCount <= 0) disable();
             return refCount;
         }
-
-        #endregion
-
-        #region Private functions
 
         private void enable()
         {
@@ -222,10 +197,6 @@ namespace TouchScript.Layers.UI
             refCount = 0;
         }
 
-        #endregion
-
-        #region Copy-pasted code from UI
-
         /// <summary>
         /// Basically, copied code from UI Input Module which handles all UI pointer processing logic.
         /// Last update: df1947cd (5.4f3)
@@ -243,8 +214,6 @@ namespace TouchScript.Layers.UI
 
                 uiSampler = CustomSampler.Create("[TouchScript] Update UI");
             }
-
-            #region IgnoreGos
 
             /// <summary>
             /// La lista di gameObject che, se target di un PointerEventData, devono consumare l'evento ma non inoltrarlo alle interfacce dell'EventSystem di Unity
@@ -365,10 +334,6 @@ namespace TouchScript.Layers.UI
 
                 return result;
             }
-
-            #endregion
-
-            #region Unchanged from PointerInputModule
 
             private int m_ConsecutiveMoveCount;
             private Vector2 m_LastMoveVector;
@@ -502,8 +467,6 @@ namespace TouchScript.Layers.UI
                 return move;
             }
 
-            #endregion
-
             public void Process()
             {
                 var usedEvent = SendUpdateEventToSelectedObject();
@@ -520,8 +483,6 @@ namespace TouchScript.Layers.UI
                 //                    ProcessMouseEvent();
             }
 
-            #region Changed
-
             protected void RemovePointerData(int id)
             {
                 m_PointerData.Remove(id);
@@ -536,10 +497,6 @@ namespace TouchScript.Layers.UI
                 current.sortingLayer = old.SortingLayer;
                 current.sortingOrder = old.SortingOrder;
             }
-
-            #endregion
-
-            #region Event processors
 
             public virtual void ProcessAdded(object sender, PointerEventArgs pointerEventArgs)
             {
@@ -872,10 +829,6 @@ namespace TouchScript.Layers.UI
 
                 uiSampler.End();
             }
-
-            #endregion
         }
-
-        #endregion
     }
 }
