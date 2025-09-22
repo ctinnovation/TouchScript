@@ -1,0 +1,12 @@
+{
+    "name": "com.ctinnovation.touchscript",
+    "displayName": "TouchScript",
+    "author": { "name": "CT Innovation", "url": "https://www.ctinnovation.it/?lang=en" },
+    "version": "1.0.0",
+    "unity": "6000.0",
+    "description": "TouchScript implementration forked from https://github.com/IJsfontein/TouchScript",
+    "keywords": [ "touch", "multitouch", "multi-display", "gesture" ],
+    "license": "MIT",
+    "category": "Touch",
+    "dependencies": {}
+}
