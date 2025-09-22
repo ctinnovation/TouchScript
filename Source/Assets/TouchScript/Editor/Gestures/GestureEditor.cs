@@ -101,14 +101,9 @@ namespace TouchScript.Editor.Gestures
 
         public override void OnInspectorGUI()
         {
-#if UNITY_5_6_OR_NEWER
             serializedObject.UpdateIfRequiredOrScript();
-#else
-			serializedObject.UpdateIfDirtyOrScript();
-#endif
 
             GUILayout.Space(5);
-            bool display;
 
             if (basicEditor.boolValue)
             {
@@ -121,6 +116,7 @@ namespace TouchScript.Editor.Gestures
             }
             else
             {
+                bool display;
                 if (shouldDrawGeneral)
                 {
                     display = GUIElements.Header(TEXT_GENERAL_HEADER, generalProps);
