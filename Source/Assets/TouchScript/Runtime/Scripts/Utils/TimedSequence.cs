@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace TouchScript.Utils
 {
-    internal sealed class TimedSequence<T>
+    public class TimedSequence<T>//TODO: bring back to internal sealed?
     {
         private List<T> points = new();
         private List<float> timestamps = new();
