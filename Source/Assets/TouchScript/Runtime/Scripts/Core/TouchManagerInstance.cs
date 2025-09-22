@@ -27,6 +27,11 @@ namespace TouchScript.Core
     /// </summary>
     public sealed class TouchManagerInstance : DebuggableMonoBehaviour, ITouchManager
     {
+        /// <summary>
+        /// Predicate of Pointers to remove from touch recognition
+        /// </summary>
+        public Predicate<Pointer> AreaToRemove = null;
+        
         /// <inheritdoc />
         public event EventHandler FrameStarted
         {
@@ -915,8 +920,6 @@ namespace TouchScript.Core
             }
         }
 
-        public Predicate<Pointer> _areaToRemove = null;
-
         private void updatePointers()
         {
             IsInsidePointerFrame = true;
@@ -982,9 +985,9 @@ namespace TouchScript.Core
                 pointers[i].INTERNAL_UpdatePosition();
             }
 
-            if (_areaToRemove != null && addedList?.Count > 0)
+            if (AreaToRemove != null && addedList?.Count > 0)
             {
-                addedList.RemoveAll(_areaToRemove);
+                addedList.RemoveAll(AreaToRemove);
             }
 
             if (addedList != null)
