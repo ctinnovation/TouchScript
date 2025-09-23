@@ -13,7 +13,7 @@ using System.Reflection;
 namespace TouchScript.Editor.Gestures
 {
     [CustomEditor(typeof(Gesture), true)]
-    internal class GestureEditor : UnityEditor.Editor
+    public class GestureEditor : UnityEditor.Editor//TODO: bring back to internal sealed?
     {
         private const string FRIENDLY_GESTURES_PROP = "friendlyGestures";
 
