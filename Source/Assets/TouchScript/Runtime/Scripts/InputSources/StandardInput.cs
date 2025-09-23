@@ -197,10 +197,6 @@ namespace TouchScript.InputSources
 
         private MouseHandler mouseHandler;
         private TouchHandler touchHandler;
-#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
-        private Windows8PointerHandler windows8PointerHandler;
-        private Windows7PointerHandler windows7PointerHandler;
-#endif
 
         /// <inheritdoc />
         public override bool UpdateInput()
