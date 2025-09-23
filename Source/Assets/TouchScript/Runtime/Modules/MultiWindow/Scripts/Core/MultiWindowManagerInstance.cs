@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Text;
 # if UNITY_STANDALONE_WIN
 using TouchScript.Utils.Platform;
+using Debug = UnityEngine.Debug;
 # endif
 #endif
 
@@ -157,7 +158,7 @@ namespace TouchScript.Core
                 {
                     targetDisplayWindowHandles.Add(targetDisplay, windowHandle);
 
-                    Debug.Log($"[TouchScript]: Registered window handle for display {targetDisplay + 1}.");
+                    UnityEngine.Debug.Log($"[TouchScript]: Registered window handle for display {targetDisplay + 1}.");
                     
                     return windowHandle;
                 }
